@@ -47,3 +47,6 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# Datafolder
+Data_SC5_D_18-0-0/
