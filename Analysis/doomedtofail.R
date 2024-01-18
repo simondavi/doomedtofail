@@ -21,10 +21,6 @@
 
 ####  ------------- (1) Set Working Directory, Load Packages ------------- ####
 
-rm(list = ls())       # clear work space
-
-setwd("C:/Users/simon3/Documents/02_Promotion/Beitrag01/03_Daten/SC5_D_18-0-0/SPSS/de")
-
 library(haven)           # to import SPSS files
 library(tidyverse)       # for data management
 library(rquery)          # to copy STATA merge behavior
@@ -43,7 +39,7 @@ library(scatterplot3d)   # for LCA
 
 # Cohort Profile as a starting point
 
-cohort <- haven::read_sav("SC5_CohortProfile_D_18-0-0.sav") %>%
+cohort <- haven::read_sav("Data_SC5_D_18-0-0/SC5_CohortProfile_D_18-0-0.sav") %>%
           dplyr::select(ID_t, wave, cohort,
                                     tx80121,      # oversample of tea edu (= 1)
                                     tx80107) %>%  # first participation in wave
@@ -52,7 +48,7 @@ cohort <- haven::read_sav("SC5_CohortProfile_D_18-0-0.sav") %>%
 
 # Filter measures from CATI:
 
-cati_w1 <- haven::read_sav("SC5_pTargetCATI_D_18-0-0.sav") %>%
+cati_w1 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCATI_D_18-0-0.sav") %>%
            dplyr::select(ID_t, wave, tg02001_ha,  # intended degree
                                      tg24150_g1,  # foreign student (!= 3)
                                      t731301_g1,  # parental education
@@ -65,7 +61,7 @@ cati_w1 <- haven::read_sav("SC5_pTargetCATI_D_18-0-0.sav") %>%
                                      t700001) %>% # gender
            dplyr::filter(wave == 1)
            
-cati_b5 <- haven::read_sav("SC5_pTargetCATI_D_18-0-0.sav") %>%
+cati_b5 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCATI_D_18-0-0.sav") %>%
            dplyr::select(ID_t, wave, t66800a, t66800f,           # extra
                                      t66800b, t66800g, t66800k,  # agree
                                      t66800c, t66800h,           # consc
@@ -73,7 +69,7 @@ cati_b5 <- haven::read_sav("SC5_pTargetCATI_D_18-0-0.sav") %>%
                                      t66800e, t66800j) %>%       # opene
           dplyr::filter(wave == 3)
   
-cati_b5_w10 <- haven::read_sav("SC5_pTargetCATI_D_18-0-0.sav") %>%
+cati_b5_w10 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCATI_D_18-0-0.sav") %>%
                dplyr::select(ID_t, wave, t66800a, t66800f,           
                                          t66800b, t66800g, t66800k,  
                                          t66800c, t66800h,           
@@ -81,23 +77,23 @@ cati_b5_w10 <- haven::read_sav("SC5_pTargetCATI_D_18-0-0.sav") %>%
                                          t66800e, t66800j) %>%      
                dplyr::filter(wave == 10)
 
-cati_do1 <- haven::read_sav("SC5_pTargetCATI_D_18-0-0.sav") %>%
+cati_do1 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCATI_D_18-0-0.sav") %>%
             dplyr::select(ID_t, wave, tg60031) %>%
             dplyr::filter(wave == 10)
 
 
-cati_doi <- haven::read_sav("SC5_pTargetCATI_D_18-0-0.sav") %>%
+cati_doi <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCATI_D_18-0-0.sav") %>%
             dplyr::select(ID_t, wave, tg64051) %>%
             dplyr::filter(wave == 9)
 
   
 # Filter measures from CAWI:
 
-cati_do2 <- haven::read_sav("SC5_pTargetCAWI_D_18-0-0.sav") %>%
+cati_do2 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
             dplyr::select(ID_t, wave, tg60021) %>%
             dplyr::filter(wave == 11)
 
-cawi_w8 <- haven::read_sav("SC5_pTargetCAWI_D_18-0-0.sav") %>%
+cawi_w8 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
            dplyr::select(ID_t, wave, tg61031, tg61032, tg61033,  # int mo
                                      tg61061, tg61062, tg61063,
                                      tg61041, tg61042, tg61043,  
@@ -107,7 +103,7 @@ cawi_w8 <- haven::read_sav("SC5_pTargetCAWI_D_18-0-0.sav") %>%
                                      tg61051, tg61052, tg61053) %>%
            dplyr::filter(wave == 8)
 
-cawi_sp1 <- haven::read_sav("SC5_pTargetCAWI_D_18-0-0.sav") %>%
+cawi_sp1 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
             dplyr::select(ID_t, wave, tg53232, tg53234, tg53236,  # ac int
                                       tg53231, tg53233, tg53235,
                                       tg53211, tg53212, tg53213,
@@ -118,14 +114,14 @@ cawi_sp1 <- haven::read_sav("SC5_pTargetCAWI_D_18-0-0.sav") %>%
                                       # practice orientation
             dplyr::filter(wave == 2)
 
-cawi_sp2 <- haven::read_sav("SC5_pTargetCAWI_D_18-0-0.sav") %>%
+cawi_sp2 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
             dplyr::select(ID_t, wave, t261843, t261845, t261846) %>%  # infor lo
             dplyr::filter(wave == 4)
                                       
                          
 # Filter measures from spSchool:
 
-spsch <- haven::read_sav("SC5_spSchool_D_18-0-0.sav") %>%
+spsch <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spSchool_D_18-0-0.sav") %>%
          dplyr::select(ID_t, wave, spell, subspell, ts11204,       # school
                                                     ts11209,       # certificate
                                                     ts11218) %>%   # GPA
@@ -137,7 +133,7 @@ spsch <- haven::read_sav("SC5_spSchool_D_18-0-0.sav") %>%
 
 # Filter measures from spVocTrain:
 
-spvoc_pr <- haven::read_sav("SC5_spVocTrain_D_18-0-0.sav") %>%
+spvoc_pr <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%
             dplyr::select(ID_t, wave, spell, subspell, tx20100,  # linkage
                                                        ts15201,  # type of voc
                                                        ts1512m,  # end year voc
@@ -155,7 +151,7 @@ spvoc_pr <- haven::read_sav("SC5_spVocTrain_D_18-0-0.sav") %>%
            # summarize the data per person across spells
 
 
-spvoc <- haven::read_sav("SC5_spVocTrain_D_18-0-0.sav") %>%                     # (?) später nochmal Filter mit h_aktstu
+spvoc <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%                     # (?) später nochmal Filter mit h_aktstu
          dplyr::select(ID_t, wave, spell, subspell, 
                        h_aktstu,        # 1st study episode WT 2010
                        tg24202_g1,      # type of intended teaching degree
@@ -169,7 +165,7 @@ spvoc <- haven::read_sav("SC5_spVocTrain_D_18-0-0.sav") %>%                     
          
 # View(spvoc %>% dplyr::filter(ID_t == "7002071"))
 
-# filt <- haven::read_sav("SC5_spVocTrain_D_18-0-0.sav") %>%                     
+# filt <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%                     
 #        dplyr::select(ID_t, wave, h_aktstu, spell) %>%  
 #        dplyr::filter(wave == 1)
 
