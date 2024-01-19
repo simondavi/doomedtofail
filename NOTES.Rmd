@@ -22,3 +22,21 @@
 ## Andere Items genutzt
 - Age of enrollment
 - Type of higher education inst
+
+
+
+## Code Check 19.1.2024
+
+## `par_edu` vs. `par_ocu`
+Du hattest dich ja gewundert, warum Studierende oftmals Eltern ohne Hochschulabschluss haben (`par_edu`), die Eltern dann aber keine mixed oder working class sind (`par_ocu`): Vielleicht ist deine Um codierung in `par_ocu` nicht so optimal. Du machst
+
+```{r}
+  dplyr::mutate(par_ocu = case_when((t731403_g8 >= 8 | t731453_g8 >= 8) ~ 1,    
+                                    (t731403_g8 <= 7 | t731453_g8 <= 7) ~ 2,
+                                    TRUE ~ as.numeric(NA)))
+                                    # 1 = working class, 
+                                    # 2 = mixed and service class
+```
+
+Dabei ist beispielsweise die Ausprägung 4 (="Angestellte der ausführenden nicht‐manuellen Klasse mit gering qualifizierten Routinetätigkeiten")laut Wikipedia beispielsweise eine Kassiererin. Wäre das nicht auch working class? D.h. woher hast du die Unterscheidung in working class und mixed + service class? Gibt es hier vielleicht eine gute Quelle?
+
