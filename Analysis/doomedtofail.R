@@ -1,4 +1,4 @@
-# doomedtofail_v1-2.R
+# doomedtofail.R
 #
 # Comment: 
 #
@@ -15,8 +15,6 @@
 #           (4) Compute Scale Scores and New Variables
 #           (5) LCA
 #           (6) SEM
-#
-# Last mod: Jan/17/2024, David Simon
 
 
 ####  ------------- (1) Set Working Directory, Load Packages ------------- ####
