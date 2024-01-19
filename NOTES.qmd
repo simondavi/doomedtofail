@@ -3,6 +3,7 @@ title: "Notizen"
 date: "`r Sys.Date()`" # inserts the date of compiling
 editor: source
 execute:
+  eval: false   # not running code, as this is just for notes purposes
   echo: true
   warning: false
   message: false
@@ -22,8 +23,9 @@ editor_options:
   chunk_output_type: console
 ---
 
+\
 
-# Notizen
+# Stichpunkte
 
 - Umgang Längsschnitt (Stichwort: sampling weights)
 - Fehelde Werte mit Werten aus einem späteren Zeitpunkt auffüllen, so gemacht bei Big 5, sonst aber nicht: Wo kommt es noch in Frage?
@@ -39,7 +41,8 @@ editor_options:
 - Problem: Fast keine Daten nur Nutzung von Lerngelegenheiten - Missings bei über 90%
 
 
-
+\
+\
 
 
 # Abweichungen von der Praeregistrierung
@@ -48,6 +51,8 @@ editor_options:
 - Age of enrollment
 - Type of higher education inst
 
+\
+\
 
 
 # Code Check 19.1.2024
