@@ -68,5 +68,43 @@ Du hattest dich ja gewundert, warum Studierende oftmals Eltern ohne Hochschulabs
                                     # 2 = mixed and service class
 ```
 
-Dabei ist beispielsweise die Ausprägung 4 (="Angestellte der ausführenden nicht‐manuellen Klasse mit gering qualifizierten Routinetätigkeiten")laut Wikipedia beispielsweise eine Kassiererin. Wäre das nicht auch working class? D.h. woher hast du die Unterscheidung in working class und mixed + service class? Gibt es hier vielleicht eine gute Quelle?
+Dabei ist beispielsweise die Ausprägung 4 (="Angestellte der ausführenden nicht‐manuellen Klasse mit gering qualifizierten Routinetätigkeiten")laut Wikipedia beispielsweise eine Kassiererin. Wäre das nicht auch working class? D.h. woher hast du die Unterscheidung in working class und mixed + service class? Gibt es hier vielleicht eine gute Quelle? \
+
+Außerdem stimmt glaube ich eine der `case_when()` Bedingungen nicht. Wenn du die Bedingung `t731403_g8 >= 8 | t731453_g8 >= 8) ~ 1,` setzt, dann wird auch Personen eine 1 vergeben, von denen **ein** Elternteil `>= 8` ist. D.h. alle die "mixed" Eltern haben bekommen auch eine 1. Das war glaube ich nicht deine Absicht, oder? Für die working class müssten deiner Definition nach beide Eltern Werte von `>= 8` haben, richtig? Dann müsste heißen:
+
+```{r}
+  dplyr::mutate(par_ocu = case_when((t731403_g8 >= 8 & t731453_g8 >= 8) ~ 1,    
+                                    (t731403_g8 <= 7 | t731453_g8 <= 7) ~ 2,
+                                    TRUE ~ as.numeric(NA)))
+                                    # 1 = working class, 
+                                    # 2 = mixed and service class
+```
+
+Siehe `&` statt `|` Verknüpfung.
+
+## Zwischenwerte
+Das ist hier kein Problem, trotzdem für die Zukunft: Hier müssen die Enden der Bedingungen jeweils aneinander ran reichen. Werte, die z.B. zwischen 1.5. und 1.6 liegen, würden in dem Skript nicht abgedeckt werden.
+
+```{r}
+  dplyr::mutate(paa_gpa = case_when(ts11218 >= 3.6 &  ts11218 <= 4.0 ~ 1,
+                                    ts11218 >= 2.6 &  ts11218 <= 3.5 ~ 2,
+                                    ts11218 >= 1.6 &  ts11218 <= 2.5 ~ 3,
+                                    ts11218 >= 1.0 &  ts11218 <= 1.5 ~ 4,
+                                    TRUE ~ as.numeric(NA)))  %>%
+                                    # 1 = sufficient, 2 = satisfactory, 
+                                    # 3 = good, 4 = very good)
+```
+
+
+Also müsstest du 2 Dinge machen: (1) die Werte direkt aneinander anschließen und (2) auf einer Seite das `=` entfernen, damit die Bedingungen eindeutig definiert sind. Beispiel für hier:
+
+```{r}
+  dplyr::mutate(paa_gpa = case_when(ts11218 >= 3.6 &  ts11218 <= 4.0 ~ 1,
+                                    ts11218 >= 2.6 &  ts11218 < 3.6 ~ 2,
+                                    ts11218 >= 1.6 &  ts11218 < 2.6 ~ 3,
+                                    ts11218 >= 1.0 &  ts11218 < 1.6 ~ 4,
+                                    TRUE ~ as.numeric(NA)))  %>%
+                                    # 1 = sufficient, 2 = satisfactory, 
+                                    # 3 = good, 4 = very good)
+```
 
