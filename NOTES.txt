@@ -7,7 +7,7 @@
   Ende in der Variable Dropout explizit nach Lehramt geschaut wird und es explizit egal ist, wann der Abbruch (inkl. Wechsel) passiert ist 
   (Sonst wäre es Abbruch zwischen MZP 2 und 3, oder?) ...aber eine gute Integration in einem anderen Fach ist inhaltlich uninteressant
 - LPA, LCA oder Mixture Model (in den R-Skripten sind Paper und Tutorials verlinkt, Paper von J. Bauer verfügt auch über R-Skripte im Anhang)
-- Stichprbendefinition: Einfach Endprodukt berichten, oder Auschlüsse
+- Stichprbendefinition: Einfach Endprodukt berichten, oder Ausschlüsse
 - Packages geben Bayes Faktor nicht aus, mit Shiny App keinen Erfolg https://robert-fox.shinyapps.io/BF_cmP_Calculator/ (Wie berechnen?)
 - Benutzen alle LCA (LPA) Maximum Likelihood Schätze (beziehungsweise ist der EM-Algorithmus ein ML-Schätzer (Hintegrund: In Präreg. Nutzung von MLE genannt).
 
