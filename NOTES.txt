@@ -1,0 +1,24 @@
+### Notizen ### 
+
+- Umgang Längsschnitt (Stichwort: sampling weights)
+- Fehelde Werte mit Werten aus einem späteren Zeitpunkt auffüllen, so gemacht bei Big 5, sonst aber nicht: Wo kommt es noch in Frage?
+- Noten z standardisieren?
+- Current study phase = MZP2; Was, wenn Personanen da schon kein Lehramt mehr studieren. Fachwechsler*innen filtern? Oder egal, weil am 
+  Ende in der Variable Dropout explizit nach Lehramt geschaut wird und es explizit egal ist, wann der Abbruch (inkl. Wechsel) passiert ist 
+  (Sonst wäre es Abbruch zwischen MZP 2 und 3, oder?) ...aber eine gute Integration in einem anderen Fach ist inhaltlich uninteressant
+- LPA, LCA oder Mixture Model (in den R-Skripten sind Paper und Tutorials verlinkt, Paper von J. Bauer verfügt auch über R-Skripte im Anhang)
+- Stichprbendefinition: Einfach Endprodukt berichten, oder Auschlüsse
+- Packages geben Bayes Faktor nicht aus, mit Shiny App keinen Erfolg https://robert-fox.shinyapps.io/BF_cmP_Calculator/ (Wie berechnen?)
+- Benutzen alle LCA (LPA) Maximum Likelihood Schätze (beziehungsweise ist der EM-Algorithmus ein ML-Schätzer (Hintegrund: In Präreg. Nutzung von MLE genannt).
+
+- Problem: Fast keine Daten nur Nutzung von Lerngelegenheiten - Missings bei über 90%
+
+
+
+
+
+### Abweichungen von der Praeregistrierung ### 
+
+## Andere Items genutzt
+- Age of enrollment
+- Type of higher education inst
