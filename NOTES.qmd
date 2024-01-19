@@ -1,4 +1,29 @@
-### Notizen ### 
+---
+title: "Notizen"
+date: "`r Sys.Date()`" # inserts the date of compiling
+editor: source
+execute:
+  echo: true
+  warning: false
+  message: false
+  cache: false # true will prevent embed-resources
+format: 
+  html:
+    theme: cerulean
+    fontsize: 0.85em
+    toc: true
+    toc-location: left
+    toc-depth: 2
+    embed-resources: true # will make standalone html file
+    code-fold: show
+    code-tools: true
+    code-link: true
+editor_options: 
+  chunk_output_type: console
+---
+
+
+# Notizen
 
 - Umgang Längsschnitt (Stichwort: sampling weights)
 - Fehelde Werte mit Werten aus einem späteren Zeitpunkt auffüllen, so gemacht bei Big 5, sonst aber nicht: Wo kommt es noch in Frage?
@@ -17,7 +42,7 @@
 
 
 
-### Abweichungen von der Praeregistrierung ### 
+# Abweichungen von der Praeregistrierung
 
 ## Andere Items genutzt
 - Age of enrollment
@@ -25,7 +50,7 @@
 
 
 
-## Code Check 19.1.2024
+# Code Check 19.1.2024
 
 ## `par_edu` vs. `par_ocu`
 Du hattest dich ja gewundert, warum Studierende oftmals Eltern ohne Hochschulabschluss haben (`par_edu`), die Eltern dann aber keine mixed oder working class sind (`par_ocu`): Vielleicht ist deine Um codierung in `par_ocu` nicht so optimal. Du machst
