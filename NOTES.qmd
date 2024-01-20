@@ -32,7 +32,7 @@ editor_options:
 - Noten z standardisieren?
 - Current study phase = MZP2; Was, wenn Personen da schon kein Lehramt mehr studieren. Fachwechsler*innen filtern? Oder egal, weil am Ende in der Variable Dropout explizit nach Lehramt geschaut wird und es dadurch egal ist, wann der Abbruch (inkl. Wechsel) passiert ist (Sonst wäre es Abbruch zwischen MZP 2 und 3, oder?) ...aber eine gute Integration in einem anderen Fach ist inhaltlich uninteressant
 - LPA, LCA oder Mixture Model (in den R-Skripten sind Paper und Tutorials verlinkt, Paper von J. Bauer verfügt auch über R-Skripte im Anhang)
-- Packages geben Bayes Faktor nicht aus, mit Shiny App keinen Erfolg <a href> https://robert-fox.shinyapps.io/BF_cmP_Calculator/ </a> (Wie berechnen?)
+- Packages geben Bayes Faktor nicht aus, mit Shiny App keinen Erfolg <a href="https://robert-fox.shinyapps.io/BF_cmP_Calculator/"> Link </a> (Wie berechnen?)
 - Benutzen alle LCA (LPA) Maximum Likelihood Schätzer (beziehungsweise ist der EM-Algorithmus ein ML-Schätzer (Hintegrund: In Präreg. Nutzung von MLE genannt).
 - Problem: Fast keine Daten nur Nutzung von Lerngelegenheiten - NA bei über 90%
 
