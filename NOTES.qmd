@@ -108,3 +108,21 @@ Also müsstest du 2 Dinge machen: (1) die Werte direkt aneinander anschließen u
                                     # 3 = good, 4 = very good)
 ```
 
+## Sorry it's superseded
+
+Das hier ist "alter" Code:
+
+```{r}
+data6 <- data5 %>% 
+  dplyr::mutate_all( ~ ifelse(is.nan(.), NA, .))
+```
+
+`mutate_all()` und `mutate_at()` etc wurde abgelöst. In deinem Fall von `across()`. So heißt das heute bei den coolen Kids:
+
+```{r}
+data6 <- data5 %>% 
+  dplyr::mutate(across(everything(), ~ ifelse(is.nan(.x), NA, .x)))
+```
+
+
+
