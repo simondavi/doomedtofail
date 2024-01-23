@@ -22,6 +22,7 @@
 library(haven)           # to import SPSS files
 library(tidyverse)       # for data management
 library(rquery)          # to copy STATA merge behavior
+library(rqdatatable)
 library(fauxnaif)        # for defining missing values 
                            # (remotes::install_github("rossellhayes/fauxnaif")
 library(gtools)          # for create a factor variable using quantiles
@@ -29,7 +30,7 @@ library(psych)           # for scale construction
 library(poLCA)           # for LCA
 library(MASS)            # for LCA
 library(scatterplot3d)   # for LCA
-library(rqdatatable)
+library(report)          # for producing reports 
 
 renv::restore()
 
@@ -139,13 +140,13 @@ spvoc_pr <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%
                                                        ts1512y,  # end month voc
                                                        ts15218) %>%  # finished 
            dplyr::filter(subspell == 0 & tx20100 == 1 
-                         & ts15201 >= 1 & ts15201 <= 4 
+                         & ts15201 <= 4 
                          & ts1512y < 2010 & ts1512m < 10) %>%  
            # keep full / harmonized episodes & completion before WT 2010
            dplyr::group_by(ID_t) %>%
            dplyr::summarise(ts15218 = case_when(any(ts15218 == 1) ~ 1,
                                                 any(ts15218 == 2) 
-                                                & any(is.na(ts15218)) ~ NA,     # oder ~2 (?) 
+                                                & any(is.na(ts15218)) ~ NA, 
                                                 all(ts15218 == 2) ~ 2))
            # summarize the data per person across spells
 
@@ -243,9 +244,9 @@ data <- rquery::natural_join(data, spvoc,
                              by = "ID_t",
                              jointype = "LEFT") %>%
   
-                             dplyr::filter(tx80121 == 1) %>%
+                             # dplyr::filter(tx80121 == 1) %>%
                              # oversample of tea edu
-                             dplyr::filter(tg02001_ha >= 1 & tg02001_ha <= 7) %>%
+                             dplyr::filter(tg02001_ha <= 7) %>%
                              # intended degree = teacher education (wave 1)
                              dplyr::filter(tg24150_g1 != 3) %>%
                              # exclude foreign students
@@ -431,52 +432,61 @@ data6 <- data5 %>%
 
 
 # Alternative 1
-# data7 <- data6 %>% 
-#   dplyr::mutate(ext_rnk = case_when(big_ext <= 5/4 ~ 1,
-#                                     between(big_ext, 5/4, 10/4) ~ 2,
-#                                     between(big_ext, 10/4, 15/4) ~ 3,
-#                                     big_ext >= 15/4 ~ 4,
-#                                     TRUE ~ as.numeric(NA))) %>%
-#   dplyr::mutate(agr_rnk = case_when(big_agr <= 5/4 ~ 1,
-#                                     between(big_agr, 5/4, 10/4) ~ 2,
-#                                     between(big_agr, 10/4, 15/4) ~ 3,
-#                                     big_agr >= 15/4 ~ 4,
-#                                     TRUE ~ as.numeric(NA))) %>% 
-#   dplyr::mutate(con_rnk = case_when(big_con <= 5/4 ~ 1,
-#                                     between(big_con, 5/4, 10/4) ~ 2,
-#                                     between(big_con, 10/4, 15/4) ~ 3,
-#                                     big_con >= 15/4 ~ 4,
-#                                     TRUE ~ as.numeric(NA))) %>% 
-#   dplyr::mutate(neu_rnk = case_when(big_neu <= 5/4 ~ 1,
-#                                     between(big_neu, 5/4, 10/4) ~ 2,
-#                                     between(big_neu, 10/4, 15/4) ~ 3,
-#                                     big_neu >= 15/4 ~ 4,
-#                                    TRUE ~ as.numeric(NA))) %>% 
-#  dplyr::mutate(ope_rnk = case_when(big_ope <= 5/4 ~ 1,
-#                                    between(big_ope, 5/4, 10/4) ~ 2,
-#                                    between(big_ope, 10/4, 15/4) ~ 3,
-#                                    big_ope >= 15/4 ~ 4,
-#                                    TRUE ~ as.numeric(NA))) %>% 
-#  dplyr::mutate(inm_rnk = case_when(fem_inm <= 4/3 ~ 1,
-#                                    between(fem_inm, 4/3, 8/3) ~ 2,
-#                                    fem_inm >= 8/3 ~ 3,
-#                                    TRUE ~ as.numeric(NA))) %>% 
-#  dplyr::mutate(exm_rnk = case_when(fem_exm <= 4/3 ~ 1,
-#                                    between(fem_exm, 4/3, 8/3) ~ 2,
-#                                    fem_exm >= 8/3 ~ 3,
-#                                    TRUE ~ as.numeric(NA)))
+ data7 <- data6 %>% 
+   dplyr::mutate(ext_rnk = case_when(big_ext < 7/3 ~ 1,
+                                     between(big_ext, 7/3, 11/3) ~ 2,
+                                     big_ext > 11/3 ~ 3,
+                                     TRUE ~ as.numeric(NA))) %>%
+   dplyr::mutate(agr_rnk = case_when(big_agr < 7/3 ~ 1,
+                                     between(big_agr, 7/3, 11/3) ~ 2,
+                                     big_agr > 1/3 ~ 3,
+                                     TRUE ~ as.numeric(NA))) %>%
+   dplyr::mutate(con_rnk = case_when(big_con < 7/3 ~ 1,
+                                     between(big_con, 7/3, 11/3) ~ 2,
+                                     big_con > 11/3 ~ 3,
+                                     TRUE ~ as.numeric(NA))) %>%
+   dplyr::mutate(neu_rnk = case_when(big_neu < 7/3 ~ 1,
+                                     between(big_neu, 7/3, 11/3) ~ 2,
+                                     big_neu > 11/3 ~ 3,
+                                     TRUE ~ as.numeric(NA))) %>%
+  dplyr::mutate(ope_rnk = case_when(big_ope < 7/3 ~ 1,
+                                    between(big_ope, 7/3, 11/3) ~ 2,
+                                    big_ope > 11/3 ~ 3,
+                                    TRUE ~ as.numeric(NA))) %>%
+  dplyr::mutate(inm_di = ifelse(fem_inm <= 2.5, 1, 2),
+                exm_di = ifelse(fem_exm <= 2.5, 1, 2))
+                
 
-# Alternative 2:
-data7 <- data6 %>%
-  dplyr::mutate(fem_inm_di = ifelse(fem_inm <= 2.5, 1, 2),
-                fem_exm_di = ifelse(fem_exm <= 2.5, 1, 2),
-                big_ext_di = ifelse(big_ext <= 3, 1, 2),
-                big_agr_di = ifelse(big_agr <= 3, 1, 2),
-                big_con_di = ifelse(big_con <= 3, 1, 2),
-                big_neu_di = ifelse(big_neu <= 3, 1, 2),
-                big_ope_di = ifelse(big_ope <= 3, 1, 2),
+# Alternative 2 (Angelehnt an Skript JS - 
+# Entropie niedriger als bei Alternative 1) - deutlich kleiner 60:
+ 
+# data7 <- data6 %>%
+#   dplyr::mutate(fem_inm_di = ifelse(fem_inm <= 2.5, 1, 2),
+#                 fem_exm_di = ifelse(fem_exm <= 2.5, 1, 2),
+#                 big_ext_di = ifelse(big_ext <= 4/3, 1, 2, 3),
+#                 big_agr_di = ifelse(big_agr <= 3, 1, 2),
+#                 big_con_di = ifelse(big_con <= 3, 1, 2),
+#                 big_neu_di = ifelse(big_neu <= 3, 1, 2),
+#                 big_ope_di = ifelse(big_ope <= 3, 1, 2))
 
 # manifest variables must contain only integer values:
+
+# dat_lca <- data7 %>% 
+#   dplyr::mutate(
+#     across(c(par_edu,
+#              par_ocu,
+#              mig_bac,
+#              typ_sch,
+#              paa_gpa,
+#              voc_tra,
+#              big_ext_di,
+#              big_agr_di,
+#              big_con_di,
+#              big_neu_di,
+#              big_ope_di,
+#              fem_inm_di,
+#              fem_exm_di),
+#            as.factor))
 
 dat_lca <- data7 %>% 
   dplyr::mutate(
@@ -486,27 +496,32 @@ dat_lca <- data7 %>%
              typ_sch,
              paa_gpa,
              voc_tra,
-             big_ext_di,
-             big_agr_di,
-             big_con_di,
-             big_neu_di,
-             big_ope_di,
-             fem_inm_di,
-             fem_exm_di),
-           as.factor))
+             ext_rnk,
+             agr_rnk,
+             con_rnk,
+             neu_rnk,
+             ope_rnk,
+             inm_di,
+             exm_di),
+           as.integer))
+
 
 # define function
+# f <- with(dat_lca, cbind(par_edu, par_ocu, mig_bac, typ_sch, paa_gpa,
+#                          voc_tra, big_ext_di,big_agr_di, big_con_di, big_neu_di,
+#                          big_ope_di, fem_inm_di, fem_exm_di) ~ 1)
+
 f <- with(dat_lca, cbind(par_edu, par_ocu, mig_bac, typ_sch, paa_gpa,
                          voc_tra, ext_rnk, agr_rnk, con_rnk, neu_rnk,
-                         ope_rnk, inm_rnk, exm_rnk) ~ 1)
+                         ope_rnk, inm_di, exm_di) ~ 1)
   
 set.seed(123)
-lc1 <- poLCA(f, dat_lca, nclass = 1, na.rm = FALSE, nrep = 10, maxiter = 3000)
-lc2 <- poLCA(f, dat_lca, nclass = 2, na.rm = FALSE, nrep = 10, maxiter = 3000)
-lc3 <- poLCA(f, dat_lca, nclass = 3, na.rm = FALSE, nrep = 10, maxiter = 3000)
-lc4 <- poLCA(f, dat_lca, nclass = 4, na.rm = FALSE, nrep = 10, maxiter = 3000)
-lc5 <- poLCA(f, dat_lca, nclass = 5, na.rm = FALSE, nrep = 10, maxiter = 3000)
-lc6 <- poLCA(f, dat_lca, nclass = 6, na.rm = FALSE, nrep = 10, maxiter = 3000)
+lc1 <- poLCA(f, dat_lca, nclass = 1, na.rm = FALSE, nrep = 10, maxiter = 5000)
+lc2 <- poLCA(f, dat_lca, nclass = 2, na.rm = FALSE, nrep = 10, maxiter = 5000)
+lc3 <- poLCA(f, dat_lca, nclass = 3, na.rm = FALSE, nrep = 10, maxiter = 6000)  # no ML???
+lc4 <- poLCA(f, dat_lca, nclass = 4, na.rm = FALSE, nrep = 10, maxiter = 5000)
+lc5 <- poLCA(f, dat_lca, nclass = 5, na.rm = FALSE, nrep = 10, maxiter = 5000)
+lc6 <- poLCA(f, dat_lca, nclass = 6, na.rm = FALSE, nrep = 10, maxiter = 5000)
 
 # generate dataframe with fit-values
 
@@ -615,26 +630,31 @@ plot(lc3)
 
 meanpostprob <- round(aggregate(x = lc3$posterior,
                                 by = list(lc3$predclass),FUN = "mean") , 2)
+# 0.81, 0.72, 0.91
 
 # assign each case to a specific class (group) based on their posterior class 
 # membership probabilities:
 data6$class <- lc3$predclass
 
 data6$class <- as.factor(data6$class)
-a <- aggregate(data6$soc_int, list(data6$class), mean , na.rm = T)
+mean_socint <- aggregate(data6$soc_int, list(data6$class), mean , na.rm = T)
+violin_socint <- ggplot(data6, aes(x=class, y=soc_int)) + geom_violin()
 
-b <- ggplot(data6, aes(x=class, y=soc_int)) + geom_violin()
-
-library(report)
 anova_socint <- aov(soc_int ~ class, data = data6)
 summary(anova_socint)
 # report(anova_socint)
-# The main effect of class is statistically significant and very small
+# The main effect of class is statistically not significant
 
 anova_acaint <- aov(aca_int ~ class, data = data6)
 summary(anova_acaint)
+# report(anova_acaint)
 # The main effect of class is statistically significant and very small
 
-# class x dropoutintention(welle 9)
-data6$tg64051 <- as.factor(data6$tg64051)
-a <- xtabs( ~ class + tg64051, data = data6)
+# Plot
+# https://github.com/DavidykZhao/LCA_plotter/blob/ec11351da67dd41bbf4a9e73a5993912e3a60333/vignettes/Vignette%20of%20LCAplotter.pdf
+library(devtools)
+devtools::install_github("DavidykZhao/LCA_plotter")
+
+library(LCAplotter)
+plot = profile_plot(dat_lca, num_var = 13, model = lc3, form = f) 
+
