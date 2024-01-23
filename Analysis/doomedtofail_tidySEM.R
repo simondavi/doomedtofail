@@ -28,6 +28,7 @@ library(fauxnaif)        # for defining missing values
                            # (remotes::install_github("rossellhayes/fauxnaif")
 library(psych)           # for scale construction
 library(tidySEM)         # for LCA
+library(rqdatatable)
 
 
 

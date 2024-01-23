@@ -29,6 +29,7 @@ library(psych)           # for scale construction
 library(poLCA)           # for LCA
 library(MASS)            # for LCA
 library(scatterplot3d)   # for LCA
+library(rqdatatable)
 
 
 
