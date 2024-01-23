@@ -31,7 +31,7 @@ library(MASS)            # for LCA
 library(scatterplot3d)   # for LCA
 library(rqdatatable)
 
-
+renv::restore()
 
 
 #### ----------------- (2) Read Data and Data Management ----------------- ####
@@ -150,7 +150,7 @@ spvoc_pr <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%
            # summarize the data per person across spells
 
 
-spvoc <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%                     # (?) später nochmal Filter mit h_aktstu
+spvoc <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%   # (?) später nochmal Filter mit h_aktstu
          dplyr::select(ID_t, wave, spell, subspell, 
                        h_aktstu,        # 1st study episode WT 2010
                        tg24202_g1,      # type of intended teaching degree
@@ -307,10 +307,10 @@ data4 <- data3 %>%
                                     # 1 = non-Gymnasium,
                                     # 2 = Gymnasium (also Kolleg)
   
-  dplyr::mutate(paa_gpa = case_when(ts11218 >= 3.6 &  ts11218 <= 4.0 ~ 1,
-                                    ts11218 >= 2.6 &  ts11218 <= 3.5 ~ 2,
-                                    ts11218 >= 1.6 &  ts11218 <= 2.5 ~ 3,
-                                    ts11218 >= 1.0 &  ts11218 <= 1.5 ~ 4,
+  dplyr::mutate(paa_gpa = case_when(ts11218 >= 3.6 & ts11218 <= 4.0 ~ 1,
+                                    ts11218 >= 2.6 & ts11218 < 3.6 ~ 2,
+                                    ts11218 >= 1.6 & ts11218 < 2.6 ~ 3,
+                                    ts11218 >= 1.0 & ts11218 < 1.6 ~ 4,
                                     TRUE ~ as.numeric(NA)))  %>%
                                     # 1 = sufficient, 2 = satisfactory, 
                                     # 3 = good, 4 = very good)
@@ -392,8 +392,12 @@ data5 <- data5 %>%
 
 #### ------------------------------ (5) LCA ------------------------------ ####
 
+## LCA
+## Tutorial: https://statistics.ohlsen-web.de/latent-class-analysis-polca/
+## Paper: https://osf.io/preprints/psyarxiv/97uab
+
 data6 <- data5 %>% 
-  dplyr::mutate_all( ~ ifelse(is.nan(.), NA, .))
+  dplyr::mutate(across(everything(), ~ ifelse(is.nan(.x), NA, .x)))
 
 # create a factor variable (low, medium, high (tertiles)) for big5 and femola              
 
@@ -426,70 +430,70 @@ data6 <- data5 %>%
 #                 exm_rnk = as.numeric(exm_ter))
 
 
-# Alternative
-data7 <- data6 %>% 
-  dplyr::mutate(ext_rnk = case_when(big_ext <= 5/4 ~ 1,
-                                    between(big_ext, 5/4, 10/4) ~ 2,
-                                    between(big_ext, 10/4, 15/4) ~ 3,
-                                    big_ext >= 15/4 ~ 4,
-                                    TRUE ~ as.numeric(NA))) %>%
-  dplyr::mutate(agr_rnk = case_when(big_agr <= 5/4 ~ 1,
-                                    between(big_agr, 5/4, 10/4) ~ 2,
-                                    between(big_agr, 10/4, 15/4) ~ 3,
-                                    big_agr >= 15/4 ~ 4,
-                                    TRUE ~ as.numeric(NA))) %>% 
-  dplyr::mutate(con_rnk = case_when(big_con <= 5/4 ~ 1,
-                                    between(big_con, 5/4, 10/4) ~ 2,
-                                    between(big_con, 10/4, 15/4) ~ 3,
-                                    big_con >= 15/4 ~ 4,
-                                    TRUE ~ as.numeric(NA))) %>% 
-  dplyr::mutate(neu_rnk = case_when(big_neu <= 5/4 ~ 1,
-                                    between(big_neu, 5/4, 10/4) ~ 2,
-                                    between(big_neu, 10/4, 15/4) ~ 3,
-                                    big_neu >= 15/4 ~ 4,
-                                    TRUE ~ as.numeric(NA))) %>% 
-  dplyr::mutate(ope_rnk = case_when(big_ope <= 5/4 ~ 1,
-                                    between(big_ope, 5/4, 10/4) ~ 2,
-                                    between(big_ope, 10/4, 15/4) ~ 3,
-                                    big_ope >= 15/4 ~ 4,
-                                    TRUE ~ as.numeric(NA))) %>% 
-  dplyr::mutate(inm_rnk = case_when(fem_inm <= 4/3 ~ 1,
-                                    between(fem_inm, 4/3, 8/3) ~ 2,
-                                    fem_inm >= 8/3 ~ 3,
-                                    TRUE ~ as.numeric(NA))) %>% 
-  dplyr::mutate(exm_rnk = case_when(fem_exm <= 4/3 ~ 1,
-                                    between(fem_exm, 4/3, 8/3) ~ 2,
-                                    fem_exm >= 8/3 ~ 3,
-                                    TRUE ~ as.numeric(NA)))
+# Alternative 1
+# data7 <- data6 %>% 
+#   dplyr::mutate(ext_rnk = case_when(big_ext <= 5/4 ~ 1,
+#                                     between(big_ext, 5/4, 10/4) ~ 2,
+#                                     between(big_ext, 10/4, 15/4) ~ 3,
+#                                     big_ext >= 15/4 ~ 4,
+#                                     TRUE ~ as.numeric(NA))) %>%
+#   dplyr::mutate(agr_rnk = case_when(big_agr <= 5/4 ~ 1,
+#                                     between(big_agr, 5/4, 10/4) ~ 2,
+#                                     between(big_agr, 10/4, 15/4) ~ 3,
+#                                     big_agr >= 15/4 ~ 4,
+#                                     TRUE ~ as.numeric(NA))) %>% 
+#   dplyr::mutate(con_rnk = case_when(big_con <= 5/4 ~ 1,
+#                                     between(big_con, 5/4, 10/4) ~ 2,
+#                                     between(big_con, 10/4, 15/4) ~ 3,
+#                                     big_con >= 15/4 ~ 4,
+#                                     TRUE ~ as.numeric(NA))) %>% 
+#   dplyr::mutate(neu_rnk = case_when(big_neu <= 5/4 ~ 1,
+#                                     between(big_neu, 5/4, 10/4) ~ 2,
+#                                     between(big_neu, 10/4, 15/4) ~ 3,
+#                                     big_neu >= 15/4 ~ 4,
+#                                    TRUE ~ as.numeric(NA))) %>% 
+#  dplyr::mutate(ope_rnk = case_when(big_ope <= 5/4 ~ 1,
+#                                    between(big_ope, 5/4, 10/4) ~ 2,
+#                                    between(big_ope, 10/4, 15/4) ~ 3,
+#                                    big_ope >= 15/4 ~ 4,
+#                                    TRUE ~ as.numeric(NA))) %>% 
+#  dplyr::mutate(inm_rnk = case_when(fem_inm <= 4/3 ~ 1,
+#                                    between(fem_inm, 4/3, 8/3) ~ 2,
+#                                    fem_inm >= 8/3 ~ 3,
+#                                    TRUE ~ as.numeric(NA))) %>% 
+#  dplyr::mutate(exm_rnk = case_when(fem_exm <= 4/3 ~ 1,
+#                                    between(fem_exm, 4/3, 8/3) ~ 2,
+#                                    fem_exm >= 8/3 ~ 3,
+#                                    TRUE ~ as.numeric(NA)))
+
+# Alternative 2:
+data7 <- data6 %>%
+  dplyr::mutate(fem_inm_di = ifelse(fem_inm <= 2.5, 1, 2),
+                fem_exm_di = ifelse(fem_exm <= 2.5, 1, 2),
+                big_ext_di = ifelse(big_ext <= 3, 1, 2),
+                big_agr_di = ifelse(big_agr <= 3, 1, 2),
+                big_con_di = ifelse(big_con <= 3, 1, 2),
+                big_neu_di = ifelse(big_neu <= 3, 1, 2),
+                big_ope_di = ifelse(big_ope <= 3, 1, 2),
 
 # manifest variables must contain only integer values:
 
-data8 <- data7 %>% 
-  dplyr::mutate(par_edu = as.integer(par_edu)) %>%
-  dplyr::mutate(par_ocu = as.integer(par_ocu)) %>%
-  dplyr::mutate(mig_bac = as.integer(mig_bac)) %>%
-  dplyr::mutate(typ_sch = as.integer(typ_sch)) %>%
-  dplyr::mutate(paa_gpa = as.integer(paa_gpa)) %>%
-  dplyr::mutate(voc_tra = as.integer(voc_tra)) %>%
-  dplyr::mutate(ext_rnk = as.integer(ext_rnk)) %>%
-  dplyr::mutate(agr_rnk = as.integer(agr_rnk)) %>% 
-  dplyr::mutate(con_rnk = as.integer(con_rnk)) %>% 
-  dplyr::mutate(neu_rnk = as.integer(neu_rnk)) %>% 
-  dplyr::mutate(ope_rnk = as.integer(ope_rnk)) %>% 
-  dplyr::mutate(inm_rnk = as.integer(inm_rnk)) %>% 
-  dplyr::mutate(exm_rnk = as.integer(exm_rnk))
-  
-
-## LCA
-## Tutorial: https://statistics.ohlsen-web.de/latent-class-analysis-polca/
-## Paper: https://osf.io/preprints/psyarxiv/97uab
-  
-  
-# select variables
-dat_lca <- data8 %>%
-  dplyr::select(par_edu, par_ocu, mig_bac, typ_sch, paa_gpa,
-                voc_tra, ext_rnk, agr_rnk, con_rnk, neu_rnk,
-                ope_rnk, inm_rnk, exm_rnk)
+dat_lca <- data7 %>% 
+  dplyr::mutate(
+    across(c(par_edu,
+             par_ocu,
+             mig_bac,
+             typ_sch,
+             paa_gpa,
+             voc_tra,
+             big_ext_di,
+             big_agr_di,
+             big_con_di,
+             big_neu_di,
+             big_ope_di,
+             fem_inm_di,
+             fem_exm_di),
+           as.factor))
 
 # define function
 f <- with(dat_lca, cbind(par_edu, par_ocu, mig_bac, typ_sch, paa_gpa,
