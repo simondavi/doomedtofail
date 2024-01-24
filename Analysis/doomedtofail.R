@@ -9,7 +9,7 @@
 #        SC5_spVocTrain_D_18-0-0.sav
 # Output: --
 #
-# Contents: (1) Set Working Directory, Load Packages
+# Contents: (1) Load Packages
 #           (2) Read Data and Data Management
 #           (3) Merge Data
 #           (4) Compute Scale Scores and New Variables
@@ -17,22 +17,21 @@
 #           (6) SEM
 
 
-####  ------------- (1) Set Working Directory, Load Packages ------------- ####
-
-library(haven)           # to import SPSS files
-library(tidyverse)       # for data management
-library(rquery)          # to copy STATA merge behavior
-library(rqdatatable)
-library(fauxnaif)        # for defining missing values 
-                           # (remotes::install_github("rossellhayes/fauxnaif")
-library(gtools)          # for create a factor variable using quantiles
-library(psych)           # for scale construction
-library(poLCA)           # for LCA
-library(MASS)            # for LCA
-library(scatterplot3d)   # for LCA
-library(report)          # for producing reports 
-
+####  ------------- (1) Load Packages ------------- ####
 renv::restore()
+
+library(haven)          # to import SPSS files
+library(tidyverse)      # for data management
+library(rquery)         # to copy STATA merge behavior
+library(rqdatatable)
+library(fauxnaif)       # for defining missing values 
+                          # (remotes::install_github("rossellhayes/fauxnaif")
+library(gtools)         # for create a factor variable using quantiles
+library(psych)          # for scale construction
+library(poLCA)          # for LCA
+library(MASS)            
+library(scatterplot3d)     
+library(report)         # for producing reports 
 
 
 #### ----------------- (2) Read Data and Data Management ----------------- ####
@@ -283,11 +282,15 @@ data2 <- data %>%
                                     # 1 = no parent tertiary education, 2 = one 
                                     # parent, 3 = both parents
   
-  dplyr::mutate(par_ocu = case_when((t731403_g8 >= 8 | t731453_g8 >= 8) ~ 1,    
-                                    (t731403_g8 <= 7 | t731453_g8 <= 7) ~ 2,
+  dplyr::mutate(par_ocu = case_when((t731403_g8 >= 9 & t731453_g8 >= 9) |       # Code prüfen
+                                    (t731403_g8 == 4 & t731453_g8 == 4) ~ 1,
+                                    (t731403_g8 <= 2 | t731453_g8 <= 2) ~ 3,
+                                    (t731403_g8 %in% c(3, 5:8) | 
+                                       t731453_g8 %in% c(3, 5:8)) ~ 2,
                                     TRUE ~ as.numeric(NA)))
-                                    # 1 = working class, 
-                                    # 2 = mixed and service class
+                                    # 1 = working class,
+                                    # 2 = intermediate class
+                                    # 3 = upper class
 
 # migration background
 data3 <- data2 %>% 
@@ -432,20 +435,21 @@ data6 <- data5 %>%
 
 
 # Alternative 1
- data7 <- data6 %>% 
-   dplyr::mutate(ext_rnk = case_when(big_ext < 7/3 ~ 1,
+
+data7 <- data6 %>% 
+  dplyr::mutate(ext_rnk = case_when(big_ext < 7/3 ~ 1,
                                      between(big_ext, 7/3, 11/3) ~ 2,
                                      big_ext > 11/3 ~ 3,
                                      TRUE ~ as.numeric(NA))) %>%
-   dplyr::mutate(agr_rnk = case_when(big_agr < 7/3 ~ 1,
+  dplyr::mutate(agr_rnk = case_when(big_agr < 7/3 ~ 1,
                                      between(big_agr, 7/3, 11/3) ~ 2,
                                      big_agr > 1/3 ~ 3,
                                      TRUE ~ as.numeric(NA))) %>%
-   dplyr::mutate(con_rnk = case_when(big_con < 7/3 ~ 1,
+  dplyr::mutate(con_rnk = case_when(big_con < 7/3 ~ 1,
                                      between(big_con, 7/3, 11/3) ~ 2,
                                      big_con > 11/3 ~ 3,
                                      TRUE ~ as.numeric(NA))) %>%
-   dplyr::mutate(neu_rnk = case_when(big_neu < 7/3 ~ 1,
+  dplyr::mutate(neu_rnk = case_when(big_neu < 7/3 ~ 1,
                                      between(big_neu, 7/3, 11/3) ~ 2,
                                      big_neu > 11/3 ~ 3,
                                      TRUE ~ as.numeric(NA))) %>%
@@ -503,7 +507,31 @@ dat_lca <- data7 %>%
              ope_rnk,
              inm_di,
              exm_di),
-           as.integer))
+           as.factor))
+
+
+# plot the data
+dat_plot <- dat_lca %>% 
+  dplyr::select(par_edu,
+                par_ocu,
+                mig_bac,
+                typ_sch,
+                paa_gpa,
+                voc_tra,
+                ext_rnk,
+                agr_rnk,
+                con_rnk,
+                neu_rnk,
+                ope_rnk,
+                inm_di,
+                exm_di)
+
+names(dat_plot) <- paste0("Value.", names(dat_plot))
+
+dat_plot <- reshape(dat_plot, varying = names(dat_plot), direction = "long")
+
+dat_plot <- ggplot(dat_plot, aes(x = Value)) + geom_bar() + facet_wrap(~time,
+                                                          scales = "free") + theme_bw()   #par_edu, par_ocu prüfen
 
 
 # define function
@@ -518,7 +546,7 @@ f <- with(dat_lca, cbind(par_edu, par_ocu, mig_bac, typ_sch, paa_gpa,
 set.seed(123)
 lc1 <- poLCA(f, dat_lca, nclass = 1, na.rm = FALSE, nrep = 10, maxiter = 5000)
 lc2 <- poLCA(f, dat_lca, nclass = 2, na.rm = FALSE, nrep = 10, maxiter = 5000)
-lc3 <- poLCA(f, dat_lca, nclass = 3, na.rm = FALSE, nrep = 10, maxiter = 6000)  # no ML???
+lc3 <- poLCA(f, dat_lca, nclass = 3, na.rm = FALSE, nrep = 10, maxiter = 8000)  
 lc4 <- poLCA(f, dat_lca, nclass = 4, na.rm = FALSE, nrep = 10, maxiter = 5000)
 lc5 <- poLCA(f, dat_lca, nclass = 5, na.rm = FALSE, nrep = 10, maxiter = 5000)
 lc6 <- poLCA(f, dat_lca, nclass = 6, na.rm = FALSE, nrep = 10, maxiter = 5000)
@@ -643,7 +671,7 @@ violin_socint <- ggplot(data6, aes(x=class, y=soc_int)) + geom_violin()
 anova_socint <- aov(soc_int ~ class, data = data6)
 summary(anova_socint)
 # report(anova_socint)
-# The main effect of class is statistically not significant
+# The main effect of class is statistically significant and very small
 
 anova_acaint <- aov(aca_int ~ class, data = data6)
 summary(anova_acaint)
@@ -652,9 +680,19 @@ summary(anova_acaint)
 
 # Plot
 # https://github.com/DavidykZhao/LCA_plotter/blob/ec11351da67dd41bbf4a9e73a5993912e3a60333/vignettes/Vignette%20of%20LCAplotter.pdf
-library(devtools)
-devtools::install_github("DavidykZhao/LCA_plotter")
-
+# library(devtools)
+# devtools::install_github("DavidykZhao/LCA_plotter")
 library(LCAplotter)
-plot = profile_plot(dat_lca, num_var = 13, model = lc3, form = f) 
+best_model = lc3
+plot <-  profile_plot(data = round(dat_lca, 0), num_var = 13, model = lc3, form = f) 
 
+# poLCA 3-D plot, without the 3-D:
+lcModelProbs <- melt(lc3$probs)
+lcModelProbs$X1 <- as.factor(lcModelProbs$X1)
+
+plot2 <- ggplot(lcModelProbs,
+              aes(x = L1, y = value, fill = X2))
+plot2 <- plot2 + geom_bar(stat = "identity", position = "stack")
+plot2 <- plot2 + facet_grid(X1 ~ .) 
+plot2 <- plot2 + guides(fill = guide_legend(reverse=TRUE))
+plot2 <- plot2 + theme_minimal()
