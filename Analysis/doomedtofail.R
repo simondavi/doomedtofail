@@ -661,4 +661,5 @@ plot2 <- plot2 + guides(fill = guide_legend(reverse = TRUE))
 plot2 <- plot2 + theme_minimal()
 plot2
 
-# class 1 could be our risk group
+# class 14,5% could be our risk group, unfortunately lowest average latent 
+# posterior probability
