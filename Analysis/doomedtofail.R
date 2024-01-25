@@ -700,8 +700,11 @@ summary(anova_acaint)
 # library(devtools)
 # devtools::install_github("DavidykZhao/LCA_plotter")
 library(LCAplotter)
-best_model = lc3
+library(reshape)
+library(reshape2)
+best_model <- lc3
 plot <-  profile_plot(data = round(dat_lca, 0), num_var = 13, model = lc3, form = f) 
+plot
 
 # poLCA 3-D plot, without the 3-D:
 lcModelProbs <- melt(lc3$probs)
@@ -713,3 +716,4 @@ plot2 <- plot2 + geom_bar(stat = "identity", position = "stack")
 plot2 <- plot2 + facet_grid(X1 ~ .) 
 plot2 <- plot2 + guides(fill = guide_legend(reverse=TRUE))
 plot2 <- plot2 + theme_minimal()
+plot2
