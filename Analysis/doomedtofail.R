@@ -22,6 +22,8 @@ renv::restore()
 
 library(haven)          # to import SPSS files
 library(tidyverse)      # for data management
+library(reshape)
+library(reshape2)
 library(rquery)         # to copy STATA merge behavior
 library(rqdatatable)
 library(fauxnaif)       # for defining missing values 
@@ -29,9 +31,13 @@ library(fauxnaif)       # for defining missing values
 library(gtools)         # for create a factor variable using quantiles
 library(psych)          # for scale construction
 library(poLCA)          # for LCA
-library(MASS)            
-library(scatterplot3d)     
+library(MASS)    
+library(tidySEM)
+library(scatterplot3d)
+library(LCAplotter)     # library(devtools)
+                          # devtools::install_github("DavidykZhao/LCA_plotter")
 library(report)         # for producing reports 
+
 
 
 #### ----------------- (2) Read Data and Data Management ----------------- ####
@@ -260,7 +266,8 @@ data <- rquery::natural_join(data, spvoc,
                              dplyr::mutate(across(everything(), 
                                                   ~ fauxnaif::na_if_in(., ~ . < 0)))
                              # replace all negative Values with NA  
-                             # Nicht nötig, warum gibt es keine negativen NAs, z.B. t261846 (vgl. NEPSplorer)
+                             # Nicht nötig, warum gibt es keine negativen NAs, 
+                             # z.B. t261846 (vgl. NEPSplorer)
 
 # Only one ID per line?                                                   
 # x <- data %>% dplyr::count(ID_t)
@@ -405,13 +412,19 @@ data6 <- data5 %>%
 
 # examine variables
 df <- data6 %>%
-  dplyr::select(par_edu, par_ocu, mig_bac, typ_sch, paa_gpa,
-                voc_tra, big_ext, big_agr, big_con, big_neu,
-                big_ope, fem_inm, fem_exm) %>% 
-#  dplyr::mutate_at(c('big_ext', 'big_agr', 'big_con', 
-#                     'big_neu', 'big_ope', 'fem_inm', 
-#                     'fem_exm'), ~(scale(.) %>% as.vector)) %>%
-  dplyr::mutate(across(everything(), as.integer))  # Was passiert hier? 
+  dplyr::select(par_edu, 
+                par_ocu, 
+                mig_bac, 
+                typ_sch, 
+                paa_gpa,
+                voc_tra, 
+                big_ext, 
+                big_agr, 
+                big_con, 
+                big_neu,
+                big_ope, 
+                fem_inm, 
+                fem_exm)
 
 desc <- tidySEM::descriptives(df)
 desc <- desc[, c("name", "type", "n", "missing", "unique", "mode",
@@ -420,39 +433,8 @@ desc <- desc[, c("name", "type", "n", "missing", "unique", "mode",
 # continuous variables should have many unique values, if not, it may be better 
 # to model them as ordinal
 
-# create a factor variable (low, medium, high (tertiles)) for big5 and femola              
-
-# Kategorien vereinfachen, 
-# Sonst kein Maximum der Likelihood
-# ALERT: iterations finished, MAXIMUM LIKELIHOOD NOT FOUND - ab 3 Klassen 
- # Terzile funktionieren nicht so gut
- # siehe table(data6$ext_ter) - siehe Alternative nächster Abschnitt
-
-# data7 <- data6 %>% 
-#   dplyr::mutate(ext_ter =  gtools::quantcut(big_ext, 2), 
-#                 ext_rnk = as.numeric(ext_ter))  %>%
-#   
-#   dplyr::mutate(agr_ter =  gtools::quantcut(big_agr, 2), 
-#                 agr_rnk = as.numeric(ext_ter))  %>% 
-#   
-#   dplyr::mutate(con_ter =  gtools::quantcut(big_con, 2), 
-#                 con_rnk = as.numeric(con_ter))  %>% 
-#   
-#   dplyr::mutate(neu_ter =  gtools::quantcut(big_neu, 2), 
-#                 neu_rnk = as.numeric(neu_ter))  %>% 
-#   
-#   dplyr::mutate(ope_ter =  gtools::quantcut(big_ope, 2), 
-#                 ope_rnk = as.numeric(ope_ter))  %>% 
-#   
-#   dplyr::mutate(inm_ter =  gtools::quantcut(fem_inm, 2), 
-#                 inm_rnk = as.numeric(inm_ter))  %>% 
-#   
-#   dplyr::mutate(exm_ter =  gtools::quantcut(fem_exm, 2), 
-#                 exm_rnk = as.numeric(exm_ter))
-
-
-# Alternative 1
-
+# Simplify categories  
+# otherwise model too compex and ML was not found:
 data7 <- data6 %>% 
   dplyr::mutate(ext_rnk = case_when(big_ext < 7/3 ~ 1,
                                      between(big_ext, 7/3, 11/3) ~ 2,
@@ -477,37 +459,6 @@ data7 <- data6 %>%
   dplyr::mutate(inm_di = ifelse(fem_inm <= 2.5, 1, 2),
                 exm_di = ifelse(fem_exm <= 2.5, 1, 2))
                 
-
-# Alternative 2 (Angelehnt an Skript JS - 
-# Entropie niedriger als bei Alternative 1) - deutlich kleiner 60:
- 
-# data7 <- data6 %>%
-#   dplyr::mutate(fem_inm_di = ifelse(fem_inm <= 2.5, 1, 2),
-#                 fem_exm_di = ifelse(fem_exm <= 2.5, 1, 2),
-#                 big_ext_di = ifelse(big_ext <= 4/3, 1, 2, 3),
-#                 big_agr_di = ifelse(big_agr <= 3, 1, 2),
-#                 big_con_di = ifelse(big_con <= 3, 1, 2),
-#                 big_neu_di = ifelse(big_neu <= 3, 1, 2),
-#                 big_ope_di = ifelse(big_ope <= 3, 1, 2))
-
-# manifest variables must contain only integer values:
-
-# dat_lca <- data7 %>% 
-#   dplyr::mutate(
-#     across(c(par_edu,
-#              par_ocu,
-#              mig_bac,
-#              typ_sch,
-#              paa_gpa,
-#              voc_tra,
-#              big_ext_di,
-#              big_agr_di,
-#              big_con_di,
-#              big_neu_di,
-#              big_ope_di,
-#              fem_inm_di,
-#              fem_exm_di),
-#            as.factor))
 
 dat_lca <- data7 %>% 
   dplyr::mutate(
@@ -544,17 +495,13 @@ dat_plot <- dat_lca %>%
                 exm_di)
 
 names(dat_plot) <- paste0("Value.", names(dat_plot))
-
 dat_plot <- reshape(dat_plot, varying = names(dat_plot), direction = "long")
 
 dat_plot <- ggplot(dat_plot, aes(x = Value)) + geom_bar() + 
-  facet_wrap(~time, scales = "free") + theme_bw()                               #par_edu, par_ocu prüfen
+  facet_wrap(~ time, scales = "free") + theme_bw()                              # par_edu, par_ocu prüfen
 
+dat_plot
 
-# define function
-# f <- with(dat_lca, cbind(par_edu, par_ocu, mig_bac, typ_sch, paa_gpa,
-#                          voc_tra, big_ext_di,big_agr_di, big_con_di, big_neu_di,
-#                          big_ope_di, fem_inm_di, fem_exm_di) ~ 1)
 
 f <- with(dat_lca, cbind(par_edu, par_ocu, mig_bac, typ_sch, paa_gpa,
                          voc_tra, ext_rnk, agr_rnk, con_rnk, neu_rnk,
@@ -569,16 +516,15 @@ lc5 <- poLCA(f, dat_lca, nclass = 5, na.rm = FALSE, nrep = 10, maxiter = 5000)
 lc6 <- poLCA(f, dat_lca, nclass = 6, na.rm = FALSE, nrep = 10, maxiter = 5000)
 
 # generate dataframe with fit-values
-
 results <- data.frame(Modell = c("Modell 1"),
                       log_likelihood = lc1$llik,
                       df = lc1$resid.df,
                       BIC = lc1$bic,
-                      ABIC =  (-2 * lc1$llik) + ((log((lc1$N + 2) / 24)) * lc1$npar),
+                      ABIC = (-2 * lc1$llik) + ((log((lc1$N + 2) / 24)) * lc1$npar),
                       CAIC = (-2 * lc1$llik) + lc1$npar * (1 + log(lc1$N)), 
                       likelihood_ratio = lc1$Gsq)
 
-results$Modell<-as.integer(results$Modell)
+results$Modell <- as.integer(results$Modell)
 results[1,1] <- c("Modell 1")
 results[2,1] <- c("Modell 2")
 results[3,1] <- c("Modell 3")
@@ -623,34 +569,33 @@ results[5,7] <- lc5$Gsq
 results[6,7] <- lc6$Gsq
 
 # add entropy
-
 entropy <- function (p) sum(-p*log(p))
 
 results$R2_entropy
 results[1,8] <- c("-")
 
-error_prior<-entropy(lc2$P) # class proportions model 2
-error_post<-mean(apply(lc2$posterior,1, entropy),na.rm = TRUE)
-results[2,8]<-round(((error_prior-error_post) / error_prior),3)
+error_prior <- entropy(lc2$P) # class proportions model 2
+error_post <- mean(apply(lc2$posterior,1, entropy),na.rm = TRUE)
+results[2,8] <- round(((error_prior-error_post) / error_prior), 3)
 
-error_prior<-entropy(lc3$P) # class proportions model 3
-error_post<-mean(apply(lc3$posterior,1, entropy),na.rm = TRUE)
-results[3,8]<-round(((error_prior-error_post) / error_prior),3)
+error_prior <- entropy(lc3$P) # class proportions model 3
+error_post <- mean(apply(lc3$posterior,1, entropy),na.rm = TRUE)
+results[3,8] <- round(((error_prior-error_post) / error_prior), 3)
 
-error_prior<-entropy(lc4$P) # class proportions model 4
-error_post<-mean(apply(lc4$posterior,1, entropy),na.rm = TRUE)
-results[4,8]<-round(((error_prior-error_post) / error_prior),3)
+error_prior <- entropy(lc4$P) # class proportions model 4
+error_post <- mean(apply(lc4$posterior,1, entropy),na.rm = TRUE)
+results[4,8] <- round(((error_prior-error_post) / error_prior), 3)
 
-error_prior<-entropy(lc5$P) # class proportions model 5
-error_post<-mean(apply(lc5$posterior,1, entropy),na.rm = TRUE)
-results[5,8]<-round(((error_prior-error_post) / error_prior),3)
+error_prior <- entropy(lc5$P) # class proportions model 5
+error_post <- mean(apply(lc5$posterior,1, entropy),na.rm = TRUE)
+results[5,8] <- round(((error_prior-error_post) / error_prior), 3)
 
-error_prior<-entropy(lc6$P) # class proportions model 6
-error_post<-mean(apply(lc6$posterior,1, entropy),na.rm = TRUE)
-results[6,8]<-round(((error_prior-error_post) / error_prior),3)
+error_prior <- entropy(lc6$P) # class proportions model 6
+error_post <- mean(apply(lc6$posterior,1, entropy),na.rm = TRUE)
+results[6,8] <- round(((error_prior-error_post) / error_prior), 3)
 
-colnames(results)<-c("Model","log-likelihood","resid. df","BIC","aBIC","cAIC",
-                     "likelihood-ratio","Entropy")
+colnames(results) <- c("Model","log-likelihood","resid. df","BIC","aBIC","cAIC",
+                       "likelihood-ratio","Entropy")
 
 lca_results <- results
 
@@ -675,7 +620,7 @@ plot(lc3)
 
 meanpostprob <- round(aggregate(x = lc3$posterior,
                                 by = list(lc3$predclass),FUN = "mean") , 2)
-# 0.81, 0.72, 0.91
+# 0.72, 0.90, 0.87
 
 # assign each case to a specific class (group) based on their posterior class 
 # membership probabilities:
@@ -699,21 +644,21 @@ summary(anova_acaint)
 # https://github.com/DavidykZhao/LCA_plotter/blob/ec11351da67dd41bbf4a9e73a5993912e3a60333/vignettes/Vignette%20of%20LCAplotter.pdf
 # library(devtools)
 # devtools::install_github("DavidykZhao/LCA_plotter")
-library(LCAplotter)
-library(reshape)
-library(reshape2)
+
 best_model <- lc3
 plot <-  profile_plot(data = round(dat_lca, 0), num_var = 13, model = lc3, form = f) 
 plot
 
 # poLCA 3-D plot, without the 3-D:
 lcModelProbs <- melt(lc3$probs)
-lcModelProbs$X1 <- as.factor(lcModelProbs$X1)
+lcModelProbs$Var1 <- as.factor(lcModelProbs$Var1)
 
 plot2 <- ggplot(lcModelProbs,
-              aes(x = L1, y = value, fill = X2))
+              aes(x = L1, y = value, fill = Var2))
 plot2 <- plot2 + geom_bar(stat = "identity", position = "stack")
-plot2 <- plot2 + facet_grid(X1 ~ .) 
-plot2 <- plot2 + guides(fill = guide_legend(reverse=TRUE))
+plot2 <- plot2 + facet_grid(Var1 ~ .) 
+plot2 <- plot2 + guides(fill = guide_legend(reverse = TRUE))
 plot2 <- plot2 + theme_minimal()
 plot2
+
+# class 1 could be our risk group
