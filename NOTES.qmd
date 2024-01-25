@@ -35,6 +35,7 @@ editor_options:
 - Packages geben Bayes Faktor nicht aus, mit Shiny App keinen Erfolg <a href="https://robert-fox.shinyapps.io/BF_cmP_Calculator/"> Link </a> (Wie berechnen? Vermutlich gelöst)
 - Benutzen alle LCA (LPA) Maximum Likelihood Schätzer (beziehungsweise ist der EM-Algorithmus ein ML-Schätzer (Hintegrund: In Präreg. Nutzung von MLE genannt).
 - Problem: Fast keine Daten nur Nutzung von Lerngelegenheiten - NA bei über 90% (Aber gültige Beobachtungen > 200)
+- Movtivationale Lagen als relativen Wert abbilden?
 \
 - Lehramtsstudierendenpanel oder alle, die angeben Lehramt zu studieren nutzen?<br /> 
   ? Eher eine abstrakte Frage
