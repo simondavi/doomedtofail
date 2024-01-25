@@ -28,7 +28,6 @@ library(rquery)         # to copy STATA merge behavior
 library(rqdatatable)
 library(fauxnaif)       # for defining missing values 
                           # (remotes::install_github("rossellhayes/fauxnaif")
-library(gtools)         # for create a factor variable using quantiles
 library(psych)          # for scale construction
 library(poLCA)          # for LCA
 library(MASS)    
@@ -616,7 +615,7 @@ plot(lc3)
 # We agree that greater than .90 is ideal; but if other criteria are met and the 
 # model is theoretically supported, probabilities between .80 and .90 are 
 # acceptable (Weller et al., 2020). 
-# https://journals.sagepub.com/doi/full/10.1177/0095798420930932) 
+# https://journals.sagepub.com/doi/full/10.1177/0095798420930932 
 
 meanpostprob <- round(aggregate(x = lc3$posterior,
                                 by = list(lc3$predclass),FUN = "mean") , 2)
