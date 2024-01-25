@@ -646,7 +646,7 @@ summary(anova_acaint)
 # devtools::install_github("DavidykZhao/LCA_plotter")
 
 best_model <- lc3
-plot <-  profile_plot(data = round(dat_lca, 0), num_var = 13, model = lc3, form = f) 
+plot <-  profile_plot(data = dat_lca, num_var = 13, model = lc3, form = f) 
 plot
 
 # poLCA 3-D plot, without the 3-D:
