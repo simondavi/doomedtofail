@@ -404,14 +404,17 @@ data6 <- data5 %>%
   dplyr::mutate(across(everything(), ~ ifelse(is.nan(.x), NA, .x)))
 
 # examine variables
-df0 <- data6 %>%
+df <- data6 %>%
   dplyr::select(par_edu, par_ocu, mig_bac, typ_sch, paa_gpa,
                 voc_tra, big_ext, big_agr, big_con, big_neu,
                 big_ope, fem_inm, fem_exm) %>% 
-  dplyr::mutate(across(everything(), as.factor))
+#  dplyr::mutate_at(c('big_ext', 'big_agr', 'big_con', 
+#                     'big_neu', 'big_ope', 'fem_inm', 
+#                     'fem_exm'), ~(scale(.) %>% as.vector)) %>%
+  dplyr::mutate(across(everything(), as.integer))  # Was passiert hier? 
 
-desc0 <- tidySEM::descriptives(df0)
-desc0 <- desc0[, c("name", "type", "n", "missing", "unique", "mode",
+desc <- tidySEM::descriptives(df)
+desc <- desc[, c("name", "type", "n", "missing", "unique", "mode",
                    "mode_value", "v")]
 
 # continuous variables should have many unique values, if not, it may be better 
@@ -544,8 +547,8 @@ names(dat_plot) <- paste0("Value.", names(dat_plot))
 
 dat_plot <- reshape(dat_plot, varying = names(dat_plot), direction = "long")
 
-dat_plot <- ggplot(dat_plot, aes(x = Value)) + geom_bar() + facet_wrap(~time,
-                                                          scales = "free") + theme_bw()   #par_edu, par_ocu prüfen
+dat_plot <- ggplot(dat_plot, aes(x = Value)) + geom_bar() + 
+  facet_wrap(~time, scales = "free") + theme_bw()                               #par_edu, par_ocu prüfen
 
 
 # define function
