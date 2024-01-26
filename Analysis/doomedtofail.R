@@ -441,7 +441,7 @@ data7 <- data6 %>%
                                      TRUE ~ as.numeric(NA))) %>%
   dplyr::mutate(agr_rnk = case_when(big_agr < 7/3 ~ 1,
                                      between(big_agr, 7/3, 11/3) ~ 2,
-                                     big_agr > 1/3 ~ 3,
+                                     big_agr > 11/3 ~ 3,
                                      TRUE ~ as.numeric(NA))) %>%
   dplyr::mutate(con_rnk = case_when(big_con < 7/3 ~ 1,
                                      between(big_con, 7/3, 11/3) ~ 2,
