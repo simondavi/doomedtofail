@@ -49,6 +49,9 @@ editor_options:
 - Age of enrollment
 - Type of higher education inst
 
+## Datenanalyse
+- Imputation LCA: "No data imputations were performed, as the likelihood approach of LCA accommodates the inclusion of patients with missing values." (Vermunt JK, Magidson J. Latent Gold 4.0 User’s Guide. Belmont, MA: Statistical Innovations; 2005) (?)
+
 \
 \
 

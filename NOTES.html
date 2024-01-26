@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.3.353">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta name="dcterms.date" content="2024-01-25">
+<meta name="dcterms.date" content="2024-01-26">
 <title>Notizen</title>
 <style>
 code{white-space: pre-wrap;}
@@ -3021,6 +3021,7 @@ vertical-align: -.125em;
 <a href="#abweichungen-von-der-praeregistrierung" id="toc-abweichungen-von-der-praeregistrierung" class="nav-link" data-scroll-target="#abweichungen-von-der-praeregistrierung">Abweichungen von der Praeregistrierung</a>
   <ul class="collapse">
 <li><a href="#andere-items-genutzt" id="toc-andere-items-genutzt" class="nav-link" data-scroll-target="#andere-items-genutzt">Andere Items genutzt</a></li>
+  <li><a href="#datenanalyse" id="toc-datenanalyse" class="nav-link" data-scroll-target="#datenanalyse">Datenanalyse</a></li>
   </ul>
 </li>
   <li>
@@ -3047,7 +3048,7 @@ vertical-align: -.125em;
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">January 25, 2024</p>
+      <p class="date">January 26, 2024</p>
     </div>
   </div>
   
@@ -3075,6 +3076,9 @@ vertical-align: -.125em;
 <ul>
 <li>Age of enrollment</li>
 <li>Type of higher education inst</li>
+</ul></section><section id="datenanalyse" class="level2"><h2 class="anchored" data-anchor-id="datenanalyse">Datenanalyse</h2>
+<ul>
+<li>Imputation LCA: “No data imputations were performed, as the likelihood approach of LCA accommodates the inclusion of patients with missing values.” (Vermunt JK, Magidson J. Latent Gold 4.0 User’s Guide. Belmont, MA: Statistical Innovations; 2005) (?)</li>
 </ul>
 <p><br><br></p>
 </section></section><section id="code-check-19.1.2024" class="level1"><h1>Code Check 19.1.2024</h1>
@@ -3474,80 +3478,83 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Age of enrollment</span>
 <span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Type of higher education inst</span>
 <span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>\</span>
-<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>\</span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a><span class="fu">## Datenanalyse</span></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Imputation LCA: &quot;No data imputations were performed, as the likelihood approach of LCA accommodates the inclusion of patients with missing values.&quot; (Vermunt JK, Magidson J. Latent Gold 4.0 User’s Guide. Belmont, MA: Statistical Innovations; 2005) (?)</span>
 <span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a><span class="fu"># Code Check 19.1.2024</span></span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>\</span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>\</span>
 <span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a><span class="fu">## `par_edu` vs. `par_ocu`</span></span>
-<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>Du hattest dich ja gewundert, warum Studierende oftmals Eltern ohne Hochschulabschluss haben (<span class="in">`par_edu`</span>), die Eltern dann aber keine mixed oder working class sind (<span class="in">`par_ocu`</span>): Vielleicht ist deine Um codierung in <span class="in">`par_ocu`</span> nicht so optimal. Du machst</span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a><span class="fu"># Code Check 19.1.2024</span></span>
 <span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">par_ocu =</span> <span class="fu">case_when</span>((t731403_g8 <span class="sc">&gt;=</span> <span class="dv">8</span> <span class="sc">|</span> t731453_g8 <span class="sc">&gt;=</span> <span class="dv">8</span>) <span class="sc">~</span> <span class="dv">1</span>,    </span>
-<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>                                    (t731403_g8 <span class="sc">&lt;=</span> <span class="dv">7</span> <span class="sc">|</span> t731453_g8 <span class="sc">&lt;=</span> <span class="dv">7</span>) <span class="sc">~</span> <span class="dv">2</span>,</span>
-<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>                                    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="fu">as.numeric</span>(<span class="cn">NA</span>)))</span>
-<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>                                    <span class="co"># 1 = working class, </span></span>
-<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>                                    <span class="co"># 2 = mixed and service class</span></span>
-<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>Dabei ist beispielsweise die Ausprägung 4 (=&quot;Angestellte der ausführenden nicht‐manuellen Klasse mit gering qualifizierten Routinetätigkeiten&quot;)laut Wikipedia beispielsweise eine Kassiererin. Wäre das nicht auch working class? D.h. woher hast du die Unterscheidung in working class und mixed + service class? Gibt es hier vielleicht eine gute Quelle? \</span>
-<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a>Außerdem stimmt glaube ich eine der <span class="in">`case_when()`</span> Bedingungen nicht. Wenn du die Bedingung <span class="in">`t731403_g8 &gt;= 8 | t731453_g8 &gt;= 8) ~ 1,`</span> setzt, dann wird auch Personen eine 1 vergeben, von denen **ein** Elternteil <span class="in">`&gt;= 8`</span> ist. D.h. alle die &quot;mixed&quot; Eltern haben bekommen auch eine 1. Das war glaube ich nicht deine Absicht, oder? Für die working class müssten deiner Definition nach beide Eltern Werte von <span class="in">`&gt;= 8`</span> haben, richtig? Dann müsste heißen:</span>
-<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">par_ocu =</span> <span class="fu">case_when</span>((t731403_g8 <span class="sc">&gt;=</span> <span class="dv">8</span> <span class="sc">&amp;</span> t731453_g8 <span class="sc">&gt;=</span> <span class="dv">8</span>) <span class="sc">~</span> <span class="dv">1</span>,    </span>
-<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a>                                    (t731403_g8 <span class="sc">&lt;=</span> <span class="dv">7</span> <span class="sc">|</span> t731453_g8 <span class="sc">&lt;=</span> <span class="dv">7</span>) <span class="sc">~</span> <span class="dv">2</span>,</span>
-<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>                                    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="fu">as.numeric</span>(<span class="cn">NA</span>)))</span>
-<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a>                                    <span class="co"># 1 = working class, </span></span>
-<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a>                                    <span class="co"># 2 = mixed and service class</span></span>
-<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a>Siehe <span class="in">`&amp;`</span> statt <span class="in">`|`</span> Verknüpfung.</span>
-<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a><span class="fu">## Zwischenwerte</span></span>
-<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a>Das ist hier kein Problem, trotzdem für die Zukunft: Hier müssen die Enden der Bedingungen jeweils aneinander ran reichen. Werte, die z.B. zwischen 1.5. und 1.6 liegen, würden in dem Skript nicht abgedeckt werden.</span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a><span class="fu">## `par_edu` vs. `par_ocu`</span></span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>Du hattest dich ja gewundert, warum Studierende oftmals Eltern ohne Hochschulabschluss haben (<span class="in">`par_edu`</span>), die Eltern dann aber keine mixed oder working class sind (<span class="in">`par_ocu`</span>): Vielleicht ist deine Um codierung in <span class="in">`par_ocu`</span> nicht so optimal. Du machst</span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">par_ocu =</span> <span class="fu">case_when</span>((t731403_g8 <span class="sc">&gt;=</span> <span class="dv">8</span> <span class="sc">|</span> t731453_g8 <span class="sc">&gt;=</span> <span class="dv">8</span>) <span class="sc">~</span> <span class="dv">1</span>,    </span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>                                    (t731403_g8 <span class="sc">&lt;=</span> <span class="dv">7</span> <span class="sc">|</span> t731453_g8 <span class="sc">&lt;=</span> <span class="dv">7</span>) <span class="sc">~</span> <span class="dv">2</span>,</span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>                                    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="fu">as.numeric</span>(<span class="cn">NA</span>)))</span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>                                    <span class="co"># 1 = working class, </span></span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>                                    <span class="co"># 2 = mixed and service class</span></span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a>Dabei ist beispielsweise die Ausprägung 4 (=&quot;Angestellte der ausführenden nicht‐manuellen Klasse mit gering qualifizierten Routinetätigkeiten&quot;)laut Wikipedia beispielsweise eine Kassiererin. Wäre das nicht auch working class? D.h. woher hast du die Unterscheidung in working class und mixed + service class? Gibt es hier vielleicht eine gute Quelle? \</span>
+<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a>Außerdem stimmt glaube ich eine der <span class="in">`case_when()`</span> Bedingungen nicht. Wenn du die Bedingung <span class="in">`t731403_g8 &gt;= 8 | t731453_g8 &gt;= 8) ~ 1,`</span> setzt, dann wird auch Personen eine 1 vergeben, von denen **ein** Elternteil <span class="in">`&gt;= 8`</span> ist. D.h. alle die &quot;mixed&quot; Eltern haben bekommen auch eine 1. Das war glaube ich nicht deine Absicht, oder? Für die working class müssten deiner Definition nach beide Eltern Werte von <span class="in">`&gt;= 8`</span> haben, richtig? Dann müsste heißen:</span>
+<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">par_ocu =</span> <span class="fu">case_when</span>((t731403_g8 <span class="sc">&gt;=</span> <span class="dv">8</span> <span class="sc">&amp;</span> t731453_g8 <span class="sc">&gt;=</span> <span class="dv">8</span>) <span class="sc">~</span> <span class="dv">1</span>,    </span>
+<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a>                                    (t731403_g8 <span class="sc">&lt;=</span> <span class="dv">7</span> <span class="sc">|</span> t731453_g8 <span class="sc">&lt;=</span> <span class="dv">7</span>) <span class="sc">~</span> <span class="dv">2</span>,</span>
+<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a>                                    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="fu">as.numeric</span>(<span class="cn">NA</span>)))</span>
+<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a>                                    <span class="co"># 1 = working class, </span></span>
+<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a>                                    <span class="co"># 2 = mixed and service class</span></span>
+<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a>Siehe <span class="in">`&amp;`</span> statt <span class="in">`|`</span> Verknüpfung.</span>
 <span id="cb7-89"><a href="#cb7-89" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-92"><a href="#cb7-92" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb7-93"><a href="#cb7-93" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">paa_gpa =</span> <span class="fu">case_when</span>(ts11218 <span class="sc">&gt;=</span> <span class="fl">3.6</span> <span class="sc">&amp;</span>  ts11218 <span class="sc">&lt;=</span> <span class="fl">4.0</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
-<span id="cb7-94"><a href="#cb7-94" aria-hidden="true" tabindex="-1"></a>                                    ts11218 <span class="sc">&gt;=</span> <span class="fl">2.6</span> <span class="sc">&amp;</span>  ts11218 <span class="sc">&lt;=</span> <span class="fl">3.5</span> <span class="sc">~</span> <span class="dv">2</span>,</span>
-<span id="cb7-95"><a href="#cb7-95" aria-hidden="true" tabindex="-1"></a>                                    ts11218 <span class="sc">&gt;=</span> <span class="fl">1.6</span> <span class="sc">&amp;</span>  ts11218 <span class="sc">&lt;=</span> <span class="fl">2.5</span> <span class="sc">~</span> <span class="dv">3</span>,</span>
-<span id="cb7-96"><a href="#cb7-96" aria-hidden="true" tabindex="-1"></a>                                    ts11218 <span class="sc">&gt;=</span> <span class="fl">1.0</span> <span class="sc">&amp;</span>  ts11218 <span class="sc">&lt;=</span> <span class="fl">1.5</span> <span class="sc">~</span> <span class="dv">4</span>,</span>
-<span id="cb7-97"><a href="#cb7-97" aria-hidden="true" tabindex="-1"></a>                                    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="fu">as.numeric</span>(<span class="cn">NA</span>)))  <span class="sc">%&gt;%</span></span>
-<span id="cb7-98"><a href="#cb7-98" aria-hidden="true" tabindex="-1"></a>                                    <span class="co"># 1 = sufficient, 2 = satisfactory, </span></span>
-<span id="cb7-99"><a href="#cb7-99" aria-hidden="true" tabindex="-1"></a>                                    <span class="co"># 3 = good, 4 = very good)</span></span>
-<span id="cb7-100"><a href="#cb7-100" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-101"><a href="#cb7-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-102"><a href="#cb7-102" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a>Also müsstest du 2 Dinge machen: (1) die Werte direkt aneinander anschließen und (2) auf einer Seite das <span class="in">`=`</span> entfernen, damit die Bedingungen eindeutig definiert sind. Beispiel für hier:</span>
+<span id="cb7-90"><a href="#cb7-90" aria-hidden="true" tabindex="-1"></a><span class="fu">## Zwischenwerte</span></span>
+<span id="cb7-91"><a href="#cb7-91" aria-hidden="true" tabindex="-1"></a>Das ist hier kein Problem, trotzdem für die Zukunft: Hier müssen die Enden der Bedingungen jeweils aneinander ran reichen. Werte, die z.B. zwischen 1.5. und 1.6 liegen, würden in dem Skript nicht abgedeckt werden.</span>
+<span id="cb7-92"><a href="#cb7-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-95"><a href="#cb7-95" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb7-96"><a href="#cb7-96" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">paa_gpa =</span> <span class="fu">case_when</span>(ts11218 <span class="sc">&gt;=</span> <span class="fl">3.6</span> <span class="sc">&amp;</span>  ts11218 <span class="sc">&lt;=</span> <span class="fl">4.0</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb7-97"><a href="#cb7-97" aria-hidden="true" tabindex="-1"></a>                                    ts11218 <span class="sc">&gt;=</span> <span class="fl">2.6</span> <span class="sc">&amp;</span>  ts11218 <span class="sc">&lt;=</span> <span class="fl">3.5</span> <span class="sc">~</span> <span class="dv">2</span>,</span>
+<span id="cb7-98"><a href="#cb7-98" aria-hidden="true" tabindex="-1"></a>                                    ts11218 <span class="sc">&gt;=</span> <span class="fl">1.6</span> <span class="sc">&amp;</span>  ts11218 <span class="sc">&lt;=</span> <span class="fl">2.5</span> <span class="sc">~</span> <span class="dv">3</span>,</span>
+<span id="cb7-99"><a href="#cb7-99" aria-hidden="true" tabindex="-1"></a>                                    ts11218 <span class="sc">&gt;=</span> <span class="fl">1.0</span> <span class="sc">&amp;</span>  ts11218 <span class="sc">&lt;=</span> <span class="fl">1.5</span> <span class="sc">~</span> <span class="dv">4</span>,</span>
+<span id="cb7-100"><a href="#cb7-100" aria-hidden="true" tabindex="-1"></a>                                    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="fu">as.numeric</span>(<span class="cn">NA</span>)))  <span class="sc">%&gt;%</span></span>
+<span id="cb7-101"><a href="#cb7-101" aria-hidden="true" tabindex="-1"></a>                                    <span class="co"># 1 = sufficient, 2 = satisfactory, </span></span>
+<span id="cb7-102"><a href="#cb7-102" aria-hidden="true" tabindex="-1"></a>                                    <span class="co"># 3 = good, 4 = very good)</span></span>
+<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb7-104"><a href="#cb7-104" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-107"><a href="#cb7-107" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb7-108"><a href="#cb7-108" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">paa_gpa =</span> <span class="fu">case_when</span>(ts11218 <span class="sc">&gt;=</span> <span class="fl">3.6</span> <span class="sc">&amp;</span>  ts11218 <span class="sc">&lt;=</span> <span class="fl">4.0</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
-<span id="cb7-109"><a href="#cb7-109" aria-hidden="true" tabindex="-1"></a>                                    ts11218 <span class="sc">&gt;=</span> <span class="fl">2.6</span> <span class="sc">&amp;</span>  ts11218 <span class="sc">&lt;</span> <span class="fl">3.6</span> <span class="sc">~</span> <span class="dv">2</span>,</span>
-<span id="cb7-110"><a href="#cb7-110" aria-hidden="true" tabindex="-1"></a>                                    ts11218 <span class="sc">&gt;=</span> <span class="fl">1.6</span> <span class="sc">&amp;</span>  ts11218 <span class="sc">&lt;</span> <span class="fl">2.6</span> <span class="sc">~</span> <span class="dv">3</span>,</span>
-<span id="cb7-111"><a href="#cb7-111" aria-hidden="true" tabindex="-1"></a>                                    ts11218 <span class="sc">&gt;=</span> <span class="fl">1.0</span> <span class="sc">&amp;</span>  ts11218 <span class="sc">&lt;</span> <span class="fl">1.6</span> <span class="sc">~</span> <span class="dv">4</span>,</span>
-<span id="cb7-112"><a href="#cb7-112" aria-hidden="true" tabindex="-1"></a>                                    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="fu">as.numeric</span>(<span class="cn">NA</span>)))  <span class="sc">%&gt;%</span></span>
-<span id="cb7-113"><a href="#cb7-113" aria-hidden="true" tabindex="-1"></a>                                    <span class="co"># 1 = sufficient, 2 = satisfactory, </span></span>
-<span id="cb7-114"><a href="#cb7-114" aria-hidden="true" tabindex="-1"></a>                                    <span class="co"># 3 = good, 4 = very good)</span></span>
-<span id="cb7-115"><a href="#cb7-115" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-116"><a href="#cb7-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-117"><a href="#cb7-117" aria-hidden="true" tabindex="-1"></a><span class="fu">## Sorry it&#39;s superseded</span></span>
-<span id="cb7-118"><a href="#cb7-118" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-119"><a href="#cb7-119" aria-hidden="true" tabindex="-1"></a>Das hier ist &quot;alter&quot; Code:</span>
-<span id="cb7-120"><a href="#cb7-120" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-123"><a href="#cb7-123" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb7-124"><a href="#cb7-124" aria-hidden="true" tabindex="-1"></a>data6 <span class="ot">&lt;-</span> data5 <span class="sc">%&gt;%</span> </span>
-<span id="cb7-125"><a href="#cb7-125" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate_all</span>( <span class="sc">~</span> <span class="fu">ifelse</span>(<span class="fu">is.nan</span>(.), <span class="cn">NA</span>, .))</span>
-<span id="cb7-126"><a href="#cb7-126" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-127"><a href="#cb7-127" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-128"><a href="#cb7-128" aria-hidden="true" tabindex="-1"></a><span class="in">`mutate_all()`</span> und <span class="in">`mutate_at()`</span> etc wurde abgelöst. In deinem Fall von <span class="in">`across()`</span>. So heißt das heute bei den coolen Kids:</span>
-<span id="cb7-129"><a href="#cb7-129" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-132"><a href="#cb7-132" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb7-133"><a href="#cb7-133" aria-hidden="true" tabindex="-1"></a>data6 <span class="ot">&lt;-</span> data5 <span class="sc">%&gt;%</span> </span>
-<span id="cb7-134"><a href="#cb7-134" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), <span class="sc">~</span> <span class="fu">ifelse</span>(<span class="fu">is.nan</span>(.x), <span class="cn">NA</span>, .x)))</span>
-<span id="cb7-135"><a href="#cb7-135" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-136"><a href="#cb7-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-137"><a href="#cb7-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-105"><a href="#cb7-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-106"><a href="#cb7-106" aria-hidden="true" tabindex="-1"></a>Also müsstest du 2 Dinge machen: (1) die Werte direkt aneinander anschließen und (2) auf einer Seite das <span class="in">`=`</span> entfernen, damit die Bedingungen eindeutig definiert sind. Beispiel für hier:</span>
+<span id="cb7-107"><a href="#cb7-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-110"><a href="#cb7-110" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb7-111"><a href="#cb7-111" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">paa_gpa =</span> <span class="fu">case_when</span>(ts11218 <span class="sc">&gt;=</span> <span class="fl">3.6</span> <span class="sc">&amp;</span>  ts11218 <span class="sc">&lt;=</span> <span class="fl">4.0</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb7-112"><a href="#cb7-112" aria-hidden="true" tabindex="-1"></a>                                    ts11218 <span class="sc">&gt;=</span> <span class="fl">2.6</span> <span class="sc">&amp;</span>  ts11218 <span class="sc">&lt;</span> <span class="fl">3.6</span> <span class="sc">~</span> <span class="dv">2</span>,</span>
+<span id="cb7-113"><a href="#cb7-113" aria-hidden="true" tabindex="-1"></a>                                    ts11218 <span class="sc">&gt;=</span> <span class="fl">1.6</span> <span class="sc">&amp;</span>  ts11218 <span class="sc">&lt;</span> <span class="fl">2.6</span> <span class="sc">~</span> <span class="dv">3</span>,</span>
+<span id="cb7-114"><a href="#cb7-114" aria-hidden="true" tabindex="-1"></a>                                    ts11218 <span class="sc">&gt;=</span> <span class="fl">1.0</span> <span class="sc">&amp;</span>  ts11218 <span class="sc">&lt;</span> <span class="fl">1.6</span> <span class="sc">~</span> <span class="dv">4</span>,</span>
+<span id="cb7-115"><a href="#cb7-115" aria-hidden="true" tabindex="-1"></a>                                    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="fu">as.numeric</span>(<span class="cn">NA</span>)))  <span class="sc">%&gt;%</span></span>
+<span id="cb7-116"><a href="#cb7-116" aria-hidden="true" tabindex="-1"></a>                                    <span class="co"># 1 = sufficient, 2 = satisfactory, </span></span>
+<span id="cb7-117"><a href="#cb7-117" aria-hidden="true" tabindex="-1"></a>                                    <span class="co"># 3 = good, 4 = very good)</span></span>
+<span id="cb7-118"><a href="#cb7-118" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-119"><a href="#cb7-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-120"><a href="#cb7-120" aria-hidden="true" tabindex="-1"></a><span class="fu">## Sorry it&#39;s superseded</span></span>
+<span id="cb7-121"><a href="#cb7-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-122"><a href="#cb7-122" aria-hidden="true" tabindex="-1"></a>Das hier ist &quot;alter&quot; Code:</span>
+<span id="cb7-123"><a href="#cb7-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-126"><a href="#cb7-126" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb7-127"><a href="#cb7-127" aria-hidden="true" tabindex="-1"></a>data6 <span class="ot">&lt;-</span> data5 <span class="sc">%&gt;%</span> </span>
+<span id="cb7-128"><a href="#cb7-128" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate_all</span>( <span class="sc">~</span> <span class="fu">ifelse</span>(<span class="fu">is.nan</span>(.), <span class="cn">NA</span>, .))</span>
+<span id="cb7-129"><a href="#cb7-129" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-130"><a href="#cb7-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-131"><a href="#cb7-131" aria-hidden="true" tabindex="-1"></a><span class="in">`mutate_all()`</span> und <span class="in">`mutate_at()`</span> etc wurde abgelöst. In deinem Fall von <span class="in">`across()`</span>. So heißt das heute bei den coolen Kids:</span>
+<span id="cb7-132"><a href="#cb7-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-135"><a href="#cb7-135" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb7-136"><a href="#cb7-136" aria-hidden="true" tabindex="-1"></a>data6 <span class="ot">&lt;-</span> data5 <span class="sc">%&gt;%</span> </span>
+<span id="cb7-137"><a href="#cb7-137" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), <span class="sc">~</span> <span class="fu">ifelse</span>(<span class="fu">is.nan</span>(.x), <span class="cn">NA</span>, .x)))</span>
+<span id="cb7-138"><a href="#cb7-138" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-139"><a href="#cb7-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-140"><a href="#cb7-140" aria-hidden="true" tabindex="-1"></a></span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
