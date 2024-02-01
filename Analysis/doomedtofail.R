@@ -145,14 +145,15 @@ spvoc_pr <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%
                                                        ts15218) %>%  # finished 
            dplyr::filter(subspell == 0 & tx20100 == 1 
                          & ts15201 <= 4 
-                         & ts1512y < 2010 & ts1512m < 10) %>%  
+                         & ts1512y <= 2010 & ts1512m <= 10) %>%  
            # keep full / harmonized episodes & completion before WT 2010
            dplyr::group_by(ID_t) %>%
-           dplyr::summarise(ts15218 = case_when(any(ts15218 == 1) ~ 1,
+           dplyr::summarise(ts15218 = case_when(any(ts15218 == 1) ~ 3,
                                                 any(ts15218 == 2) 
-                                                & any(is.na(ts15218)) ~ NA, 
-                                                all(ts15218 == 2) ~ 2))
+                                                & any(is.na(ts15218)) ~ as.numeric(NA), 
+                                                all(ts15218 == 2) ~ 4))
            # summarize the data per person across spells
+           # 3 = yes, 4 = no
 
 
 spvoc <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%   # (?) später nochmal Filter mit h_aktstu
@@ -288,11 +289,13 @@ data2 <- data %>%
                                     # 1 = no parent tertiary education, 2 = one 
                                     # parent, 3 = both parents
   
-  dplyr::mutate(par_ocu = case_when((t731403_g8 >= 9 & t731453_g8 >= 9) |       # Code prüfen
+  dplyr::mutate(par_ocu = case_when((t731403_g8 >= 9 & t731453_g8 >= 9) |       # Code pruefen
                                     (t731403_g8 == 4 & t731453_g8 == 4) ~ 1,
+                                    # (t731403_g8 %in% c(1:3, 5:8) | 
+                                    # t731453_g8 %in% c(1:3, 5:8)) ~ 2,
                                     (t731403_g8 <= 2 | t731453_g8 <= 2) ~ 3,
                                     (t731403_g8 %in% c(3, 5:8) | 
-                                       t731453_g8 %in% c(3, 5:8)) ~ 2,
+                                     t731453_g8 %in% c(3, 5:8)) ~ 2,
                                     TRUE ~ as.numeric(NA)))
                                     # 1 = working class,
                                     # 2 = intermediate class
@@ -325,8 +328,8 @@ data4 <- data3 %>%
                                     # 1 = sufficient, 2 = satisfactory, 
                                     # 3 = good, 4 = very good)
   
-  dplyr::mutate(voc_tra = case_when(ts15218 == 1 ~ 1,
-                                    ts15218 == 2 ~ 2,
+  dplyr::mutate(voc_tra = case_when(ts15218 == 4 ~ 1,
+                                    ts15218 == 3 ~ 2,
                                     TRUE ~ as.numeric(NA)))
                                     # 1 = no, 2 = yes
 
@@ -398,6 +401,8 @@ data5 <- data5 %>%
                                                             tg53112, tg53121, 
                                                             tg53122, tg53123)),
                                    na.rm = TRUE))
+
+
                                    
 
 #### ------------------------------ (5) LCA ------------------------------ ####
@@ -511,7 +516,7 @@ lc1 <- poLCA(f, dat_lca, nclass = 1, na.rm = FALSE, nrep = 10, maxiter = 5000)
 lc2 <- poLCA(f, dat_lca, nclass = 2, na.rm = FALSE, nrep = 10, maxiter = 5000)
 lc3 <- poLCA(f, dat_lca, nclass = 3, na.rm = FALSE, nrep = 10, maxiter = 8000)  
 lc4 <- poLCA(f, dat_lca, nclass = 4, na.rm = FALSE, nrep = 10, maxiter = 5000)
-lc5 <- poLCA(f, dat_lca, nclass = 5, na.rm = FALSE, nrep = 10, maxiter = 5000)
+lc5 <- poLCA(f, dat_lca, nclass = 5, na.rm = FALSE, nrep = 10, maxiter = 8000)
 lc6 <- poLCA(f, dat_lca, nclass = 6, na.rm = FALSE, nrep = 10, maxiter = 5000)
 
 # generate dataframe with fit-values
@@ -632,7 +637,7 @@ violin_socint <- ggplot(data6, aes(x=class, y=soc_int)) + geom_violin()
 anova_socint <- aov(soc_int ~ class, data = data6)
 summary(anova_socint)
 # report(anova_socint)
-# The main effect of class is statistically significant and very small
+# The main effect of class is statistically significant and small
 
 anova_acaint <- aov(aca_int ~ class, data = data6)
 summary(anova_acaint)
