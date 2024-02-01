@@ -36,6 +36,7 @@ library(scatterplot3d)
 library(LCAplotter)     # library(devtools)
                           # devtools::install_github("DavidykZhao/LCA_plotter")
 library(report)         # for producing reports 
+library(lavaan)         # for SEM
 
 
 
@@ -175,7 +176,10 @@ spvoc <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%   
 #        dplyr::filter(wave == 1)
 
 # View(filt %>% dplyr::filter(ID_t == "7002071"))
-  
+
+
+# Filter measures from StudyStates:
+ststa <- haven::read_sav("Data_SC5_D_18-0-0/SC5_StudyStates_D_18-0-0.sav") %>%  
 
 
 ####  -------------------------- (3) Merge Data -------------------------- ####
@@ -401,6 +405,11 @@ data5 <- data5 %>%
                                                             tg53112, tg53121, 
                                                             tg53122, tg53123)),
                                    na.rm = TRUE))
+
+## descision
+
+# drop out
+
 
 
                                    
@@ -665,5 +674,10 @@ plot2 <- plot2 + guides(fill = guide_legend(reverse = TRUE))
 plot2 <- plot2 + theme_minimal()
 plot2
 
-# class 14,5% could be our risk group, unfortunately lowest average latent 
+# class 14,6 % could be our risk group, unfortunately lowest average latent 
 # posterior probability
+
+
+
+#### ------------------------------ (6) SEM ------------------------------ ####
+
