@@ -444,33 +444,33 @@ desc <- desc[, c("name", "type", "n", "missing", "unique", "mode",
                    "mode_value", "v")]
 
 # continuous variables should have many unique values, if not, it may be better 
-# to model them as ordinal
+# to model them as "ordinal" (poLCA treats them as nominal)
 
-# Simplify categories  
-# otherwise model too compex and ML was not found:
+# simplify categories  
+# otherwise model too complex and ML was not found:
 data7 <- data6 %>% 
-  dplyr::mutate(ext_rnk = case_when(big_ext < 7/3 ~ 1,
-                                     between(big_ext, 7/3, 11/3) ~ 2,
-                                     big_ext > 11/3 ~ 3,
+  dplyr::mutate(ext_rnk = case_when(big_ext < 3.0 ~ 1,
+                                     between(big_ext, 3.0, 3.5) ~ 2,
+                                     big_ext > 3.5 ~ 3,
                                      TRUE ~ as.numeric(NA))) %>%
-  dplyr::mutate(agr_rnk = case_when(big_agr < 7/3 ~ 1,
-                                     between(big_agr, 7/3, 11/3) ~ 2,
-                                     big_agr > 11/3 ~ 3,
+  dplyr::mutate(agr_rnk = case_when(big_agr < 3.333333 ~ 1,
+                                     between(big_agr, 3.333333, 3.666667) ~ 2,
+                                     big_agr > 3.666667 ~ 3,
                                      TRUE ~ as.numeric(NA))) %>%
-  dplyr::mutate(con_rnk = case_when(big_con < 7/3 ~ 1,
-                                     between(big_con, 7/3, 11/3) ~ 2,
-                                     big_con > 11/3 ~ 3,
+  dplyr::mutate(con_rnk = case_when(big_con < 3.0 ~ 1,                          # trichotomized by tertile
+                                     between(big_con, 3.0, 3.5) ~ 2,
+                                     big_con > 3.5 ~ 3,
                                      TRUE ~ as.numeric(NA))) %>%
-  dplyr::mutate(neu_rnk = case_when(big_neu < 7/3 ~ 1,
-                                     between(big_neu, 7/3, 11/3) ~ 2,
-                                     big_neu > 11/3 ~ 3,
+  dplyr::mutate(neu_rnk = case_when(big_neu < 2.5 ~ 1,
+                                     between(big_neu, 2.5, 3.0) ~ 2,
+                                     big_neu > 3.0 ~ 3,
                                      TRUE ~ as.numeric(NA))) %>%
-  dplyr::mutate(ope_rnk = case_when(big_ope < 7/3 ~ 1,
-                                    between(big_ope, 7/3, 11/3) ~ 2,
-                                    big_ope > 11/3 ~ 3,
+  dplyr::mutate(ope_rnk = case_when(big_ope < 3.0 ~ 1,
+                                    between(big_ope, 3.0, 3.5) ~ 2,
+                                    big_ope > 3.5 ~ 3,
                                     TRUE ~ as.numeric(NA))) %>%
-  dplyr::mutate(inm_di = ifelse(fem_inm <= 2.5, 1, 2),
-                exm_di = ifelse(fem_exm <= 2.5, 1, 2))
+  dplyr::mutate(inm_di = ifelse(fem_inm < 3.22, 1, 2),                         # dichotomized by mode
+                exm_di = ifelse(fem_exm <= 2.25, 1, 2))
                 
 
 dat_lca <- data7 %>% 
@@ -689,7 +689,7 @@ plot2 <- plot2 + guides(fill = guide_legend(reverse = TRUE))
 plot2 <- plot2 + theme_minimal()
 plot2
 
-# class 14,6 % could be our risk group, unfortunately lowest average latent 
+# class 18,8 % could be our risk group, unfortunately lowest average latent 
 # posterior probability
 
 # poLCA does not treat indicators as ordinal but only as nominal (could be a prob.)
