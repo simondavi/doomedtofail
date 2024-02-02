@@ -40,6 +40,8 @@ editor_options:
 - Lehramtsstudierendenpanel oder alle, die angeben Lehramt zu studieren nutzen?<br /> 
   ? Eher eine abstrakte Frage
 \
+- "Though it may be tempting to simply extract individuals’ modal class assignment from the results and use this as a manifest variable for further analyses, it is well known that this procedure leads to biased results and is inappropriate. The reason is that this hard classification disregards the classification uncertainty." Oh no! tidySEM hat dafür zwar die Funktion BCH()...aber eine Mediation, so wie geplant, ist damit nach erster Durchsicht nicht möglich. Work around: In our practice, we use a probability cut-off of ≥ 0.5 to assign class. https://doi.org/10.1097%2FCCM.0000000000004710
+\
 \
 
 

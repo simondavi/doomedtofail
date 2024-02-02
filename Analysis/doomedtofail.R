@@ -636,8 +636,23 @@ meanpostprob <- round(aggregate(x = lc3$posterior,
 # 0.72, 0.90, 0.87
 
 # assign each case to a specific class (group) based on their posterior class 
-# membership probabilities:
-data6$class <- lc3$predclass
+# membership probabilities if ≥ 0.5:
+data6$class1 <- lc3$predclass
+data6$class2 <- lc3$posterior >= 0.5
+
+data6 <- data6 %>%
+  dplyr::mutate(class = case_when(lc3$posterior[,1]  >= 0.5 &
+                                    lc3$posterior[,2] < 0.5 &
+                                    lc3$posterior[,3] < 0.5 ~ 1,
+                                  lc3$posterior[,2]  >= 0.5 &
+                                    lc3$posterior[,1] < 0.5 &
+                                    lc3$posterior[,3] < 0.5 ~ 2,
+                                  lc3$posterior[,3]  >= 0.5 &
+                                    lc3$posterior[,1] < 0.5 &
+                                    lc3$posterior[,2] < 0.5 ~ 3,
+                                  TRUE ~ as.numeric(NA)))
+
+View(data6 %>% dplyr::select(class1, class, class2))
 
 data6$class <- as.factor(data6$class)
 mean_socint <- aggregate(data6$soc_int, list(data6$class), mean , na.rm = T)
@@ -677,6 +692,7 @@ plot2
 # class 14,6 % could be our risk group, unfortunately lowest average latent 
 # posterior probability
 
+# poLCA does not treat indicators as ordinal but only as nominal (could be a prob.)
 
 
 #### ------------------------------ (6) SEM ------------------------------ ####
