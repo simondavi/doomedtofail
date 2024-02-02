@@ -434,7 +434,7 @@ desc0 <- desc0[, c("name", "type", "n", "missing", "unique", "mode",
 # lev_inm <- list(levels(as.factor(data6$fem_inm)))
 # lev_exm <- list(levels(as.factor(data6$fem_exm)))
 
-data7 <- data6 %>% 
+data7 <- data7 %>% 
   dplyr::mutate(par_edu = mxFactor(par_edu, 
                                    levels = c("1", "2", "3"))) %>% 
   dplyr::mutate(par_ocu = mxFactor(par_ocu, 
@@ -447,15 +447,38 @@ data7 <- data6 %>%
                                    levels = c("1", "2", "3", "4", "5"))) %>%
   dplyr::mutate(voc_tra = mxFactor(voc_tra, 
                                    levels = c("1", "2"))) %>%
-  dplyr::mutate_at(c('big_ext', 
-                     'big_agr',
-                     'big_con', 
-                     'big_neu',
-                     'big_ope', 
-                     'fem_inm',
-                     'fem_exm'), ~ (scale(.) %>% as.vector)) %>%
+  dplyr::mutate(ext_rnk = mxFactor(ext_rnk, 
+                                   levels = c("1", "2", "3"))) %>%
+  dplyr::mutate(agr_rnk = mxFactor(agr_rnk, 
+                                   levels = c("1", "2", "3"))) %>%
+  dplyr::mutate(con_rnk = mxFactor(con_rnk, 
+                                   levels = c("1", "2", "3"))) %>%
+  dplyr::mutate(neu_rnk = mxFactor(neu_rnk, 
+                                   levels = c("1", "2", "3"))) %>%
+  dplyr::mutate(ope_rnk = mxFactor(ope_rnk, 
+                                   levels = c("1", "2", "3"))) %>%
+  dplyr::mutate(inm_di = mxFactor(inm_di, 
+                                   levels = c("1", "2"))) %>%
+  dplyr::mutate(exm_di = mxFactor(exm_di, 
+                                   levels = c("1", "2"))) 
+  
+  
+
+# dplyr::mutate_at(c('big_ext', 
+#                     'big_agr',
+#                     'big_con', 
+#                     'big_neu',
+#                     'big_ope', 
+#                     'fem_inm',
+#                     'fem_exm'), ~ (scale(.) %>% as.vector)) %>%
 
 # examine variables variables again
+  
+df <- data7 %>%
+dplyr::select(par_edu, par_ocu, mig_bac, typ_sch, paa_gpa,
+              voc_tra, ext_rnk, agr_rnk, con_rnk, neu_rnk,
+              ope_rnk, inm_di, exm_di)
+
 df <- data7 %>%
   dplyr::select(par_edu, par_ocu, mig_bac, typ_sch, paa_gpa,
                 voc_tra, big_ext, big_agr, big_con, big_neu,
