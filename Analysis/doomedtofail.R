@@ -687,7 +687,6 @@ plot2 <- plot2 + geom_bar(stat = "identity", position = "stack")
 plot2 <- plot2 + facet_grid(Var1 ~ .) 
 plot2 <- plot2 + guides(fill = guide_legend(reverse = TRUE))
 plot2 <- plot2 + theme_minimal()
-plot2 <- plot2 + sscale_fill_brewer(type="seq", palette="Greys")
 plot2
 
 # class 18,8 % could be our risk group, unfortunately lowest average latent 
