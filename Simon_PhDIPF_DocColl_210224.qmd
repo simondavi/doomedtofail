@@ -10,7 +10,7 @@ execute:
   echo: true
   warning: false
   message: false
-  cache: false # true will prevent embed-resources
+  cache: false
 format: 
   html:
     theme: flatly
@@ -18,7 +18,7 @@ format:
     toc: true
     toc-location: left
     toc-depth: 4
-    embed-resources: true # will make standalone html file
+    embed-resources: true
     code-fold: show
     code-tools: true
     code-link: true
