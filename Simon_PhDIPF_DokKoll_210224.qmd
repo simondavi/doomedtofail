@@ -1,6 +1,6 @@
 ---
-title: "Doctoral Colloquium, 21.02.24"
-subtitle: "The Role of Personal Entry Characteristics in Dropout from Teacher Education"
+title: "The Role of Personal Entry Characteristics in Dropout from Teacher Education"
+subtitle: "Doctoral Colloquium, 21 February 2024" 
 title-block-banner: true
 author: David Simon [david.simon@dipf.de]
 date: today
