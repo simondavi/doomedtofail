@@ -1,0 +1,48 @@
+---
+title: "Doctoral Colloquium, 21.02.24"
+subtitle: "The Role of Personal Entry Characteristics in Dropout from Teacher Education"
+title-block-banner: true
+author: David Simon [david.simon@dipf.de]
+date: today
+date-format: "DD MMMM YYYY"
+editor: source
+execute:
+  echo: true
+  warning: false
+  message: false
+  cache: false # true will prevent embed-resources
+format: 
+  html:
+    theme: flatly
+    fontsize: 1.0em
+    toc: true
+    toc-location: left
+    toc-depth: 4
+    embed-resources: true # will make standalone html file
+    code-fold: show
+    code-tools: true
+    code-link: true
+# bibliography: ../www/references.bib
+csl: https://raw.githubusercontent.com/citation-style-language/styles/master/apa.csl
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
