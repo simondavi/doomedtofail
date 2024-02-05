@@ -179,7 +179,16 @@ spvoc <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%   
 
 
 # Filter measures from StudyStates:
-ststa <- haven::read_sav("Data_SC5_D_18-0-0/SC5_StudyStates_D_18-0-0.sav") %>%  
+ststa <- haven::read_sav("Data_SC5_D_18-0-0/SC5_StudyStates_D_18-0-0.sav") %>%
+         dplyr::select(ID_t, wave, tx24022,  # Episode number
+                                   tx15318) %>%  # Successful completion
+         dplyr::filter(tx24022 > 0) %>% 
+         dplyr::group_by(ID_t) %>%
+         dplyr::summarise(tx15318 = case_when(any(tx15318 == 1) ~ 3, 
+                                              any(tx15318 == 0)
+                                              & all(tx15318 != 1) ~ 4,
+                                              any(is.na(tx15318)) ~ as.numeric(NA)))
+
 
 
 ####  -------------------------- (3) Merge Data -------------------------- ####
@@ -250,6 +259,11 @@ data <- rquery::natural_join(data, spvoc_pr,
                              jointype = "LEFT") 
 
 data <- rquery::natural_join(data, spvoc,
+                             by = "ID_t",
+                             jointype = "LEFT") 
+
+
+data <- rquery::natural_join(data, ststa,
                              by = "ID_t",
                              jointype = "LEFT") %>%
   
@@ -406,13 +420,15 @@ data5 <- data5 %>%
                                                             tg53122, tg53123)),
                                    na.rm = TRUE))
 
-## descision
+## decision
 
 # drop out
-
-
-
-                                   
+data5 <- data5 %>% 
+ dplyr::mutate(stu_com = case_when(tx15318 == 3 ~ 0, 
+                                   tx15318 == 4 ~ 1,
+                                   TRUE ~ as.numeric(NA)))
+  
+                                 
 
 #### ------------------------------ (5) LCA ------------------------------ ####
 
@@ -695,5 +711,102 @@ plot2
 # poLCA does not treat indicators as ordinal but only as nominal (could be a prob.)
 
 
+#### ------------------------------ (6) ANOVA ------------------------------ ####
+data6 <- data6 %>%
+  dplyr::mutate(rsk_grp = ifelse(class == 3, 1, 0)) 
+
+data6$rsk_grp <- as.factor(data6$rsk_grp)
+
+mean_socint2 <- aggregate(data6$soc_int, list(data6$rsk_grp), mean , na.rm = T)
+boxplot_socint <- ggplot(filter(data6, !is.na(rsk_grp)), aes(x = rsk_grp, y=soc_int)) + geom_boxplot()
+
+anova_socint2 <- aov(soc_int ~ rsk_grp, data = data6)
+summary(anova_socint2)
+report(anova_socint2)
+
+anova_acaint2 <- aov(aca_int ~ rsk_grp, data = data6)
+summary(anova_acaint2)
+report(anova_acaint2)
+
+
+
 #### ------------------------------ (6) SEM ------------------------------ ####
+
+model <- ' # direct effect
+             stu_com  ~ c*rsk_grp
+           # mediator
+             aca_int ~ a*rsk_grp
+             stu_com ~ b*aca_int
+           # indirect effect (a*b)
+             ab := a*b
+           # total effect
+             total := c + (a*b)
+         '
+fit <- sem(model, data = data6, ordered = c("stu_com"))
+summary(fit)
+
+
+model2 <- ' # direct effect
+             stu_com  ~ c*rsk_grp
+           # mediator
+             soc_int ~ a*rsk_grp
+             stu_com ~ b*soc_int
+           # indirect effect (a*b)
+             ab := a*b
+           # total effect
+             total := c + (a*b)
+         '
+fit2 <- sem(model2, data = data6, ordered = c("stu_com"))
+summary(fit2)
+
+
+## one covariate
+dat_lca2 <- data7 %>% 
+  dplyr::mutate(
+    across(c(par_edu,
+             par_ocu,
+             mig_bac,
+             typ_sch,
+             paa_gpa,
+             voc_tra,
+             ext_rnk,
+             agr_rnk,
+             con_rnk,
+             neu_rnk,
+             ope_rnk,
+             inm_di,
+             exm_di,
+             soc_int,
+             aca_int),
+           as.integer))
+
+f.socint <- with(dat_lca2, cbind(par_edu, par_ocu, mig_bac, typ_sch, paa_gpa,
+                              voc_tra, ext_rnk, agr_rnk, con_rnk, neu_rnk,
+                              ope_rnk, inm_di, exm_di) ~ soc_int)
+
+nes.socint <- poLCA(f.socint, dat_lca2, nclass=3)       # log-likelihood: -16222.32
+
+probs.start <- poLCA.reorder(nes.socint$probs.start,
+                             order(nes.socint$P, decreasing = TRUE))
+
+nes.socint <- poLCA(f.socint, dat_lca2, nclass = 3, probs.start = probs.start)
+
+
+
+
+f.acaint <- with(dat_lca2, cbind(par_edu, par_ocu, mig_bac, typ_sch, paa_gpa,
+                                 voc_tra, ext_rnk, agr_rnk, con_rnk, neu_rnk,
+                                 ope_rnk, inm_di, exm_di) ~ aca_int)
+
+nes.acaint <- poLCA(f.acaint, dat_lca2, nclass = 3)       # log-likelihood: -16222.32
+
+probs.start <- poLCA.reorder(nes.acaint$probs.start,
+                             order(nes.acaint$P, decreasing = TRUE))
+
+nes.acaint <- poLCA(f.acaint, dat_lca2, nclass = 3, probs.start = probs.start)
+
+# 
+
+
+
 
