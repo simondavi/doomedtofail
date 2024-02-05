@@ -22,21 +22,24 @@ format:
     code-fold: show
     code-tools: true
     code-link: true
-# bibliography: ../www/references.bib
 csl: https://raw.githubusercontent.com/citation-style-language/styles/master/apa.csl
+bibliography: references.bib
 ---
 
 ## Introduction
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+Extended summary (parts) proposal SIG 11 & 13 Conference 2024, tba.
+Example reference [@heublein2014].
+The preregistrationis avaliable under https://doi.org/10.17605/OSF.IO/D2K7Y
 
 ## Analysis
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this [@meyer1999]:
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this [@heublein2014]:
 
 ### Step 1
 
 ```{r}
+#| echo: false
 1 + 1
 ```
 
@@ -48,3 +51,6 @@ You can add options to executable code like this
 ```
 
 The `echo: false` option disables the printing of code (only output is displayed).
+
+## 50 Topics to Spark Good Conversation
+- Question 1
