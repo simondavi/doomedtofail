@@ -718,7 +718,7 @@ data6 <- data6 %>%
 data6$rsk_grp <- as.factor(data6$rsk_grp)
 
 mean_socint2 <- aggregate(data6$soc_int, list(data6$rsk_grp), mean , na.rm = T)
-boxplot_socint <- ggplot(filter(data6, !is.na(rsk_grp)), aes(x = rsk_grp, y=soc_int)) + geom_boxplot()
+boxplot_socint <- ggplot(filter(data6, !is.na(rsk_grp)), aes(x = rsk_grp, y = soc_int)) + geom_boxplot()
 
 anova_socint2 <- aov(soc_int ~ rsk_grp, data = data6)
 summary(anova_socint2)
