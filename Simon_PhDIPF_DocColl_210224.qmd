@@ -10,7 +10,7 @@ execute:
   echo: true
   warning: false
   message: false
-  cache: false
+  cache: true
   results: false 
 format: 
   html:
@@ -39,7 +39,7 @@ I would like to ask you to read the following document. We had to make a number 
 
 ## Theoretical Background
 
-Evidence from dropout research regularly highlights the relevance of individual characteristics prior to entering higher education, e.g. @isleib2019. In this vein several determinants that define the dropout process within a general population of students prior to entering a study program have been distinguished. These determinants encompass factors such as origin, personality and socialization in the education process [@heublein2014]. Disadvantages are to be expected in the case of lower socioeconomic status, migration background, non-Gymnasium entrance certificate, lower prior academic achievements, a completion of a vocational training prior to entering higher education, lower scores on the personality trait conscientiousness and a primarily extrinsic motivation for choosing a degree program. [@isleib2019].
+Evidence from dropout research regularly highlights the relevance of individual characteristics prior to entering higher education, e.g. @isleib2019. In this vein several determinants that define the dropout process within a general population of students prior to entering a study program have been distinguished. These determinants encompass factors such as origin, personality and socialization in the education process [@heublein2014]. Disadvantages are to be expected in the case of lower socioeconomic status, migration background, non-Gymnasium entrance certificate, lower prior academic achievements, a completion of a vocational training prior to entering higher education, lower scores on the personality trait conscientiousness and a primarily extrinsic motivation for choosing a degree program [@isleib2019].
 
 The set of entry characteristics discussed in this strand of research will serve us as a set of indicators for a Latent-Class-Analysis:
 
