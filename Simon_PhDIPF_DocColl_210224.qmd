@@ -11,6 +11,7 @@ execute:
   warning: false
   message: false
   cache: false
+  results: false 
 format: 
   html:
     theme: flatly
@@ -19,7 +20,7 @@ format:
     toc-location: left
     toc-depth: 4
     embed-resources: true
-    code-fold: show
+    code-fold: true
     code-tools: true
     code-link: true
 csl: https://raw.githubusercontent.com/citation-style-language/styles/master/apa.csl
@@ -28,14 +29,13 @@ bibliography: references.bib
 
 ## Introduction
 
-Although political and social interest as well as research on dropout have increased, little is known about dropout from teacher education. We utilized a Latent-Class-Analysis to investigate dropout rates, as this allows us to map subgroups of students based on their individual characteristics prior to entering teacher education. We were interested in the question which combination of prerequisites makes it hard to study as successfully as their peers do. In addition we will investigate possible support mechanisms for a particular group of students who shows itself vulnerable to the conditions at higher education institutions.
+Although political and social interest as well as research on dropout have increased, little is known about dropout from teacher education. We utilized a Latent-Class-Analysis to investigate dropout rates, as this allows us to map subgroups of students based on their individual characteristics prior to entering teacher education. We were interested in the question which combination of prerequisites make it hard for some students to study as successfully as their peers do. In addition, we will investigate possible support mechanisms for a particular group of students who shows itself vulnerable to the conditions at higher education institutions.
 
 We assume to find several statistically separable subgroups among which at least one could be theoretically described as a risk group equaling an accumulation of unfavorable prerequisites in regards to educational failure. Furthermore, we hypothesize that members of the risk group will not be able to integrate successfully into the social or academic domain when transitioning into higher education and that, as a result, they will not be able to make productive use of the learning opportunities available and therefore be more likely to drop out of teacher education.
 
 This document is concerned with the first step of data analysis, the Latent-Class-Analysis. If you are interested in the whole proposal you can have a look at the preregistration here: <https://doi.org/10.17605/OSF.IO/D2K7Y>
 
-I would like to ask you to read the following document. We had to make a number of decisions and I am interested in whether you find the approach convincing or not. The topics of interest are listed at the end of the document.
-
+I would like to ask you to read the following document. We had to make a number of decisions and I am interested in whether you find the approach convincing or not. The topics of interest are listed at the end of the document.\
 
 ## Theoretical Background
 
@@ -43,25 +43,18 @@ Evidence from dropout research regularly highlights the relevance of individual 
 
 The set of entry characteristics discussed in this strand of research will serve us as a set of indicators for a Latent-Class-Analysis:
 
-1.  Socioeconomic background (parental education and parental occupation)
-
-2.  Migration background (parents' place of birth)
-
-3.  Type of entrance certificate (attended type of school)
-
-4.  Prior academic achievement (grade point average)
-
-5.  Big Five (extraversion, agreeableness, conscientiousness, neuroticism and openness)
-
-6.  Motivation for choosing teacher education (intrinsic motivation and extrinsic motivation)
-
+-   Socioeconomic background (parental education and parental occupation)
+-   Migration background (parents' place of birth)
+-   Type of entrance certificate (attended type of school)
+-   Prior academic achievement (grade point average)
+-   Big Five (extraversion, agreeableness, conscientiousness, neuroticism and openness)
+-   Motivation for choosing teacher education (intrinsic motivation and extrinsic motivation)
 
 ## Data Analysis
 
 Analysis is based on data from the German Panel of Teacher Education as part of the Starting Cohort First-Year Students (SC5) of the National Educational Panel Study (NEPS) [@educatio2019].
 
 ```{r}
-#| echo: false
 library(haven)          # to import SPSS files
 library(tidyverse)      # for data management
 library(reshape)
@@ -389,10 +382,9 @@ The resulting sample comprises **5775 Persons** (*M* = 20.73, *SD* = 2.87, 4337 
 
 ### Step 1: Examination of the Observed Data
 
-While describing the data numerically, see Table below, we noticed that the hypothetically continuous variables (Big 5 and Motivation for choosing teacher education) do not have a lot unique values and very right-skewed and some response categories have near-zero frequencies. It is recommended that continuous variables should have many unique values; if not, it may be better to model them as ordinal [@vanlissa2023].
+While describing the data numerically, see Table below, we noticed that the hypothetically continuous variables (Big 5 and motivation for choosing teacher education) do have just a few unique values and some response categories have near-zero frequencies. It is recommended that continuous variables should have many unique values and, if not, it is advised to better model them as ordinal [@vanlissa2023].
 
 ```{r}
-#| echo: false
 data6 <- data5 %>% 
   dplyr::mutate(across(everything(), ~ ifelse(is.nan(.x), NA, .x)))
 
@@ -416,23 +408,17 @@ desc <- desc[, c("name", "type", "n", "missing", "unique", "mode")]
 desc
 
 desc_plot <- data6 %>%
-   dplyr::mutate(
-    across(c(big_ext, 
-             big_agr, 
-             big_con, 
-             big_neu,
-             big_ope, 
-             fem_inm, 
-             fem_exm),
-           as.factor)) %>%
-  
+  dplyr::filter(!is.na(big_ext))  %>%
+  dplyr::filter(!is.na(big_agr))  %>%
+  dplyr::filter(!is.na(big_con))  %>%
+  dplyr::filter(!is.na(big_neu))  %>%
   dplyr::select(big_ext, 
-                big_agr, 
-                big_con, 
-                big_neu,
-                big_ope, 
-                fem_inm, 
-                fem_exm)
+                       big_agr, 
+                       big_con, 
+                       big_neu,
+                       big_ope, 
+                       fem_inm, 
+                       fem_exm)
 
 names(desc_plot) <- paste0("Value.", names(desc_plot))
 desc_plot <- reshape(desc_plot, varying = names(desc_plot), direction = "long")
@@ -443,10 +429,9 @@ desc_plot <- ggplot(desc_plot, aes(x = Value)) + geom_bar() +
 desc_plot
 ```
 
-Consequently we decided to rearange these variables into categories. In order to retain the distributions of each variable we computed a three-level variable for the Big 5 Variables, including the categories low, medium and high. As a cut-off we used each variables tertile. In case of the Motivation for choosing teacher education and the circumstance of skewness we took each variables median, dichotomizing the indicator into two categories: low and high.
+Consequently we decided to rearrange these variables into categories. In order to retain the distributions of each variable we computed a three-level variable for the Big 5, including the categories low, medium and high. As a cut-off we used each variables tertile. In case of the motivation for choosing teacher education and the circumstance of skewness we took each variables median, dichotomizing the indicator into two categories: low and high.
 
 ```{r}
-#| echo: false
 data7 <- data6 %>% 
   dplyr::mutate(ext_rnk = case_when(big_ext < 3.0 ~ 1,
                                      between(big_ext, 3.0, 3.5) ~ 2,
@@ -517,12 +502,16 @@ dat_plot <- ggplot(dat_plot, aes(x = Value)) + geom_bar() +
 dat_plot
 ```
 
-The variables shown above form the input variables for the calculation.
+The variables shown above formed the input variables for further analysis.
 
-### Step 2: Data Processing 
+### Step 2: Data Processing
+
+We computed the Latent-Class-Analysis following the guide by [@weller2020]. Model fit was examined based on our theoretical understanding of dropout from teacher education and the BIC (Bayesian Information Criterion) as a statistical criterion, with lower BIC indicating better model fit [@nylund2007]. We will stop evaluating classes, if the BIC increases three subsequent class solutions.
+
+Additionally, we reviewed the following classification diagnostics criteria. We desired entropy above .8 and the lowest average latent class posterior probability to be between .80 and .90 [@weller2020].
 
 ```{r}
-#| echo: false
+#| output: false
 f <- with(dat_lca, cbind(par_edu, par_ocu, mig_bac, typ_sch, paa_gpa,
                          ext_rnk, agr_rnk, con_rnk, neu_rnk,
                          ope_rnk, inm_di, exm_di) ~ 1)
@@ -618,47 +607,34 @@ colnames(results) <- c("Model","log-likelihood","resid. df","BIC","aBIC","cAIC",
                        "likelihood-ratio","Entropy")
 
 lca_results <- results
-```
 
-```{r}
-#| echo: false
 results
 ```
+We decided that the three class solutions is to be preferred. It is the model with the lowest BIC and the highest Entropy. Even if the latter and the lowest average latent class posterior probability are not as high as we desired, we interpret them as acceptable.
 
-We compute the Latentl-Class-Analysis following the guide by [@weller2020]. Model fit was examined based on our theoretical understanding of dropout from teacher education and the BIC (Bayesian Information Criterion) as a statistical criterium, with lower BIC indicating better model fit [@nylund2007]. We will stop adding classes, if the BIC increases three subsequent class solutions.
-
-Additionally, we reviewed classification diagnostics criteria. We desired entropy above .8 and the lowest average latent class posterior probability to be between .80 and .90 [@weller2020].
-
-We decided that the three class solutions is to be preferred. It is the model with the lowest BIC and the highest Entropy. Even if this and the lowest average latent class posterior probability are not as high as we desired, we interpret them as acceptable.
-
-The average latent posterior probabilities are presented in a matrix with diagonals representing the average probability of a person being assigned to a class given the indicator variables used. Higher diagonal values are desirable. Off-diagonal elements in the posterior probability matrix contain probabilities of cases that belong in one class being assigned to another class [@bauer2021]. The average latent class posterior probabilities of the three class solution are:
+The average latent posterior probabilities are presented in a matrix with diagonals representing the average probability of a person being assigned to a class given the indicator variables used. Higher diagonal values are desirable. Off-diagonal elements in the posterior probability matrix contain probabilities of cases that belong in one class being assigned to another class [@bauer2021]. The average latent class posterior probabilities of the three class solution are displayed below:
 
 ```{r}
-#| echo: false
 meanpostprob <- round(aggregate(x = lc3$posterior,
                                 by = list(lc3$predclass),FUN = "mean") , 2)
 meanpostprob
 ```
 
-
 ### Final Class Solution
 
 ```{r}
-#| echo: false
 best_model <- lc3
 plot <-  profile_plot(data = dat_lca, num_var = 12, model = lc3, form = f) 
 plot
 ```
 
-One group of the above can be classified a risk group. It compromised 18 % of the sample. Members of this group are characterized through a high probability of being a first-generation student whose parents can be assigned to working class. Students of this group had the highest probability of having a migration background and more likely attained their higher education entrance certificate not at a Gymnasium (type of school leading to upper secondary education and the entrance qualification for universities) and with a lower grade point average. Regarding there personality traits, they were more likely highly extroverted, open and, contrary to what was assumed showed the highest probability of being high in conscientiousness among all groups. Regarding their motivations of choosing teacher education, members of this group described themselves most likely as high extrinsically motivated and low intrinsically motivated. Overall, the first profile showed potentially unfavorable values regarding several indicators and might be interpreted as a group of students potentially at-risk for educational failure. 
-
+One group of the above can be classified a risk group. It compromised 18 % of the sample. Members of this group are characterized through a high probability of being a first-generation student whose parents can be assigned to working class. Students of this group had the highest probability of having a migration background and more likely attained their higher education entrance certificate not at a Gymnasium (type of school leading to upper secondary education and the entrance qualification for universities) and with a lower grade point average. Regarding there personality traits, they were more likely highly extroverted, open and, contrary to what was assumed showed the highest probability of being high in conscientiousness among all groups. Regarding their motivations of choosing teacher education, members of this group described themselves most likely as high extrinsically motivated and low intrinsically motivated. Overall, this profile showed potentially unfavorable values regarding several indicators and might be interpreted as a group of students potentially at-risk for educational failure.
 
 ## Further Considerations
 
-We will then assign each case to a specific class (group) based on their posterior class membership probabilities and use this as a manifest variable for further analyses. As this procedure is not uncontroversial and under suspicion of producing biased results [@bauer2021] we followed @sinha2020 and use da probability cut-off of ≥ 0.5 to assign class.
+We then would like to assign each case to a specific group based on their posterior class membership probabilities and use this as a manifest variable for further analyses. As this procedure is not uncontroversial and under suspicion of producing biased results [@bauer2021] we followed @sinha2020 and use da probability cut-off of ≥ 0.5 to assign class in order to address uncertainty .
 
 ```{r}
-#| echo: false
 data6 <- data6 %>%
   dplyr::mutate(class = case_when(lc3$posterior[,1]  >= 0.5 &
                                     lc3$posterior[,2] < 0.5 &
@@ -674,7 +650,7 @@ data6 <- data6 %>%
 
 ## Questions
 
--   Handling of variables (Dichotomization of Big 5, ...)
+-   Handling of variables (e.g., dichotomization of Big 5, ...)
 -   Model selection
 -   Graphical presentation of the final model
--   Individual class assignment by modal posterior probabilty
+-   Individual class assignment by modal posterior probability
