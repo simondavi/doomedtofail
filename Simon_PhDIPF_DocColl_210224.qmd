@@ -607,9 +607,11 @@ colnames(results) <- c("Model","log-likelihood","resid. df","BIC","aBIC","cAIC",
                        "likelihood-ratio","Entropy")
 
 lca_results <- results
-
+```
+```{r}
 results
 ```
+
 We decided that the three class solutions is to be preferred. It is the model with the lowest BIC and the highest Entropy. Even if the latter and the lowest average latent class posterior probability are not as high as we desired, we interpret them as acceptable.
 
 The average latent posterior probabilities are presented in a matrix with diagonals representing the average probability of a person being assigned to a class given the indicator variables used. Higher diagonal values are desirable. Off-diagonal elements in the posterior probability matrix contain probabilities of cases that belong in one class being assigned to another class [@bauer2021]. The average latent class posterior probabilities of the three class solution are displayed below:
