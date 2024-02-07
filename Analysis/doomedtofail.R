@@ -731,7 +731,46 @@ report(anova_acaint2)
 
 
 #### ------------------------------ (6) SEM ------------------------------ ####
+install.packages("multilevLCA")
+library(multilevLCA)
 
+dat_lca <- data7 %>% 
+  dplyr::mutate(
+    across(c(par_edu,
+             par_ocu,
+             mig_bac,
+             typ_sch,
+             paa_gpa,
+             voc_tra,
+             ext_rnk,
+             agr_rnk,
+             con_rnk,
+             neu_rnk,
+             ope_rnk,
+             inm_di,
+             exm_di),
+           as.integer))
 
+data <- dat_lca %>%
+  dplyr::select(par_edu, 
+                par_ocu, 
+                mig_bac, 
+                typ_sch, 
+                paa_gpa,
+                voc_tra, 
+                ext_rnk,
+                agr_rnk,
+                con_rnk,
+                neu_rnk,
+                ope_rnk,
+                inm_di,
+                exm_di) %>% 
+  dplyr::mutate(across(everything(),  ~ .x - 1))
 
+desc <- tidySEM::descriptives(data)
+desc <- desc[, c("name", "type", "n", "missing", "unique", "mode")]
 
+data = data
+Y = colnames(data)[1:13]
+iT = 2
+out = multiLCA(data, Y, iT)
