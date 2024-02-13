@@ -51,7 +51,7 @@ The set of entry characteristics discussed in this strand of research will serve
 
 ## Data Analysis
 
-Analysis is based on data from the German Panel of Teacher Education as part of the Starting Cohort First-Year Students (SC5) of the National Educational Panel Study (NEPS) [@educatio2019].
+Analysis is based on data from the German Panel of Teacher Education as part of the Starting Cohort First-Year Students (SC5) of the National Educational Panel Study (NEPS) [@educatio2019].The NEPS initially included about 18,000 first-year students in the winter term 2010/2011 and an oversampling of teacher education students (about 5,500 students). From 2014 onwards, multiple survey instruments, for example, aspects of preparatory service and of professional competence, instructional practices, and professional development, were specifically addressed to teachers. The data was collected in 19 waves between 2010 and 2022 (Zitation Schaeper einfügen) .
 
 ```{r}
 library(haven)          # to import SPSS files
@@ -71,6 +71,7 @@ library(LCAplotter)     # library(devtools)
                           # devtools::install_github("DavidykZhao/LCA_plotter")
 library(report)         # for producing reports 
 library(lavaan)         # for SEM
+library(ggpubr)         # for arranging plots
 
 
 #### ----------------- (1) Read Data and Data Management ----------------- ####
@@ -190,12 +191,12 @@ spvoc_pr <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%
            # 3 = yes, 4 = no
 
 
-spvoc <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%   # (?) später nochmal Filter mit h_aktstu
+spvoc <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%   
          dplyr::select(ID_t, wave, spell, subspell, 
                        h_aktstu,        # 1st study episode WT 2010
                        tg24202_g1,      # type of intended teaching degree
                        tg24170_g5,      # subject group
-                       tg01003_ha) %>%  # Type of higher education inst         # Im Vergleich zu oben nicht nur harmonized data, weil dann nicht immer wave 1
+                       tg01003_ha) %>%  # Type of higher education inst          
          dplyr::filter(wave == 1) %>%
          dplyr::filter(h_aktstu == 1) %>%
          dplyr::group_by(ID_t) %>% dplyr::slice_max(order_by = spell,
@@ -377,15 +378,23 @@ data5 <- data4 %>%
                                    na.rm = TRUE))
 ```
 
-The resulting sample comprises **5775 Persons** (*M* = 20.73, *SD* = 2.87, 4337 women) who were first enrolled in Teacher Education in WT 2010.
+The resulting sample comprises **5775 first-year teacher students** (*M* = 20.73, *SD* = 2.87, 4337 women) who were first enrolled in Teacher Education in WT 2010.
 
 ### Step 1: Examination of the Observed Data
 
-While describing the data numerically, see Table below, we noticed that the hypothetically continuous variables (Big 5 and motivation for choosing teacher education) do have just a few unique values and some response categories have near-zero frequencies. It is recommended that continuous variables should have many unique values and, if not, it is advised to better model them as ordinal [@vanlissa2023].
+While describing the data numerically, see Table below, is noticeable that the hypothetically continuous variables (Big 5 and motivation for choosing teacher education) do have just a few unique values and some response categories have near-zero frequencies. It is recommended that continuous variables should have many unique values and, if not, it is advised to better model them as ordinal [@vanlissa2023].
 
 ```{r}
 data6 <- data5 %>% 
   dplyr::mutate(across(everything(), ~ ifelse(is.nan(.x), NA, .x)))
+
+round_df <- function(df, digits) {
+  nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
+
+  df[,nums] <- round(df[,nums], digits = digits)
+
+  (df)
+}
 
 # examine variables
 df <- data6 %>%
@@ -404,26 +413,35 @@ df <- data6 %>%
 
 desc <- tidySEM::descriptives(df)
 desc <- desc[, c("name", "type", "n", "missing", "unique", "mode")]
+desc <- round_df(desc, digits = 2)
 desc
 
 desc_plot <- data6 %>%
-  dplyr::filter(!is.na(big_ext))  %>%
-  dplyr::filter(!is.na(big_agr))  %>%
-  dplyr::filter(!is.na(big_con))  %>%
-  dplyr::filter(!is.na(big_neu))  %>%
-  dplyr::select(big_ext, 
-                       big_agr, 
-                       big_con, 
-                       big_neu,
-                       big_ope, 
-                       fem_inm, 
-                       fem_exm)
+  dplyr::select(big_ext,
+                big_agr,
+                big_con, 
+                big_neu,
+                big_ope,
+                fem_inm, 
+                fem_exm) %>%
+  dplyr::rename(Extraversion = big_ext) %>%
+  dplyr::rename(Agreeableness = big_agr) %>%
+  dplyr::rename(Conscientiousness = big_con) %>%
+  dplyr::rename(Neuroticism = big_neu) %>%
+  dplyr::rename(Openness = big_ope) %>%
+  dplyr::rename(Intrinsic_Motivation = fem_inm) %>%
+  dplyr::rename(Extrinsic_Motivation = fem_exm)
 
-names(desc_plot) <- paste0("Value.", names(desc_plot))
-desc_plot <- reshape(desc_plot, varying = names(desc_plot), direction = "long")
+a <- ggplot(desc_plot, aes(Extraversion)) + geom_bar() + theme_bw()
+b <- ggplot(desc_plot, aes(Agreeableness)) + geom_bar() + theme_bw() 
+c <- ggplot(desc_plot, aes(Conscientiousness)) + geom_bar() + theme_bw()
+d <- ggplot(desc_plot, aes(Neuroticism)) + geom_bar() + theme_bw() 
+e <- ggplot(desc_plot, aes(Openness)) + geom_bar() + theme_bw() + theme_bw()
+f <- ggplot(desc_plot, aes(Intrinsic_Motivation)) + geom_bar() + theme_bw()
+g <- ggplot(desc_plot, aes(Extrinsic_Motivation)) + geom_bar() + theme_bw()
 
-desc_plot <- ggplot(desc_plot, aes(x = Value)) + geom_bar() + 
-             facet_wrap(~ time, scales = "free") + theme_bw()                              
+desc_plot<- ggarrange(a, b, c, d, e, f, g, 
+                      ncol = 3, nrow = 3)
 
 desc_plot
 ```
@@ -472,7 +490,6 @@ dat_lca <- data7 %>%
              exm_di),
            as.factor))
 
-
 # plot the data
 dat_plot <- dat_lca %>% 
   dplyr::select(par_edu,
@@ -486,18 +503,31 @@ dat_plot <- dat_lca %>%
                 neu_rnk,
                 ope_rnk,
                 inm_di,
-                exm_di)
+                exm_di) %>%
+  dplyr::rename(Extraversion = ext_rnk) %>%
+  dplyr::rename(Agreeableness = agr_rnk) %>%
+  dplyr::rename(Conscientiousness = con_rnk) %>%
+  dplyr::rename(Neuroticism = neu_rnk) %>%
+  dplyr::rename(Openness = ope_rnk) %>%
+  dplyr::rename(Intrinsic_Motivation = inm_di) %>%
+  dplyr::rename(Extrinsic_Motivation = exm_di)
+
+a <- ggplot(data = subset(dat_plot, !is.na(Extraversion)), aes(Extraversion)) + geom_bar() + theme_bw()
+b <- ggplot(data = subset(dat_plot, !is.na(Agreeableness)), aes(Agreeableness)) + geom_bar() + theme_bw()
+c <- ggplot(data = subset(dat_plot, !is.na(Conscientiousness)), aes(Conscientiousness)) + geom_bar() + theme_bw()
+d <- ggplot(data = subset(dat_plot, !is.na(Neuroticism)), aes(Neuroticism)) + geom_bar() + theme_bw() 
+e <- ggplot(data = subset(dat_plot, !is.na(Openness)), aes(Openness)) + geom_bar() + theme_bw()
+f <- ggplot(data = subset(dat_plot, !is.na(Intrinsic_Motivation)), aes(Intrinsic_Motivation)) + geom_bar() + theme_bw()
+g <- ggplot(data = subset(dat_plot, !is.na(Extrinsic_Motivation)), aes(Extrinsic_Motivation)) + geom_bar() + theme_bw()
+
 
 desc2 <- tidySEM::descriptives(dat_plot)
 desc2 <- desc2[, c("name", "type", "n", "missing", "unique")]
+desc2 <- round_df(desc2, digits = 2)
 desc2
 
-names(dat_plot) <- paste0("Value.", names(dat_plot))
-dat_plot <- reshape(dat_plot, varying = names(dat_plot), direction = "long")
-
-dat_plot <- ggplot(dat_plot, aes(x = Value)) + geom_bar() + 
-  facet_wrap(~ time, scales = "free") + theme_bw()                              
-
+dat_plot <- ggarrange(a, b, c, d, e, f, g, 
+                      ncol = 3, nrow = 3)
 dat_plot
 ```
 
@@ -505,9 +535,7 @@ The variables shown above formed the input variables for further analysis.
 
 ### Step 2: Data Processing
 
-We computed the Latent-Class-Analysis following the guide by [@weller2020]. Model fit was examined based on our theoretical understanding of dropout from teacher education and the BIC (Bayesian Information Criterion) as a statistical criterion, with lower BIC indicating better model fit [@nylund2007]. We will stop evaluating classes, if the BIC increases three subsequent class solutions.
-
-Additionally, we reviewed the following classification diagnostics criteria. We desired entropy above .8 and the lowest average latent class posterior probability to be between .80 and .90 [@weller2020].
+We computed the Latent-Class-Analysis following the guide by [@weller2020] using the software poLCA @poLCA . polCA handles missing data by excluding any manifest variables with missing observations from the calculation. The priors within the etxpectation-maximization algorithm are updated in using as many or as few manifest variables as are observed for each individual. This follows the assumption that in computing LCA specific handling of missing values is not necessary.
 
 ```{r}
 #| output: false
@@ -602,14 +630,26 @@ error_prior <- entropy(lc6$P) # class proportions model 6
 error_post <- mean(apply(lc6$posterior,1, entropy),na.rm = TRUE)
 results[6,8] <- round(((error_prior-error_post) / error_prior), 3)
 
-colnames(results) <- c("Model","log-likelihood","resid. df","BIC","aBIC","cAIC",
-                       "likelihood-ratio","Entropy")
+colnames(results) <- c("Model","log-likelihood","resid.df","BIC","aBIC","cAIC",
+                       "likelihood-ratio", "Entropy")
 
-lca_results <- results
+results <- round_df(results, digits = 2)
 ```
-```{r}
-results
-```
+
+|  Model   | Log-Likelihood | resid. df |  BIC  | aBIC  | cAIC  | likelihood-ratio | Entropy |
+|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|
+| Modell 1 |     -41519     |   5754    | 83221 | 83154 | 83242 |       6636       |         |
+| Modell 2 |     -41059     |   5732    | 82490 | 82353 | 82533 |       6264       |  0.48   |
+| Modell 3 |     -40950     |   5710    | 82464 | 82257 | 82257 |       6212       |  0.64   |
+| Modell 4 |     -40879     |   5688    | 82512 | 82235 | 82599 |       6165       |  0.43   |
+| Modell 5 |     -40839     |   5666    | 82622 | 82276 | 82731 |       6145       |  0.38   |
+| Modell 6 |     -40800     |   5644    | 82735 | 82735 | 82866 |       6111       |  0.51   |
+
+: *Note.* resd.df = residual degrees of freedom, BIC = Bayesian Information Criterion, aBIC = adjusted BIC, cAIC = consistent Akaike Information Criterion.
+
+Model fit was examined based on our theoretical understanding of dropout from teacher education and the BIC (Bayesian Information Criterion) as a statistical criterion, with lower BIC indicating better model fit [@nylund2007].
+
+Additionally, we reviewed the following classification diagnostics criteria. We desired entropy above .8 and the lowest average latent class posterior probability to be between .80 and .90 [@weller2020].
 
 We decided that the three class solutions is to be preferred. It is the model with the lowest BIC and the highest Entropy. Even if the latter and the lowest average latent class posterior probability are not as high as we desired, we interpret them as acceptable.
 
@@ -633,7 +673,7 @@ One group of the above can be classified a risk group. It compromised 18 % of th
 
 ## Further Considerations
 
-We then would like to assign each case to a specific group based on their posterior class membership probabilities and use this as a manifest variable for further analyses. As this procedure is not uncontroversial and under suspicion of producing biased results [@bauer2021] we followed @sinha2020 and use da probability cut-off of ≥ 0.5 to assign class in order to address uncertainty .
+We then would like to assign each case to a specific group based on their posterior class membership probabilities and use this as a manifest variable for further analyses. As this procedure is not uncontroversial and under suspicion of producing biased results [@bauer2021] we followed @sinha2020 and use da probability cut-off of ≥ 0.5 to assign class in order to address uncertainty.
 
 ```{r}
 data6 <- data6 %>%
