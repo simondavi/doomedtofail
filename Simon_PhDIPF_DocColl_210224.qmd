@@ -44,7 +44,7 @@ Consequently, we aim to answer three research questions:
 
 This document is concerned with the first step of data analysis, the Latent-Class-Analysis to address Research Question 1. If you are interested in the whole proposal you can have a look at the preregistration here: <https://doi.org/10.17605/OSF.IO/D2K7Y>.
 
-I would like to ask you to read the following document. We had to make a number of decisions and I am interested in whether you find the approach convincing or not. The topics of interest are listed at the end of the document (section Questions).\
+I would like to ask you to read the following document. We had to make a number of decisions and I am interested in whether you find the approach convincing or not. The topics of interest are listed at the end of the document (section 4: Questions).\
 
 ## 1. Brief Theoretical Background
 
