@@ -168,14 +168,14 @@ cati_do1 <- haven::read_sav(here("Data_SC5_D_18-0-0/SC5_pTargetCATI_D_18-0-0.sav
             dplyr::filter(wave == 10)
 
 
-cati_doi <- haven::read_sav(here("Data_SC5_D_18-0-0/SC5_pTargetCATI_D_18-0-0.sav") %>%
+cati_doi <- haven::read_sav(here("Data_SC5_D_18-0-0/SC5_pTargetCATI_D_18-0-0.sav")) %>%
             dplyr::select(ID_t, wave, tg64051) %>%
             dplyr::filter(wave == 9)
 
   
 # Filter measures from CAWI:
 
-cati_do2 <- haven::read_sav(here("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
+cati_do2 <- haven::read_sav(here("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav")) %>%
             dplyr::select(ID_t, wave, tg60021) %>%
             dplyr::filter(wave == 11)
 
@@ -189,7 +189,7 @@ cawi_w8 <- haven::read_sav(here("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav"
                                      tg61051, tg61052, tg61053) %>%
            dplyr::filter(wave == 8)
 
-cawi_sp1 <- haven::read_sav(here("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
+cawi_sp1 <- haven::read_sav(here("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav")) %>%
             dplyr::select(ID_t, wave, tg53232, tg53234, tg53236,  # ac int
                                       tg53231, tg53233, tg53235,
                                       tg53211, tg53212, tg53213,
