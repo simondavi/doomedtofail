@@ -776,6 +776,34 @@ posterior.states <- depmixS4::posterior(fmod)
 posterior.states$state <- as.factor(posterior.states$state)
 
 
+
+######################### Begin Jürgen #########################################
+
+results_mix <- data.frame(n_states = as.numeric(),
+                          bic = as.numeric())
+
+for (i in 1:5) {
+mod <- mix(list(par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1,
+                paa_gpa ~ 1, big_ext ~ 1, big_agr ~ 1, big_con ~ 1, 
+                big_neu ~ 1, big_ope ~ 1, fem_inm ~ 1, fem_exm ~ 1), 
+           data = dat_lca, nstates = i,
+           family=list(multinomial("identity"), multinomial("identity"), 
+                       multinomial("identity"), multinomial("identity"), 
+                       multinomial("identity"),
+                       gaussian(), gaussian(), gaussian(), gaussian(),
+                       gaussian(), gaussian(), gaussian())
+           # ,
+           #respstart=runif(84)
+           )
+
+results_mix <- results_mix |>
+  add_row(n_states = i,
+          bic = BIC(mod))
+}
+
+
+######################### End Jürgen ###########################################
+
 # Plot
 plot.data <- cbind(dat_lca, posterior.states) %>% 
   pivot_longer(par_edu:fem_exm, 
@@ -783,35 +811,145 @@ plot.data <- cbind(dat_lca, posterior.states) %>%
                values_to = "value",
                values_transform = as.numeric)
 
-max_lca_probs <- cbind(dat_lca, posterior.states) %>% 
-  mutate(ID_t = 1:nrow(.)) %>% 
-  gather("state_prob", "value", starts_with("S", ignore.case = FALSE)) %>% 
-  group_by(ID_t) %>% 
-  summarize(max_prob=max(value))
+plot.data$measure <- as.factor(plot.data$measure)
+levels(plot.data$measure) <- c("par_edu",
+                               "par_ocu",
+                               "mig_bac",
+                               "typ_sch", 
+                               "paa_gpa", 
+                               "big_ext",
+                               "big_agr",
+                               "big_con",
+                               "big_neu",
+                               "big_ope",
+                               "fem_inm",
+                               "fem_exm")
 
-summary(max_lca_probs) 
+# max_lca_probs <- cbind(dat_lca, posterior.states) %>% 
+#   mutate(ID_t = 1:nrow(.)) %>% 
+#   gather("state_prob", "value", starts_with("S", ignore.case = FALSE)) %>% 
+#   group_by(ID_t) %>% 
+#   summarize(max_prob=max(value))
+# 
+# summary(max_lca_probs) 
 
 plot.data$var_type <- ifelse(plot.data$measure == "par_edu" | 
                                plot.data$measure == "par_ocu" | 
                                plot.data$measure == "mig_bac" | 
                                plot.data$measure == "typ_sch" |
                                plot.data$measure == "paa_gpa ", "categorical",
-                             ifelse(plot.data$measure == "big_ext" | 
-                                      plot.data$measure == "big_agr" | 
-                                      plot.data$measure == "big_con" | 
-                                      plot.data$measure == "big_neu" |
-                                      plot.data$measure == "big_ope" |
-                                      plot.data$measure == "fem_inm" |
-                                      plot.data$measure == "fem_exm", "continuous", NA))
+                      ifelse(plot.data$measure == "big_ext" | 
+                               plot.data$measure == "big_agr" | 
+                               plot.data$measure == "big_con" | 
+                               plot.data$measure == "big_neu" |
+                               plot.data$measure == "big_ope" |
+                               plot.data$measure == "fem_inm" |
+                               plot.data$measure == "fem_exm", "continuous", NA))
+
+summary.plot.data <- plot.data %>%
+  group_by(measure) %>% 
+  mutate(z = scale(value)) %>%
+  group_by(measure, state) %>%
+  summarize(mean(z, na.rm = T))
+
+
+######################## BEGIN Jürgen #############
+tmp <- plot.data |>
+  group_by(measure) |>
+  mutate(value_z = scale(value)) |>
+  ungroup()
+
+tmp |>
+  group_by(measure) |>
+  summarize(val_m = mean(value_z, na.rm = T),
+            val_sd = sd(value_z, na.rm = T))
+
+ggplot(tmp, aes(x=measure, y=value_z, color=state, group=state)) +
+  stat_summary(geom="point", fun=mean) +
+  stat_summary(fun=mean, geom = "line", size=1)
+  
+
+######################## END Jürgen   #############
+
+group_by(state, measure) %>% 
+%>%
+  group_by(state, measure) %>% 
+  summarize(zz = mean(z, na.rm = T))
+
+
+n <- ggplot(summary.plot.data, aes(y = z, x = measure, group = state, color = state)) + 
+  geom_point() + 
+  geom_line() + 
+  ggtitle("depmixS4")
+
+# same plot using poLCA
+
+dat_lca <- data7 %>% 
+  dplyr::mutate(
+    across(c(par_edu,
+             par_ocu,
+             mig_bac,
+             typ_sch,
+             paa_gpa,
+             ext_rnk,
+             agr_rnk,
+             con_rnk,
+             neu_rnk,
+             ope_rnk,
+             inm_di,
+             exm_di),
+           as.factor))
+
+dat_lca <- dat_lca %>%
+  dplyr::select(par_edu,
+                par_ocu,
+                mig_bac,
+                typ_sch,
+                paa_gpa,
+                ext_rnk,
+                agr_rnk,
+                con_rnk,
+                neu_rnk,
+                ope_rnk,
+                inm_di,
+                exm_di)
+
+f <- with(dat_lca, cbind(par_edu, par_ocu, mig_bac, typ_sch, paa_gpa,
+                         ext_rnk, agr_rnk, con_rnk, neu_rnk,
+                         ope_rnk, inm_di, exm_di) ~ 1)
+
+lc3 <- poLCA(f, dat_lca, nclass = 3, na.rm = FALSE, nrep = 10, maxiter = 8000)
+
+posterior.states <- lc3$posterior
+posterior.states$state <- as.factor(lc3$predclass)
+
+# Plot
+plot.data <- cbind(dat_lca, posterior.states) %>% 
+  pivot_longer(par_edu:exm_di, 
+               names_to = "measure", 
+               values_to = "value",
+               values_transform = as.numeric)
+
+plot.data$measure <- as.factor(plot.data$measure, levels= c("par_edu",
+                                                         "par_ocu",
+                                                         "mig_bac",
+                                                         "typ_sch",
+                                                         "paa_gpa",
+                                                         "ext_rnk",
+                                                         "agr_rnk",
+                                                         "con_rnk",
+                                                         "neu_rnk",
+                                                         "ope_rnk",
+                                                         "inm_di",
+                                                         "exm_di"))
 
 summary.plot.data <- plot.data %>% 
   group_by(state, measure) %>% 
-  summarize(z = (mean(as.numeric(value), na.rm = T)))
+  summarize(z=mean(value, na.rm = T) / sd(value, na.rm = T) )
 
-
-
-
-ggplot(summary.plot.data, aes(y = z, x = measure, group = state, color = state)) + 
+m <- ggplot(summary.plot.data, aes(y = z, x = measure, group = state, color = state)) + 
   geom_point() + 
   geom_line() + 
-  ggtitle("typical LCA plot")
+  ggtitle("poLCA")
+
+plot <- ggarrange(n, m, ncol = 1, nrow = 2)
