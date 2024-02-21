@@ -731,46 +731,87 @@ report(anova_acaint2)
 
 
 #### ------------------------------ (6) SEM ------------------------------ ####
-install.packages("multilevLCA")
-library(multilevLCA)
+
+# LCA 2 using depmixS4
 
 dat_lca <- data7 %>% 
   dplyr::mutate(
     across(c(par_edu,
              par_ocu,
              mig_bac,
-             typ_sch,
-             paa_gpa,
-             voc_tra,
-             ext_rnk,
-             agr_rnk,
-             con_rnk,
-             neu_rnk,
-             ope_rnk,
-             inm_di,
-             exm_di),
-           as.integer))
+             typ_sch, 
+             paa_gpa),
+           as.factor))
 
-data <- dat_lca %>%
-  dplyr::select(par_edu, 
-                par_ocu, 
-                mig_bac, 
+dat_lca <- dat_lca %>%
+  dplyr::select(par_edu,
+                par_ocu,
+                mig_bac,
                 typ_sch, 
-                paa_gpa,
-                voc_tra, 
-                ext_rnk,
-                agr_rnk,
-                con_rnk,
-                neu_rnk,
-                ope_rnk,
-                inm_di,
-                exm_di) %>% 
-  dplyr::mutate(across(everything(),  ~ .x - 1))
+                paa_gpa, 
+                big_ext,
+                big_agr,
+                big_con,
+                big_neu,
+                big_ope,
+                fem_inm,
+                fem_exm)
 
-desc <- tidySEM::descriptives(data)
-desc <- desc[, c("name", "type", "n", "missing", "unique", "mode")]
+library(depmixS4)
+mod <- mix(list(par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1,
+                paa_gpa ~ 1, big_ext ~ 1, big_agr ~ 1, big_con ~ 1, 
+                big_neu ~ 1, big_ope ~ 1, fem_inm ~ 1, fem_exm ~ 1), 
+           data = dat_lca, nstates = 3,
+           family=list(multinomial("identity"), multinomial("identity"), 
+                       multinomial("identity"), multinomial("identity"), 
+                       multinomial("identity"),
+                       gaussian("identity"), gaussian("identity"), gaussian("identity"), gaussian("identity"),
+                       gaussian("identity"), gaussian("identity"), gaussian("identity")),
+           respstart=runif(84))
 
-data = data
-Y = colnames(data)[1:13]
-iT = 2
-out = multiLCA(data, Y, iT)
+fmod <- fit(mod, verbose=FALSE)
+summary(fmod)
+
+posterior.states <- depmixS4::posterior(fmod)
+posterior.states$state <- as.factor(posterior.states$state)
+
+
+# Plot
+plot.data <- cbind(dat_lca, posterior.states) %>% 
+  pivot_longer(par_edu:fem_exm, 
+               names_to = "measure", 
+               values_to = "value",
+               values_transform = as.numeric)
+
+max_lca_probs <- cbind(dat_lca, posterior.states) %>% 
+  mutate(ID_t = 1:nrow(.)) %>% 
+  gather("state_prob", "value", starts_with("S", ignore.case = FALSE)) %>% 
+  group_by(ID_t) %>% 
+  summarize(max_prob=max(value))
+
+summary(max_lca_probs) 
+
+plot.data$var_type <- ifelse(plot.data$measure == "par_edu" | 
+                               plot.data$measure == "par_ocu" | 
+                               plot.data$measure == "mig_bac" | 
+                               plot.data$measure == "typ_sch" |
+                               plot.data$measure == "paa_gpa ", "categorical",
+                             ifelse(plot.data$measure == "big_ext" | 
+                                      plot.data$measure == "big_agr" | 
+                                      plot.data$measure == "big_con" | 
+                                      plot.data$measure == "big_neu" |
+                                      plot.data$measure == "big_ope" |
+                                      plot.data$measure == "fem_inm" |
+                                      plot.data$measure == "fem_exm", "continuous", NA))
+
+summary.plot.data <- plot.data %>% 
+  group_by(state, measure) %>% 
+  summarize(z = (mean(as.numeric(value), na.rm = T)))
+
+
+
+
+ggplot(summary.plot.data, aes(y = z, x = measure, group = state, color = state)) + 
+  geom_point() + 
+  geom_line() + 
+  ggtitle("typical LCA plot")
