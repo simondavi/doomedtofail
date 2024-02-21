@@ -431,10 +431,10 @@ desc0 <- desc0[, c("name", "type", "n", "missing", "unique", "mode",
 # variables should have many unique values, if not, it may be better to model 
 # them as ordinal
 
-# lev_inm <- list(levels(as.factor(data6$fem_inm)))
-# lev_exm <- list(levels(as.factor(data6$fem_exm)))
+lev_inm <- list(levels(as.factor(data6$fem_inm)))
+lev_exm <- list(levels(as.factor(data6$fem_exm)))
 
-data7 <- data7 %>% 
+data7 <- data6 %>% 
   dplyr::mutate(par_edu = mxFactor(par_edu, 
                                    levels = c("1", "2", "3"))) %>% 
   dplyr::mutate(par_ocu = mxFactor(par_ocu, 
@@ -445,32 +445,56 @@ data7 <- data7 %>%
                                    levels = c("1", "2"))) %>%
   dplyr::mutate(paa_gpa = mxFactor(paa_gpa, 
                                    levels = c("1", "2", "3", "4", "5"))) %>%
-  dplyr::mutate(voc_tra = mxFactor(voc_tra, 
-                                   levels = c("1", "2"))) %>%
-  dplyr::mutate(ext_rnk = mxFactor(ext_rnk, 
-                                   levels = c("1", "2", "3"))) %>%
-  dplyr::mutate(agr_rnk = mxFactor(agr_rnk, 
-                                   levels = c("1", "2", "3"))) %>%
-  dplyr::mutate(con_rnk = mxFactor(con_rnk, 
-                                   levels = c("1", "2", "3"))) %>%
-  dplyr::mutate(neu_rnk = mxFactor(neu_rnk, 
-                                   levels = c("1", "2", "3"))) %>%
-  dplyr::mutate(ope_rnk = mxFactor(ope_rnk, 
-                                   levels = c("1", "2", "3"))) %>%
-  dplyr::mutate(inm_di = mxFactor(inm_di, 
-                                   levels = c("1", "2"))) %>%
-  dplyr::mutate(exm_di = mxFactor(exm_di, 
-                                   levels = c("1", "2"))) 
-  
-  
-
-# dplyr::mutate_at(c('big_ext', 
-#                     'big_agr',
-#                     'big_con', 
-#                     'big_neu',
-#                     'big_ope', 
-#                     'fem_inm',
-#                     'fem_exm'), ~ (scale(.) %>% as.vector)) %>%
+  dplyr::mutate(big_ext = mxFactor(big_ext, 
+                                   levels = c("1", "1.5", "2", "2.5", "3", "3.5", 
+                                              "4", "4.5", "5"))) %>%
+   dplyr::mutate(big_agr = mxFactor(big_agr, 
+                                   levels = c("1.66666666666667", "2", 
+                                              "2.33333333333333", 
+                                              "2.66666666666667", "3", 
+                                              "3.33333333333333", 
+                                              "3.66666666666667", "4", 
+                                              "4.33333333333333", 
+                                              "4.66666666666667", "5"))) %>% 
+  dplyr::mutate(big_con = mxFactor(big_con, 
+                                   levels = c("1.5", "2", "2.5", "3", "3.5", 
+                                              "4", "4.5", "5"))) %>% 
+  dplyr::mutate(big_neu = mxFactor(big_neu, 
+                                   levels = c("1", "1.5", "2", "2.5", "3", 
+                                              "3.5", "4", "4.5", "5"))) %>% 
+  dplyr::mutate(big_ope = mxFactor(big_ope, 
+                                   levels = c("1", "1.5", "2", "2.5", "3", 
+                                              "3.5", "4", "4.5", "5"))) %>%
+   dplyr::mutate(fem_inm = mxFactor(fem_inm, 
+                                    levels = c('3.33333333333333', '3.44444444444444', 
+                                               '3.11111111111111', '3.66666666666667', 
+                                               '2.77777777777778', '3', '3.22222222222222', 
+                                               '3.88888888888889', '3.625', '2.88888888888889', 
+                                               '2.8', '2.44444444444444', '3.5', '2.66666666666667', 
+                                               '3.77777777777778', '3.55555555555556', '3.25', '4', 
+                                               '2.11111111111111', '2.55555555555556', '2.22222222222222', 
+                                               '2.33333333333333', '2.875', '2.625', '3.125', 
+                                               '1.11111111111111', '3.375', '1.88888888888889', '2.5', 
+                                               '3.6', '2.85714285714286', '2.25', '3.75', '1.66666666666667', 
+                                               '1', '3.2', '2.125', '1.55555555555556', '1.33333333333333', 
+                                               '2', '3.875', '3.8', '2.375', '2.75'))) %>% 
+ dplyr::mutate(fem_exm = mxFactor(fem_exm,
+                                  levels = c('2.25', '2.75', '2.5', '2.58333333333333', '2.16666666666667', 
+                                             '2.33333333333333', '2.08333333333333', '1.83333333333333', 
+                                             '1.63636363636364', '1.58333333333333', '1.91666666666667', 
+                                             '1.33333333333333', '2.41666666666667', '1.75', 
+                                             '2.36363636363636', '1.66666666666667', '2', '2.91666666666667',
+                                             '1.54545454545455', '3', '2.83333333333333', '1.41666666666667',
+                                             '1.5', '3.83333333333333', '2.66666666666667', 
+                                             '1.08333333333333', '3.08333333333333', '3.16666666666667', 
+                                             '1.25', '3.25', '3.33333333333333', '1.16666666666667', 
+                                             '3.66666666666667', '2.45454545454545', '3.91666666666667', 
+                                             '3.75', '1.90909090909091', '2.18181818181818', '3.5', 
+                                             '2.90909090909091', '2.09090909090909', '2.81818181818182', 
+                                             '3.58333333333333', '1.81818181818182', '1', '2.27272727272727', 
+                                             '3.41666666666667', '1.36363636363636', '3.27272727272727', 
+                                             '1.45454545454545', '2.72727272727273', '3.09090909090909',
+                                             '1.72727272727273', '2.54545454545455'))) 
 
 # examine variables variables again
   
@@ -481,8 +505,10 @@ dplyr::select(par_edu, par_ocu, mig_bac, typ_sch, paa_gpa,
 
 df <- data7 %>%
   dplyr::select(par_edu, par_ocu, mig_bac, typ_sch, paa_gpa,
-                voc_tra, big_ext, big_agr, big_con, big_neu,
-                big_ope, fem_inm, fem_exm)
+                big_ext, big_agr, big_con, big_neu,
+                big_ope)
+
+, fem_inm, fem_exm)
 
 desc <- tidySEM::descriptives(df)
 desc <- desc[, c("name", "type", "n", "missing", "unique", "mode",
@@ -498,13 +524,11 @@ ggplot(df_plot, aes(x = Value)) + geom_bar() + facet_wrap(~time,
 
 # conducting lca
 set.seed(123)
-res <-  mx_lca(data = df, classes = 1:4, run = T)
+res <-  mx_lca(data = df, classes = 1:4)
 
 # Solution found!  Final fit=64781.809 (started at 65662.79)  (11 attempt(s): 11 valid, 0 errors)
 # 
 # Error in update_thresholds(zscore) : 
 #   Could not complete thresholds; either specify all thresholds by hand, or remove constraints.
 
-set.seed(123)
-res <-  mx_mixture(model, classes = 1, data = df, ordered = T)
 
