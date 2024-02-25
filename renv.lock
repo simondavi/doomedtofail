@@ -382,7 +382,7 @@
     },
     "bayestestR": {
       "Package": "bayestestR",
-      "Version": "0.13.1",
+      "Version": "0.13.2",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -394,7 +394,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "61f643ea5ee9fe0e70ab0246340b3c2e"
+      "Hash": "4a6a2eebe2db1dfb1c792c4ed91e73dc"
     },
     "bit": {
       "Package": "bit",
@@ -1505,16 +1505,16 @@
     },
     "insight": {
       "Package": "insight",
-      "Version": "0.19.7",
+      "Version": "0.19.8",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "methods",
         "stats",
         "utils"
       ],
-      "Hash": "750aba9b42391da33ac290b71a749023"
+      "Hash": "adcc19435135a4d211e5aa2e48e4f6b7"
     },
     "isoband": {
       "Package": "isoband",
