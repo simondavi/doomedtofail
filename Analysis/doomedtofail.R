@@ -33,6 +33,7 @@ library(poLCA)          # for LCA
 library(MASS)    
 library(tidySEM)
 library(depmixS4)
+library(bayestestR)     # convert BIC indices to Bayes Factors 
 library(scatterplot3d)
 library(LCAplotter)     # library(devtools)
                           # devtools::install_github("DavidykZhao/LCA_plotter")
@@ -896,26 +897,75 @@ results
 # 3 class solution = fit_m3
 summary(fit_m3)
 
-# mean posterior probabilities
-postprob <- depmixS4::posterior(fit_m3)
-postprob$state <- as.factor(posterior_states$state)
+# mean posterior probabilities for m3
+postprob_m3 <- depmixS4::posterior(fit_m3)
+postprob_m3$state <- as.factor(postprob_m3$state)
 
-meanpostprob1 <- as.data.frame(postprob) %>% 
+meanpostprob1 <- as.data.frame(postprob_m3) %>% 
   group_by(state) %>%
   summarise(s1 = mean(S1))
-meanpostprob2 <- as.data.frame(postprob) %>% 
+meanpostprob2 <- as.data.frame(postprob_m3) %>% 
   group_by(state) %>%
   summarise(s2 = mean(S2))
-meanpostprob3 <- as.data.frame(postprob) %>% 
+meanpostprob3 <- as.data.frame(postprob_m3) %>% 
   group_by(state) %>%
   summarise(s3 = mean(S3))
 
-meanpostprob <- round(cbind(meanpostprob1$s1, 
-                            meanpostprob2$s2, 
-                            meanpostprob3$s3), 2)
+meanpostprob_m3 <- round(cbind(meanpostprob1$s1, 
+                               meanpostprob2$s2, 
+                               meanpostprob3$s3), 2)
 
 # 0.72, 0.90, 0.87 # poLCA
-# 0.85, 0.73, 0.69 # depmixS4 (-)
+# 0.85, 0.73, 0.69 # depmixS4
+
+# bayes factor
+bf_test <- round(bayestestR::bic_to_bf(c(BIC(fit_m1), BIC(fit_m2), 
+                                         BIC(fit_m3), BIC(fit_m4)), 
+                                       denominator = BIC(fit_m1)), 2)
+# 1.000000e+00, 4.925037e+182, 7.076083e+275, Inf
+
+# entropy
+# model 2
+postprob_m2 <- depmixS4::posterior(fit_m2)
+entropy_m2 <- as.data.frame(postprob_m2)
+entropy_m2 <- cbind(postprob_m2$S1,
+                    postprob_m2$S2)
+
+entropy_m2 <- 1 - 
+  (
+    (sum(-entropy_m2*log(entropy_m2), na.rm = T)) /
+      (nrow(entropy_m2)*log(ncol(entropy_m2)))
+  )
+
+
+# model 3
+postprob_m3 <- depmixS4::posterior(fit_m3)
+entropy_m3 <- as.data.frame(postprob_m3)
+entropy_m3 <- cbind(postprob_m3$S1,
+                    postprob_m3$S2,
+                    postprob_m3$S3)
+
+entropy_m3 <- 1 - 
+  (
+    (sum(-entropy_m3*log(entropy_m3), na.rm = T)) /
+     (nrow(entropy_m3)*log(ncol(entropy_m3)))
+    )
+
+
+# model 4
+postprob_m4 <- depmixS4::posterior(fit_m4)
+entropy_m4 <- as.data.frame(postprob_m4)
+entropy_m4 <- cbind(postprob_m4$S1,
+                    postprob_m4$S2,
+                    postprob_m4$S3,
+                    postprob_m4$S4)
+
+entropy_m4 <- 1 - 
+  (
+    (sum(-entropy_m4*log(entropy_m4), na.rm = T)) /
+      (nrow(entropy_m4)*log(ncol(entropy_m4)))
+  )
+
 
 # Plot
 posterior_states <- depmixS4::posterior(fit_m3)
@@ -929,7 +979,7 @@ plot_data <- cbind(dat_lca, posterior_states) %>%
 
 plot_data$measure <- as.factor(plot_data$measure)
 levels(plot_data$measure) <- c("Agreeableness",
-                               "Conscientious",
+                               "Conscientiousness",
                                "Extraversion",
                                "Neuroticism",
                                "Openess",
@@ -956,7 +1006,7 @@ plot_data$var_type <- ifelse(plot_data$measure == "First-Generation-Student" |
                                plot_data$measure == "Non-Gymnasium" | 
                                plot_data$measure == "Gender (Male)", "categorical",
                       ifelse(plot_data$measure == "Openess" | 
-                               plot_data$measure == "Conscientious "|
+                               plot_data$measure == "Conscientiousness"|
                                plot_data$measure == "Extraversion" | 
                                plot_data$measure == "Agreeableness" | 
                                plot_data$measure == "Neuroticism" |
@@ -1021,7 +1071,7 @@ plot_both <- ggplot(df_plot_both, aes(x = measure, y = value,
   stat_summary(geom = "point", fun = mean, size = 3) +
   stat_summary(fun = mean, geom = "line", size = 0.5) +
   guides(x =  guide_axis(angle = 45)) +
-  scale_x_discrete(limits=c("Openess","Conscientious","Extraversion", 
+  scale_x_discrete(limits=c("Openess","Conscientiousness","Extraversion", 
                             "Agreeableness", "Neuroticism",
                             "Extrinsic Motivation", "Intrinsic Motivation",
                             "Grade Point Average (-)", "Non-Gymnasium", 
@@ -1030,7 +1080,7 @@ plot_both <- ggplot(df_plot_both, aes(x = measure, y = value,
   expand_limits(y=c(-1, 1)) +
   scale_y_continuous(
     name = "z-Value \n",
-    sec.axis = sec_axis(trans = ~ . *1, name = "Conditional Probabilities of  \n At-Risk Expression\n",
+    sec.axis = sec_axis(trans = ~ . *1, name = "Conditional Probabilities of  \n At-Risk Category\n",
                         breaks = seq(0, 1, by = 0.25),)) +
   geom_hline(yintercept = 0, linetype = "dashed", 
              color = "grey", size = 0.5) +
