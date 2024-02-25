@@ -32,6 +32,7 @@ library(psych)          # for scale construction
 library(poLCA)          # for LCA
 library(MASS)    
 library(tidySEM)
+library(depmixS4)
 library(scatterplot3d)
 library(LCAplotter)     # library(devtools)
                           # devtools::install_github("DavidykZhao/LCA_plotter")
@@ -303,53 +304,62 @@ data2 <- data %>%
   dplyr::mutate(par_edu = case_when((t731301_g1 < 9 & t731351_g1 < 9) ~ 1,
                                     (t731301_g1 >= 9 & t731351_g1 >= 9) ~ 3,
                                     (t731301_g1 >= 9 | t731351_g1 >= 9) ~ 2,
-                                    TRUE ~ as.numeric(NA))) %>%
+                                    TRUE ~ as.numeric(NA)),
                                     # 1 = no parent tertiary education, 2 = one 
                                     # parent, 3 = both parents
   
-  dplyr::mutate(par_ocu = case_when((t731403_g8 >= 9 & t731453_g8 >= 9) |       # Code pruefen
-                                    (t731403_g8 == 4 & t731453_g8 == 4) ~ 1,
-                                    # (t731403_g8 %in% c(1:3, 5:8) | 
-                                    # t731453_g8 %in% c(1:3, 5:8)) ~ 2,
-                                    (t731403_g8 <= 2 | t731453_g8 <= 2) ~ 3,
+                par_ocu = case_when((t731403_g8 >= 9 & t731453_g8 >= 9) |       
+                                    (t731403_g8 == 4 & t731453_g8 == 4) ~ 0,
+                                    (t731403_g8 <= 2 | t731453_g8 <= 2) ~ 2,
                                     (t731403_g8 %in% c(3, 5:8) | 
-                                     t731453_g8 %in% c(3, 5:8)) ~ 2,
+                                     t731453_g8 %in% c(3, 5:8)) ~ 1,
                                     TRUE ~ as.numeric(NA)))
-                                    # 1 = working class,
-                                    # 2 = intermediate class
-                                    # 3 = upper class
+                                    # 0 = working class,
+                                    # 1 = intermediate class
+                                    # 2 = upper class
 
 # migration background
 data3 <- data2 %>% 
-  dplyr::mutate(mig_bac = case_when((t405060_g1 <= 2 & t405090_g1 <= 2) ~ 1,
-                                    (t405060_g1 == 3 | t405090_g1 == 3) ~ 2,
+  dplyr::mutate(mig_bac = case_when((t405060_g1 <= 2 & t405090_g1 <= 2) ~ 0,
+                                    (t405060_g1 == 3 | t405090_g1 == 3) ~ 1,
                                     TRUE ~ as.numeric(NA)))
-                                    # 1 = both parents born in Germany, 
-                                    # 2 = at least one abroad
+                                    # 0 = both parents born in Germany, 
+                                    # 1 = at least one abroad
 
 # View(data3 %>% dplyr::select(mig_bac, t405060_g1, t405090_g1))
 
 # educational background (type of entrance certificate (schoool), GPA, prior 
 # completion of vocational training)
 data4 <- data3 %>% 
-  dplyr::mutate(typ_sch = case_when(ts11204 != 8 ~ 1,
-                                    ts11204 == 8 ~ 2,
-                                    TRUE ~ as.numeric(NA)))  %>%
-                                    # 1 = non-Gymnasium,
-                                    # 2 = Gymnasium (also Kolleg)
+  dplyr::mutate(typ_sch = case_when(ts11204 != 8 ~ 0,
+                                    ts11204 == 8 ~ 1,
+                                    TRUE ~ as.numeric(NA)),
+                                    # 0 = non-Gymnasium,
+                                    # 1 = Gymnasium (also Kolleg)
   
-  dplyr::mutate(paa_gpa = case_when(ts11218 >= 3.6 & ts11218 <= 4.0 ~ 1,
-                                    ts11218 >= 2.6 & ts11218 < 3.6 ~ 2,
-                                    ts11218 >= 1.6 & ts11218 < 2.6 ~ 3,
-                                    ts11218 >= 1.0 & ts11218 < 1.6 ~ 4,
-                                    TRUE ~ as.numeric(NA)))  %>%
-                                    # 1 = sufficient, 2 = satisfactory, 
-                                    # 3 = good, 4 = very good)
+#  dplyr::mutate(paa_gpa = case_when(ts11218 >= 3.6 & ts11218 <= 4.0 ~ 1,
+#                                    ts11218 >= 2.6 & ts11218 < 3.6 ~ 2,
+#                                    ts11218 >= 1.6 & ts11218 < 2.6 ~ 3,
+#                                    ts11218 >= 1.0 & ts11218 < 1.6 ~ 4,
+#                                    TRUE ~ as.numeric(NA)))  %>%
+#                                    # 1 = sufficient, 2 = satisfactory, 
+#                                    # 3 = good, 4 = very good)
   
-  dplyr::mutate(voc_tra = case_when(ts15218 == 4 ~ 1,
-                                    ts15218 == 3 ~ 2,
-                                    TRUE ~ as.numeric(NA)))
-                                    # 1 = no, 2 = yes
+# gpa as continous variable
+                paa_gpa = ts11218,
+  
+# dplyr::mutate(voc_tra = case_when(ts15218 == 4 ~ 1,
+#                                    ts15218 == 3 ~ 2,
+#                                    TRUE ~ as.numeric(NA)))
+#                                    # 1 = no, 2 = yes
+
+# binary variable for vocational training
+                voc_tra = ifelse(ts15218 == 3, 1, 0),
+
+# gender
+                gender = ifelse(t700001 == 1, 1, 0))
+                # 1 = male
+                # 0 = female
 
 # individual characteristics 
 # (big 5, motivation for choosing teacher education (femola))
@@ -357,46 +367,46 @@ data4 <- data3 %>%
 # scales
 data5 <- data4 %>% 
   dplyr::mutate(big_ext = rowMeans(subset(data4, select = c(t66800a, t66800f)),
-                                   na.rm = TRUE))  %>%
-  dplyr::mutate(big_agr = rowMeans(subset(data4, select = c(t66800b, t66800g, 
-                                                            t66800k)), 
-                                   na.rm = TRUE))  %>%
-  dplyr::mutate(big_con = rowMeans(subset(data4, select = c(t66800c, t66800h)), 
-                                   na.rm = TRUE))  %>%
-  dplyr::mutate(big_neu = rowMeans(subset(data4, select = c(t66800d, t66800i)), 
-                                   na.rm = TRUE))  %>%
-  dplyr::mutate(big_ope = rowMeans(subset(data4, select = c(t66800e, t66800j)), 
-                                   na.rm = TRUE))  %>%
-  dplyr::mutate(fem_edi = rowMeans(subset(data4, select = c(tg61031, tg61032, 
-                                                            tg61033)), 
-                                   na.rm = TRUE))  %>%
-  dplyr::mutate(fem_ssi = rowMeans(subset(data4, select = c(tg61061, tg61062, 
+                                   na.rm = TRUE),
+                big_agr = rowMeans(subset(data4, select = c(t66800b, t66800g,
+                                                            t66800k)),
+                                   na.rm = TRUE),
+                big_con = rowMeans(subset(data4, select = c(t66800c, t66800h)),
+                                   na.rm = TRUE),
+                big_neu = rowMeans(subset(data4, select = c(t66800d, t66800i)),
+                                   na.rm = TRUE),
+                big_ope = rowMeans(subset(data4, select = c(t66800e, t66800j)),
+                                   na.rm = TRUE),
+                fem_edi = rowMeans(subset(data4, select = c(tg61031, tg61032,
+                                                            tg61033)),
+                                   na.rm = TRUE),
+                fem_ssi = rowMeans(subset(data4, select = c(tg61061, tg61062, 
                                                             tg61063)), 
-                                   na.rm = TRUE))  %>%
-  dplyr::mutate(fem_abe = rowMeans(subset(data4, select = c(tg61041, tg61042, 
+                                   na.rm = TRUE),
+                fem_abe = rowMeans(subset(data4, select = c(tg61041, tg61042,
                                                             tg61043)), 
-                                   na.rm = TRUE))  %>%
-  dplyr::mutate(fem_tff = rowMeans(subset(data4, select = c(tg61021, tg61022, 
+                                   na.rm = TRUE),
+                fem_tff = rowMeans(subset(data4, select = c(tg61021, tg61022,
                                                             tg61023)), 
-                                   na.rm = TRUE))  %>%
-  dplyr::mutate(fem_fis = rowMeans(subset(data4, select = c(tg61011, tg61012, 
+                                   na.rm = TRUE),
+                fem_fis = rowMeans(subset(data4, select = c(tg61011, tg61012,
                                                             tg61013)), 
-                                   na.rm = TRUE))  %>%
-  dplyr::mutate(fem_lod = rowMeans(subset(data4, select = c(tg61071, tg61072, 
+                                   na.rm = TRUE),
+                fem_lod = rowMeans(subset(data4, select = c(tg61071, tg61072, 
                                                             tg61073)), 
-                                   na.rm = TRUE))  %>%
-  dplyr::mutate(fem_soi = rowMeans(subset(data4, select = c(tg61051, tg61052, 
+                                   na.rm = TRUE),
+                fem_soi = rowMeans(subset(data4, select = c(tg61051, tg61052, 
                                                             tg61053)),
-                                   na.rm = TRUE)) %>%
-  
-  dplyr::mutate(fem_inm = rowMeans(subset(data4, select = c(tg61031, tg61032, 
+                                   na.rm = TRUE),
+                
+                fem_inm = rowMeans(subset(data4, select = c(tg61031, tg61032, 
                                                             tg61033, tg61061, 
                                                             tg61062, tg61063,
                                                             tg61041, tg61042, 
                                                             tg61043)),
-                                   na.rm = TRUE)) %>%
-                                  
-  dplyr::mutate(fem_exm = rowMeans(subset(data4, select = c(tg61021, tg61022, 
+                                   na.rm = TRUE),
+                                                
+                fem_exm = rowMeans(subset(data4, select = c(tg61021, tg61022, 
                                                             tg61023, tg61011, 
                                                             tg61012, tg61013,
                                                             tg61071, tg61072, 
@@ -414,8 +424,8 @@ data5 <- data5 %>%
                                                             tg53233, tg53235,
                                                             tg53211, tg53212, 
                                                             tg53213)),
-                                   na.rm = TRUE)) %>%
-  dplyr::mutate(soc_int = rowMeans(subset(data5, select = c(tg53111, tg53112, 
+                                   na.rm = TRUE),
+                soc_int = rowMeans(subset(data5, select = c(tg53111, tg53112, 
                                                             tg53112, tg53121, 
                                                             tg53122, tg53123)),
                                    na.rm = TRUE))
@@ -730,21 +740,24 @@ report(anova_acaint2)
 
 
 
-#### ------------------------------ (6) SEM ------------------------------ ####
+#### --------------------------- (6) LCA Mixed ---------------------------- ####
 
 # LCA 2 using depmixS4
+data6 <- data5 %>% 
+  dplyr::mutate(across(everything(), ~ ifelse(is.nan(.x), NA, .x)))
 
-dat_lca <- data7 %>% 
+dat_lca <- data6 %>% 
   dplyr::mutate(
     across(c(par_edu,
              par_ocu,
              mig_bac,
              typ_sch, 
-             paa_gpa),
+             gender),
            as.factor))
 
 dat_lca <- dat_lca %>%
-  dplyr::select(par_edu,
+  dplyr::select(gender,
+                par_edu,
                 par_ocu,
                 mig_bac,
                 typ_sch, 
@@ -757,73 +770,177 @@ dat_lca <- dat_lca %>%
                 fem_inm,
                 fem_exm)
 
-library(depmixS4)
-mod <- mix(list(par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1,
-                paa_gpa ~ 1, big_ext ~ 1, big_agr ~ 1, big_con ~ 1, 
-                big_neu ~ 1, big_ope ~ 1, fem_inm ~ 1, fem_exm ~ 1), 
-           data = dat_lca, nstates = 3,
-           family=list(multinomial("identity"), multinomial("identity"), 
-                       multinomial("identity"), multinomial("identity"), 
-                       multinomial("identity"),
-                       gaussian("identity"), gaussian("identity"), gaussian("identity"), gaussian("identity"),
-                       gaussian("identity"), gaussian("identity"), gaussian("identity")),
-           respstart=runif(84))
+# step 1: model specification
 
-fmod <- fit(mod, verbose=FALSE)
-summary(fmod)
+# class = 1
+m1 <- mix(list(gender ~ 1, par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1, 
+               paa_gpa ~ 1, 
+               big_ext ~ 1, big_agr ~ 1, big_con ~ 1, big_neu ~ 1, big_ope ~ 1,
+               fem_inm ~ 1, fem_exm ~ 1), 
+          data = dat_lca, nstates = 1,
+          family=list(multinomial("identity"), multinomial("identity"), 
+                      multinomial("identity"), multinomial("identity"), 
+                      multinomial("identity"),
+                      gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
+                      gaussian(), gaussian(), gaussian()))
 
-posterior.states <- depmixS4::posterior(fmod)
-posterior.states$state <- as.factor(posterior.states$state)
+# class = 2
+m2 <- mix(list(gender ~ 1, par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1, 
+               paa_gpa ~ 1, 
+               big_ext ~ 1, big_agr ~ 1, big_con ~ 1, big_neu ~ 1, big_ope ~ 1,
+               fem_inm ~ 1, fem_exm ~ 1), 
+          data = dat_lca, nstates = 2,
+          family=list(multinomial("identity"), multinomial("identity"), 
+                      multinomial("identity"), multinomial("identity"), 
+                      multinomial("identity"),
+                      gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
+                      gaussian(), gaussian(), gaussian()))
+
+# class = 3
+m3 <- mix(list(gender ~ 1, par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1, 
+               paa_gpa ~ 1, 
+               big_ext ~ 1, big_agr ~ 1, big_con ~ 1, big_neu ~ 1, big_ope ~ 1,
+               fem_inm ~ 1, fem_exm ~ 1), 
+          data = dat_lca, nstates = 3,
+          family=list(multinomial("identity"), multinomial("identity"), 
+                      multinomial("identity"), multinomial("identity"), 
+                      multinomial("identity"),
+                      gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
+                      gaussian(), gaussian(), gaussian()))
+
+# class = 4
+m4 <- mix(list(gender ~ 1, par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1, 
+               paa_gpa ~ 1, 
+               big_ext ~ 1, big_agr ~ 1, big_con ~ 1, big_neu ~ 1, big_ope ~ 1,
+               fem_inm ~ 1, fem_exm ~ 1), 
+          data = dat_lca, nstates = 4,
+          family=list(multinomial("identity"), multinomial("identity"), 
+                      multinomial("identity"), multinomial("identity"), 
+                      multinomial("identity"),
+                      gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
+                      gaussian(), gaussian(), gaussian()))
+
+# class = 5
+m5 <- mix(list(gender ~ 1, par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1, 
+               paa_gpa ~ 1, 
+               big_ext ~ 1, big_agr ~ 1, big_con ~ 1, big_neu ~ 1, big_ope ~ 1,
+               fem_inm ~ 1, fem_exm ~ 1), 
+         data = dat_lca, nstates = 5,
+         family=list(multinomial("identity"), multinomial("identity"), 
+                     multinomial("identity"), multinomial("identity"), 
+                     multinomial("identity"),
+                     gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
+                     gaussian(), gaussian(), gaussian()))
+
+# step 2: model fit
+set.seed(123)
+
+fit_m1 <- fit(m1, verbose = FALSE, 
+              emcontrol = em.control(random.start = TRUE, 
+                                     maxit = 5000,
+                                     classification = c("soft")))
+
+fit_m2 <- fit(m2, verbose = FALSE, 
+              emcontrol = em.control(random.start = TRUE, 
+                                     maxit = 5000,
+                                     classification = c("soft")))
+
+fit_m3 <- fit(m3, verbose = FALSE, 
+              emcontrol = em.control(random.start = TRUE, 
+                                     maxit = 5000,
+                                     classification = c("soft")))
+
+fit_m4 <- fit(m4, verbose = FALSE, 
+              emcontrol = em.control(random.start = TRUE, 
+                                     maxit = 5000,
+                                     crit = c("absolute"),
+                                     classification = c("soft")))
+
+fit_m5 <- fit(m5, verbose = FALSE, 
+              emcontrol = em.control(random.start = TRUE, 
+                                     maxit = 5000,
+                                     crit = c("absolute"),
+                                     classification = c("soft")))
+
+# generate dataframe with fit-values
+results <- data.frame(Modell = c("Modell"),
+                      log_likelihood = logLik(fit_m1),
+                      BIC = BIC(fit_m1),
+                      AIC = AIC(fit_m1))
 
 
+results$Modell <- as.integer(results$Modell)
+results[1,1] <- c("Modell 1")
+results[2,1] <- c("Modell 2")
+results[3,1] <- c("Modell 3")
+results[4,1] <- c("Modell 4")
+results[5,1] <- c("Modell 5")
 
-######################### Begin Jürgen #########################################
+results[2,2] <- logLik(fit_m2)
+results[3,2] <- logLik(fit_m3)
+results[4,2] <- logLik(fit_m4)
+results[5,2] <- logLik(fit_m5)
 
-results_mix <- data.frame(n_states = as.numeric(),
-                          bic = as.numeric())
+results[2,3] <- BIC(fit_m2)
+results[3,3] <- BIC(fit_m3)
+results[4,3] <- BIC(fit_m4)
+results[5,3] <- BIC(fit_m5)
 
-for (i in 1:5) {
-mod <- mix(list(par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1,
-                paa_gpa ~ 1, big_ext ~ 1, big_agr ~ 1, big_con ~ 1, 
-                big_neu ~ 1, big_ope ~ 1, fem_inm ~ 1, fem_exm ~ 1), 
-           data = dat_lca, nstates = i,
-           family=list(multinomial("identity"), multinomial("identity"), 
-                       multinomial("identity"), multinomial("identity"), 
-                       multinomial("identity"),
-                       gaussian(), gaussian(), gaussian(), gaussian(),
-                       gaussian(), gaussian(), gaussian())
-           # ,
-           #respstart=runif(84)
-           )
+results[2,4] <- AIC(fit_m2)
+results[3,4] <- AIC(fit_m3)
+results[4,4] <- AIC(fit_m4)
+results[5,4] <- AIC(fit_m5)
 
-results_mix <- results_mix |>
-  add_row(n_states = i,
-          bic = BIC(mod))
-}
+results
 
+# 3 class solution = fit_m3
+summary(fit_m3)
 
-######################### End Jürgen ###########################################
+# mean posterior probabilities
+postprob <- depmixS4::posterior(fit_m3)
+postprob$state <- as.factor(posterior_states$state)
+
+meanpostprob1 <- as.data.frame(postprob) %>% 
+  group_by(state) %>%
+  summarise(s1 = mean(S1))
+meanpostprob2 <- as.data.frame(postprob) %>% 
+  group_by(state) %>%
+  summarise(s2 = mean(S2))
+meanpostprob3 <- as.data.frame(postprob) %>% 
+  group_by(state) %>%
+  summarise(s3 = mean(S3))
+
+meanpostprob <- round(cbind(meanpostprob1$s1, 
+                            meanpostprob2$s2, 
+                            meanpostprob3$s3), 2)
+
+# 0.72, 0.90, 0.87 # poLCA
+# 0.85, 0.73, 0.69 # depmixS4 (-)
 
 # Plot
-plot.data <- cbind(dat_lca, posterior.states) %>% 
-  pivot_longer(par_edu:fem_exm, 
+posterior_states <- depmixS4::posterior(fit_m3)
+posterior_states$state <- as.factor(posterior_states$state)
+
+plot_data <- cbind(dat_lca, posterior_states) %>% 
+  pivot_longer(gender:fem_exm, 
                names_to = "measure", 
                values_to = "value",
                values_transform = as.numeric)
 
-plot.data$measure <- as.factor(plot.data$measure)
-levels(plot.data$measure) <- c("par_edu",
-                               "par_ocu",
-                               "mig_bac",
-                               "typ_sch", 
-                               "paa_gpa", 
-                               "big_ext",
-                               "big_agr",
-                               "big_con",
-                               "big_neu",
-                               "big_ope",
-                               "fem_inm",
-                               "fem_exm")
+plot_data$measure <- as.factor(plot_data$measure)
+levels(plot_data$measure) <- c("Agreeableness",
+                               "Conscientious",
+                               "Extraversion",
+                               "Neuroticism",
+                               "Openess",
+                               "Extrinsic Motivation",
+                               "Intrinsic Motivation",
+                               "Gender (Male)",
+                               "Immigrant Background",
+                               "Grade Point Average (-)",
+                               "First-Generation-Student",
+                               "Working Class",
+                               "Non-Gymnasium")
 
 # max_lca_probs <- cbind(dat_lca, posterior.states) %>% 
 #   mutate(ID_t = 1:nrow(.)) %>% 
@@ -833,27 +950,116 @@ levels(plot.data$measure) <- c("par_edu",
 # 
 # summary(max_lca_probs) 
 
-plot.data$var_type <- ifelse(plot.data$measure == "par_edu" | 
-                               plot.data$measure == "par_ocu" | 
-                               plot.data$measure == "mig_bac" | 
-                               plot.data$measure == "typ_sch" |
-                               plot.data$measure == "paa_gpa ", "categorical",
-                      ifelse(plot.data$measure == "big_ext" | 
-                               plot.data$measure == "big_agr" | 
-                               plot.data$measure == "big_con" | 
-                               plot.data$measure == "big_neu" |
-                               plot.data$measure == "big_ope" |
-                               plot.data$measure == "fem_inm" |
-                               plot.data$measure == "fem_exm", "continuous", NA))
+plot_data$var_type <- ifelse(plot_data$measure == "First-Generation-Student" | 
+                               plot_data$measure == "Working Class" | 
+                               plot_data$measure == "Immigrant Background" | 
+                               plot_data$measure == "Non-Gymnasium" | 
+                               plot_data$measure == "Gender (Male)", "categorical",
+                      ifelse(plot_data$measure == "Openess" | 
+                               plot_data$measure == "Conscientious "|
+                               plot_data$measure == "Extraversion" | 
+                               plot_data$measure == "Agreeableness" | 
+                               plot_data$measure == "Neuroticism" |
+                               plot_data$measure == "Extrinsic Motivation" |
+                               plot_data$measure == "Intrinsic Motivation" |
+                               plot_data$measure == "Grade Point Average (-)", "continuous", NA))
 
-summary.plot.data <- plot.data %>%
-  group_by(measure) %>% 
+plot_data_continuous <- plot_data %>%
+  filter(var_type == "continuous") %>%
+  group_by(measure) %>%
   mutate(z = scale(value)) %>%
-  group_by(measure, state) %>%
-  summarize(mean(z, na.rm = T))
+  ungroup()
+
+plot_continuous <- ggplot(plot_data_continuous, aes(x = measure, y = z, 
+                                                    color = state,
+                                                    group = state)) +
+  stat_summary(geom = "point", fun = mean, size = 3) +
+  stat_summary(fun = mean, geom = "line", size = 0.5)+
+  guides(x =  guide_axis(angle = 45))
 
 
-######################## BEGIN Jürgen #############
+prob_categorical <- summary(fit_m3)
+prob_categorical <- as.data.frame(prob_categorical)
+
+df_prob_categorical <- rbind(prob_categorical$Re1.1,  # gender: male 
+                             prob_categorical$Re2.1,  # first-generation-student
+                             prob_categorical$Re3.0,  # working-class 
+                             prob_categorical$Re4.1,  # migration background 
+                             prob_categorical$Re5.0)  # migration background 
+
+df_prob_categorical <- as.data.frame(df_prob_categorical)
+df_prob_categorical$measure <- c("Gender (Male)",             # gender
+                                 "First-Generation-Student",  # par_edu
+                                 "Working Class",             # par_ocu
+                                 "Immigrant Background",      # mig_bac
+                                 "Non-Gymnasium")             # typ_sch
+
+df_prob_categorical <- df_prob_categorical %>% 
+  pivot_longer(1:3, names_to = "state", 
+               values_to = "value",
+               values_transform = as.numeric) 
+
+df_prob_categorical$state <- as.factor(df_prob_categorical$state)
+levels(df_prob_categorical$state) <- c(1, 2, 3)
+
+plot_categorical <- ggplot(df_prob_categorical, aes(x = measure, y = value, 
+                                                    color  =state, group = state)) +
+  stat_summary(geom = "point", fun = mean, size = 3) +
+  stat_summary(fun = mean, geom = "line", size = 0.5) +
+  guides(x =  guide_axis(angle = 45))
+
+df_plot_both1 <- as.data.frame(plot_data_continuous)
+df_plot_both1 <- df_plot_both1 %>% 
+  dplyr::select(measure, state, z) %>% 
+  dplyr::rename(value = z)
+
+df_plot_both2 <- as.data.frame(df_prob_categorical)
+df_plot_both <- rbind(df_plot_both1, df_plot_both2)
+
+plot_both <- ggplot(df_plot_both, aes(x = measure, y = value, 
+                                      color  =state, group = state)) +
+  stat_summary(geom = "point", fun = mean, size = 3) +
+  stat_summary(fun = mean, geom = "line", size = 0.5) +
+  guides(x =  guide_axis(angle = 45)) +
+  scale_x_discrete(limits=c("Openess","Conscientious","Extraversion", 
+                            "Agreeableness", "Neuroticism",
+                            "Extrinsic Motivation", "Intrinsic Motivation",
+                            "Grade Point Average (-)", "Non-Gymnasium", 
+                            "First-Generation-Student", "Immigrant Background",
+                            "Working Class", "Gender (Male)")) +
+  expand_limits(y=c(-1, 1)) +
+  scale_y_continuous(
+    name = "z-Value \n",
+    sec.axis = sec_axis(trans = ~ . *1, name = "Conditional Probabilities of  \n At-Risk Expression\n",
+                        breaks = seq(0, 1, by = 0.25),)) +
+  geom_hline(yintercept = 0, linetype = "dashed", 
+             color = "grey", size = 0.5) +
+  xlab("")
+
+############################## BEGIN Syntax Jürgen ############################# 
+results_mix <- data.frame(n_states = as.numeric(),
+                          bic = as.numeric())
+
+for (i in 1:5) {
+  mod <- mix(list(par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1,
+                  paa_gpa ~ 1, big_ext ~ 1, big_agr ~ 1, big_con ~ 1, 
+                  big_neu ~ 1, big_ope ~ 1, fem_inm ~ 1, fem_exm ~ 1), 
+             data = dat_lca, nstates = i,
+             family=list(multinomial("identity"), multinomial("identity"), 
+                         multinomial("identity"), multinomial("identity"), 
+                         multinomial("identity"),
+                         gaussian(), gaussian(), gaussian(), gaussian(),
+                         gaussian(), gaussian(), gaussian())
+             # ,
+             #respstart=runif(84)
+  )
+  
+  results_mix <- results_mix |>
+    add_row(n_states = i,
+            bic = BIC(mod))
+}
+
+
 tmp <- plot.data |>
   group_by(measure) |>
   mutate(value_z = scale(value)) |>
@@ -869,87 +1075,4 @@ ggplot(tmp, aes(x=measure, y=value_z, color=state, group=state)) +
   stat_summary(fun=mean, geom = "line", size=1)
   
 
-######################## END Jürgen   #############
-
-group_by(state, measure) %>% 
-%>%
-  group_by(state, measure) %>% 
-  summarize(zz = mean(z, na.rm = T))
-
-
-n <- ggplot(summary.plot.data, aes(y = z, x = measure, group = state, color = state)) + 
-  geom_point() + 
-  geom_line() + 
-  ggtitle("depmixS4")
-
-# same plot using poLCA
-
-dat_lca <- data7 %>% 
-  dplyr::mutate(
-    across(c(par_edu,
-             par_ocu,
-             mig_bac,
-             typ_sch,
-             paa_gpa,
-             ext_rnk,
-             agr_rnk,
-             con_rnk,
-             neu_rnk,
-             ope_rnk,
-             inm_di,
-             exm_di),
-           as.factor))
-
-dat_lca <- dat_lca %>%
-  dplyr::select(par_edu,
-                par_ocu,
-                mig_bac,
-                typ_sch,
-                paa_gpa,
-                ext_rnk,
-                agr_rnk,
-                con_rnk,
-                neu_rnk,
-                ope_rnk,
-                inm_di,
-                exm_di)
-
-f <- with(dat_lca, cbind(par_edu, par_ocu, mig_bac, typ_sch, paa_gpa,
-                         ext_rnk, agr_rnk, con_rnk, neu_rnk,
-                         ope_rnk, inm_di, exm_di) ~ 1)
-
-lc3 <- poLCA(f, dat_lca, nclass = 3, na.rm = FALSE, nrep = 10, maxiter = 8000)
-
-posterior.states <- lc3$posterior
-posterior.states$state <- as.factor(lc3$predclass)
-
-# Plot
-plot.data <- cbind(dat_lca, posterior.states) %>% 
-  pivot_longer(par_edu:exm_di, 
-               names_to = "measure", 
-               values_to = "value",
-               values_transform = as.numeric)
-
-plot.data$measure <- as.factor(plot.data$measure, levels= c("par_edu",
-                                                         "par_ocu",
-                                                         "mig_bac",
-                                                         "typ_sch",
-                                                         "paa_gpa",
-                                                         "ext_rnk",
-                                                         "agr_rnk",
-                                                         "con_rnk",
-                                                         "neu_rnk",
-                                                         "ope_rnk",
-                                                         "inm_di",
-                                                         "exm_di"))
-
-summary.plot.data <- plot.data %>% 
-  group_by(state, measure) %>% 
-  summarize(z=mean(value, na.rm = T) / sd(value, na.rm = T) )
-
-m <- ggplot(summary.plot.data, aes(y = z, x = measure, group = state, color = state)) + 
-  geom_point() + 
-  geom_line() + 
-  ggtitle("poLCA")
-
-plot <- ggarrange(n, m, ncol = 1, nrow = 2)
+############################## END Syntax Jürgen ############################
