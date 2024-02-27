@@ -366,6 +366,15 @@ data4 <- data3 %>%
 # (big 5, motivation for choosing teacher education (femola))
 
 # scales
+
+# Big 5
+# recode inverse items big 5:
+data4$t66800a <- 6 - data4$t66800a
+data4$t66800g <- 6 - data4$t66800g
+data4$t66800c <- 6 - data4$t66800c
+data4$t66800d <- 6 - data4$t66800d
+data4$t66800e <- 6 - data4$t66800e
+
 data5 <- data4 %>% 
   dplyr::mutate(big_ext = rowMeans(subset(data4, select = c(t66800a, t66800f)),
                                    na.rm = TRUE),
@@ -743,7 +752,7 @@ report(anova_acaint2)
 
 #### --------------------------- (6) LCA Mixed ---------------------------- ####
 
-# LCA 2 using depmixS4
+## LCA 2 using depmixS4
 data6 <- data5 %>% 
   dplyr::mutate(across(everything(), ~ ifelse(is.nan(.x), NA, .x)))
 
@@ -771,7 +780,7 @@ dat_lca <- dat_lca %>%
                 fem_inm,
                 fem_exm)
 
-# step 1: model specification
+## step 1: model specification
 
 # class = 1
 m1 <- mix(list(gender ~ 1, par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1, 
@@ -833,7 +842,44 @@ m5 <- mix(list(gender ~ 1, par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1,
                      gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
                      gaussian(), gaussian(), gaussian()))
 
-# step 2: model fit
+# class = 6
+m6 <- mix(list(gender ~ 1, par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1, 
+               paa_gpa ~ 1, 
+               big_ext ~ 1, big_agr ~ 1, big_con ~ 1, big_neu ~ 1, big_ope ~ 1,
+               fem_inm ~ 1, fem_exm ~ 1), 
+          data = dat_lca, nstates = 6,
+          family=list(multinomial("identity"), multinomial("identity"), 
+                      multinomial("identity"), multinomial("identity"), 
+                      multinomial("identity"),
+                      gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
+                      gaussian(), gaussian(), gaussian()))
+
+# class = 7
+m7 <- mix(list(gender ~ 1, par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1, 
+               paa_gpa ~ 1, 
+               big_ext ~ 1, big_agr ~ 1, big_con ~ 1, big_neu ~ 1, big_ope ~ 1,
+               fem_inm ~ 1, fem_exm ~ 1), 
+          data = dat_lca, nstates = 7,
+          family=list(multinomial("identity"), multinomial("identity"), 
+                      multinomial("identity"), multinomial("identity"), 
+                      multinomial("identity"),
+                      gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
+                      gaussian(), gaussian(), gaussian()))
+
+# class = 8
+# m8 <- mix(list(gender ~ 1, par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1, 
+#                paa_gpa ~ 1, 
+#                big_ext ~ 1, big_agr ~ 1, big_con ~ 1, big_neu ~ 1, big_ope ~ 1,
+#                fem_inm ~ 1, fem_exm ~ 1), 
+#           data = dat_lca, nstates = 8,
+#           family=list(multinomial("identity"), multinomial("identity"), 
+#                       multinomial("identity"), multinomial("identity"), 
+#                       multinomial("identity"),
+#                       gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
+#                       gaussian(), gaussian(), gaussian()))
+
+
+## step 2: model fit
 set.seed(123)
 
 fit_m1 <- fit(m1, verbose = FALSE, 
@@ -863,7 +909,26 @@ fit_m5 <- fit(m5, verbose = FALSE,
                                      crit = c("absolute"),
                                      classification = c("soft")))
 
-# generate dataframe with fit-values
+fit_m6 <- fit(m6, verbose = FALSE,
+              emcontrol = em.control(random.start = TRUE,
+                                     maxit = 5000,
+                                     crit = c("absolute"),
+                                     classification = c("soft")))
+
+fit_m7 <- fit(m7, verbose = FALSE,
+              emcontrol = em.control(random.start = TRUE,
+                                     maxit = 5000,
+                                     crit = c("absolute"),
+                                     classification = c("soft")))
+
+# fit_m8 <- fit(m8, verbose = FALSE,
+#               emcontrol = em.control(random.start = TRUE,
+#                                      maxit = 5000,
+#                                      crit = c("absolute"),
+#                                      classification = c("soft")))
+
+
+## generate dataframe with fit-values
 results <- data.frame(Modell = c("Modell"),
                       log_likelihood = logLik(fit_m1),
                       BIC = BIC(fit_m1),
@@ -876,55 +941,35 @@ results[2,1] <- c("Modell 2")
 results[3,1] <- c("Modell 3")
 results[4,1] <- c("Modell 4")
 results[5,1] <- c("Modell 5")
+results[6,1] <- c("Modell 6")
+results[7,1] <- c("Modell 7")
+# results[8,1] <- c("Modell 8")
 
 results[2,2] <- logLik(fit_m2)
 results[3,2] <- logLik(fit_m3)
 results[4,2] <- logLik(fit_m4)
 results[5,2] <- logLik(fit_m5)
+results[6,2] <- logLik(fit_m6)
+results[7,2] <- logLik(fit_m7)
+# results[8,2] <- logLik(fit_m8)
 
 results[2,3] <- BIC(fit_m2)
 results[3,3] <- BIC(fit_m3)
 results[4,3] <- BIC(fit_m4)
 results[5,3] <- BIC(fit_m5)
+results[6,3] <- BIC(fit_m6)
+results[7,3] <- BIC(fit_m7)
+# results[8,3] <- BIC(fit_m8)
 
 results[2,4] <- AIC(fit_m2)
 results[3,4] <- AIC(fit_m3)
 results[4,4] <- AIC(fit_m4)
 results[5,4] <- AIC(fit_m5)
+results[6,4] <- AIC(fit_m6)
+results[7,4] <- AIC(fit_m7)
+# results[8,4] <- AIC(fit_m8)
 
-results
-
-# 3 class solution = fit_m3
-summary(fit_m3)
-
-# mean posterior probabilities for m3
-postprob_m3 <- depmixS4::posterior(fit_m3)
-postprob_m3$state <- as.factor(postprob_m3$state)
-
-meanpostprob1 <- as.data.frame(postprob_m3) %>% 
-  group_by(state) %>%
-  summarise(s1 = mean(S1))
-meanpostprob2 <- as.data.frame(postprob_m3) %>% 
-  group_by(state) %>%
-  summarise(s2 = mean(S2))
-meanpostprob3 <- as.data.frame(postprob_m3) %>% 
-  group_by(state) %>%
-  summarise(s3 = mean(S3))
-
-meanpostprob_m3 <- round(cbind(meanpostprob1$s1, 
-                               meanpostprob2$s2, 
-                               meanpostprob3$s3), 2)
-
-# 0.72, 0.90, 0.87 # poLCA
-# 0.85, 0.73, 0.69 # depmixS4
-
-# bayes factor
-bf_test <- round(bayestestR::bic_to_bf(c(BIC(fit_m1), BIC(fit_m2), 
-                                         BIC(fit_m3), BIC(fit_m4)), 
-                                       denominator = BIC(fit_m1)), 2)
-# 1.000000e+00, 4.925037e+182, 7.076083e+275, Inf
-
-# entropy
+## entropy
 # model 2
 postprob_m2 <- depmixS4::posterior(fit_m2)
 entropy_m2 <- as.data.frame(postprob_m2)
@@ -967,8 +1012,169 @@ entropy_m4 <- 1 -
   )
 
 
-# Plot
-posterior_states <- depmixS4::posterior(fit_m3)
+# model 5
+postprob_m5 <- depmixS4::posterior(fit_m5)
+entropy_m5 <- as.data.frame(postprob_m5)
+entropy_m5 <- cbind(postprob_m5$S1,
+                    postprob_m5$S2,
+                    postprob_m5$S3,
+                    postprob_m5$S4,
+                    postprob_m5$S5)
+
+entropy_m5 <- 1 - 
+  (
+    (sum(-entropy_m5*log(entropy_m5), na.rm = T)) /
+      (nrow(entropy_m5)*log(ncol(entropy_m5)))
+  )
+
+
+# model 6
+postprob_m6 <- depmixS4::posterior(fit_m6)
+entropy_m6 <- as.data.frame(postprob_m6)
+entropy_m6 <- cbind(postprob_m6$S1,
+                    postprob_m6$S2,
+                    postprob_m6$S3,
+                    postprob_m6$S4,
+                    postprob_m6$S5,
+                    postprob_m6$S6)
+
+entropy_m6 <- 1 - 
+  (
+    (sum(-entropy_m6*log(entropy_m6), na.rm = T)) /
+      (nrow(entropy_m6)*log(ncol(entropy_m6)))
+  )
+
+
+# model 7
+postprob_m7 <- depmixS4::posterior(fit_m7)
+entropy_m7 <- as.data.frame(postprob_m7)
+entropy_m7 <- cbind(postprob_m7$S1,
+                    postprob_m7$S2,
+                    postprob_m7$S3,
+                    postprob_m7$S4,
+                    postprob_m7$S5,
+                    postprob_m7$S6,
+                    postprob_m7$S7)
+
+entropy_m7 <- 1 - 
+  (
+    (sum(-entropy_m7*log(entropy_m7), na.rm = T)) /
+      (nrow(entropy_m7)*log(ncol(entropy_m7)))
+  )
+
+
+# model 8
+# postprob_m8 <- depmixS4::posterior(fit_m8)
+# entropy_m8 <- as.data.frame(postprob_m8)
+# entropy_m8 <- cbind(postprob_m8$S1,
+#                     postprob_m8$S2,
+#                     postprob_m8$S3,
+#                     postprob_m8$S4,
+#                     postprob_m8$S5,
+#                     postprob_m8$S6,
+#                     postprob_m8$S7,
+#                     postprob_m8$S8)
+# 
+# entropy_m8 <- 1 - 
+#   (
+#     (sum(-entropy_m8*log(entropy_m8), na.rm = T)) /
+#       (nrow(entropy_m8)*log(ncol(entropy_m8)))
+#   )
+
+
+# add entropy to results
+results[2,5] <- entropy_m2
+results[3,5] <- entropy_m3
+results[4,5] <- entropy_m4
+results[5,5] <- entropy_m5
+results[6,5] <- entropy_m6
+results[7,5] <- entropy_m7
+# results[8,5] <- entropy_m8
+names(results)[5] <- paste("entropy")
+
+results
+
+#elbow plot
+elbow_plot <- results %>% ggplot(aes(x = Modell, y = BIC)) + geom_point()
+
+## mean posterior probabilities
+# model 3
+postprob_m3 <- depmixS4::posterior(fit_m3)
+postprob_m3$state <- as.factor(postprob_m3$state)
+
+meanpostprob1 <- as.data.frame(postprob_m3) %>% 
+  group_by(state) %>%
+  summarise(s1 = mean(S1))
+meanpostprob2 <- as.data.frame(postprob_m3) %>% 
+  group_by(state) %>%
+  summarise(s2 = mean(S2))
+meanpostprob3 <- as.data.frame(postprob_m3) %>% 
+  group_by(state) %>%
+  summarise(s3 = mean(S3))
+
+meanpostprob_m3 <- round(cbind(meanpostprob1$s1, 
+                               meanpostprob2$s2, 
+                               meanpostprob3$s3), 2)
+
+# model 4
+postprob_m4 <- depmixS4::posterior(fit_m4)
+postprob_m4$state <- as.factor(postprob_m4$state)
+
+meanpostprob1 <- as.data.frame(postprob_m4) %>% 
+  group_by(state) %>%
+  summarise(s1 = mean(S1))
+meanpostprob2 <- as.data.frame(postprob_m4) %>% 
+  group_by(state) %>%
+  summarise(s2 = mean(S2))
+meanpostprob3 <- as.data.frame(postprob_m4) %>% 
+  group_by(state) %>%
+  summarise(s3 = mean(S3))
+meanpostprob4 <- as.data.frame(postprob_m4) %>% 
+  group_by(state) %>%
+  summarise(s4 = mean(S4))
+
+meanpostprob_m4 <- round(cbind(meanpostprob1$s1, 
+                               meanpostprob2$s2, 
+                               meanpostprob3$s3,
+                               meanpostprob4$s4), 2)
+
+# model 5
+postprob_m5 <- depmixS4::posterior(fit_m5)
+postprob_m5$state <- as.factor(postprob_m5$state)
+
+meanpostprob1 <- as.data.frame(postprob_m5) %>% 
+  group_by(state) %>%
+  summarise(s1 = mean(S1))
+meanpostprob2 <- as.data.frame(postprob_m5) %>% 
+  group_by(state) %>%
+  summarise(s2 = mean(S2))
+meanpostprob3 <- as.data.frame(postprob_m5) %>% 
+  group_by(state) %>%
+  summarise(s3 = mean(S3))
+meanpostprob4 <- as.data.frame(postprob_m5) %>% 
+  group_by(state) %>%
+  summarise(s4 = mean(S4))
+meanpostprob5 <- as.data.frame(postprob_m5) %>% 
+  group_by(state) %>%
+  summarise(s5 = mean(S5))
+
+meanpostprob_m5 <- round(cbind(meanpostprob1$s1, 
+                               meanpostprob2$s2, 
+                               meanpostprob3$s3,
+                               meanpostprob4$s4,
+                               meanpostprob5$s5), 2)
+
+
+
+# bayes factor ? wirkt falsch
+bf_test <- round(bayestestR::bic_to_bf(c(BIC(fit_m1), BIC(fit_m2), 
+                                         BIC(fit_m3), BIC(fit_m4),
+                                         BIC(fit_m5)), 
+                                       denominator = BIC(fit_m1)), 2)
+# 1.000000e+00, 4.925037e+182, 7.076083e+275, Inf
+
+# Plot model 5
+posterior_states <- depmixS4::posterior(fit_m5)
 posterior_states$state <- as.factor(posterior_states$state)
 
 plot_data <- cbind(dat_lca, posterior_states) %>% 
@@ -992,11 +1198,11 @@ levels(plot_data$measure) <- c("Agreeableness",
                                "Working Class",
                                "Non-Gymnasium")
 
-# max_lca_probs <- cbind(dat_lca, posterior.states) %>% 
-#   mutate(ID_t = 1:nrow(.)) %>% 
-#   gather("state_prob", "value", starts_with("S", ignore.case = FALSE)) %>% 
-#   group_by(ID_t) %>% 
-#   summarize(max_prob=max(value))
+# max_lca_probs <- cbind(dat_lca, posterior_states) %>% 
+#  mutate(ID_t = 1:nrow(.)) %>% 
+#  gather("state_prob", "value", starts_with("S", ignore.case = FALSE)) %>% 
+#  group_by(ID_t) %>% 
+#  summarize(max_prob=max(value))
 # 
 # summary(max_lca_probs) 
 
@@ -1028,14 +1234,14 @@ plot_continuous <- ggplot(plot_data_continuous, aes(x = measure, y = z,
   guides(x =  guide_axis(angle = 45))
 
 
-prob_categorical <- summary(fit_m3)
+prob_categorical <- summary(fit_m5)
 prob_categorical <- as.data.frame(prob_categorical)
 
 df_prob_categorical <- rbind(prob_categorical$Re1.1,  # gender: male 
                              prob_categorical$Re2.1,  # first-generation-student
                              prob_categorical$Re3.0,  # working-class 
                              prob_categorical$Re4.1,  # migration background 
-                             prob_categorical$Re5.0)  # migration background 
+                             prob_categorical$Re5.0)  # non-Gymnasium 
 
 df_prob_categorical <- as.data.frame(df_prob_categorical)
 df_prob_categorical$measure <- c("Gender (Male)",             # gender
@@ -1045,15 +1251,15 @@ df_prob_categorical$measure <- c("Gender (Male)",             # gender
                                  "Non-Gymnasium")             # typ_sch
 
 df_prob_categorical <- df_prob_categorical %>% 
-  pivot_longer(1:3, names_to = "state", 
+  pivot_longer(1:5, names_to = "state", 
                values_to = "value",
                values_transform = as.numeric) 
 
 df_prob_categorical$state <- as.factor(df_prob_categorical$state)
-levels(df_prob_categorical$state) <- c(1, 2, 3)
+levels(df_prob_categorical$state) <- c(1, 2, 3, 4, 5)
 
 plot_categorical <- ggplot(df_prob_categorical, aes(x = measure, y = value, 
-                                                    color  =state, group = state)) +
+                                                    color = state, group = state)) +
   stat_summary(geom = "point", fun = mean, size = 3) +
   stat_summary(fun = mean, geom = "line", size = 0.5) +
   guides(x =  guide_axis(angle = 45))
