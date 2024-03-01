@@ -1004,13 +1004,12 @@ meanpostprob_m8 <- round(cbind(meanpostprob1$s1,
 
 
 
-# bayes factor ? wirkt falsch
+# bayes factor
 bf_test <- bayestestR::bic_to_bf(c(BIC(fit_m8), BIC(fit_m9)),
                                  denominator = BIC(fit_m8), log = T)
-# 1.000000e+00, 4.925037e+182, 7.076083e+275, Inf
 
-# Plot model 4
-posterior_states <- depmixS4::posterior(fit_m4)
+# Plot model 8
+posterior_states <- depmixS4::posterior(fit_m8)
 posterior_states$state <- as.factor(posterior_states$state)
 
 plot_data <- cbind(dat_lca, posterior_states) %>% 
@@ -1070,7 +1069,7 @@ plot_continuous <- ggplot(plot_data_continuous, aes(x = measure, y = z,
   guides(x =  guide_axis(angle = 45))
 
 
-prob_categorical <- summary(fit_m4)
+prob_categorical <- summary(fit_m8)
 prob_categorical <- as.data.frame(prob_categorical)
 
 df_prob_categorical <- rbind(prob_categorical$Re1.1,  # gender: male 
@@ -1083,12 +1082,12 @@ df_prob_categorical$measure <- c("Gender (Male)",             # gender
                                  "Immigrant Background")      # mig_bac
 
 df_prob_categorical <- df_prob_categorical %>% 
-  pivot_longer(1:4, names_to = "state", 
+  pivot_longer(1:8, names_to = "state", 
                values_to = "value",
                values_transform = as.numeric) 
 
 df_prob_categorical$state <- as.factor(df_prob_categorical$state)
-levels(df_prob_categorical$state) <- c(1, 2, 3, 4)
+levels(df_prob_categorical$state) <- c(1, 2, 3, 4, 5, 6, 7, 8)
 
 plot_categorical <- ggplot(df_prob_categorical, aes(x = measure, y = value, 
                                                     color = state, group = state)) +
@@ -1124,6 +1123,7 @@ plot_both <- ggplot(df_plot_both, aes(x = measure, y = value,
   geom_hline(yintercept = 0, linetype = "dashed", 
              color = "grey", size = 0.5) +
   xlab("")
+
 
 
 #### ------------------------------ (6) ANOVA ------------------------------ ####
