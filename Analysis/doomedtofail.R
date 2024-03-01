@@ -6,7 +6,7 @@
 #        SC5_pTargetCATI_D_18-0-0.sav
 #        SC5_pTargetCAWI_D_18-0-0.sav
 #        SC5_spSchool_D_18-0-0.sav
-#        SC5_spVocTrain_D_18-0-0.sav
+#        SC5_spVocTrain_D_18-0-0.sav # unvollständig
 # Output: --
 #
 # Contents: (1) Load Packages
@@ -60,11 +60,10 @@ cati_w1 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCATI_D_18-0-0.sav") %>%
                                      tg24150_g1,  # foreign student (!= 3)
                                      t731301_g1,  # parental education
                                      t731351_g1,  
-                                     t731403_g8,  # parental occupation
-                                     t731453_g8,
+                                     t731453_g14,  # parental occupation
+                                     t731403_g14,
                                      t405060_g1,  # migration background
                                      t405090_g1,
-                                     t70000m, t70000y, # date of birth
                                      t700001) %>% # gender
            dplyr::filter(wave == 1)
            
@@ -191,6 +190,9 @@ ststa <- haven::read_sav("Data_SC5_D_18-0-0/SC5_StudyStates_D_18-0-0.sav") %>%
                                               & all(tx15318 != 1) ~ 4,
                                               any(is.na(tx15318)) ~ as.numeric(NA)))
 
+# Filter measures from Basics:
+basic <- haven::read_sav("Data_SC5_D_18-0-0/SC5_Basics_D_18-0-0.sav") %>% 
+         dplyr::select(ID_t, tx29000)  # age
 
 
 ####  -------------------------- (3) Merge Data -------------------------- ####
@@ -267,7 +269,11 @@ data <- rquery::natural_join(data, spvoc,
 
 data <- rquery::natural_join(data, ststa,
                              by = "ID_t",
-                             jointype = "LEFT") %>%
+                             jointype = "LEFT") 
+  
+  data <- rquery::natural_join(data, basic,
+                               by = "ID_t",
+                               jointype = "LEFT") %>%
   
                              # dplyr::filter(tx80121 == 1) %>%
                              # oversample of tea edu
@@ -304,24 +310,21 @@ data <- rquery::natural_join(data, ststa,
 data2 <- data %>%
   dplyr::mutate(par_edu = case_when((t731301_g1 < 9 & t731351_g1 < 9) ~ 1,
                                     (t731301_g1 >= 9 & t731351_g1 >= 9) ~ 3,
-                                    (t731301_g1 >= 9 | t731351_g1 >= 9) ~ 2,
-                                    TRUE ~ as.numeric(NA)),
+                                    (t731301_g1 >= 9 & t731351_g1 < 9 | 
+                                       t731301_g1 < 9 & t731351_g1 >= 9) ~ 2,
+                                    TRUE ~ as.numeric(NA))) %>%
                                     # 1 = no parent tertiary education, 2 = one 
                                     # parent, 3 = both parents
-  
-                par_ocu = case_when((t731403_g8 >= 9 & t731453_g8 >= 9) |       
-                                    (t731403_g8 == 4 & t731453_g8 == 4) ~ 0,
-                                    (t731403_g8 <= 2 | t731453_g8 <= 2) ~ 2,
-                                    (t731403_g8 %in% c(3, 5:8) | 
-                                     t731453_g8 %in% c(3, 5:8)) ~ 1,
-                                    TRUE ~ as.numeric(NA)))
-                                    # 0 = working class,
-                                    # 1 = intermediate class
-                                    # 2 = upper class
+  dplyr::group_by(ID_t) %>% 
+  dplyr::mutate(hisei = max(t731453_g14, t731403_g14)) %>% 
+  dplyr::ungroup() %>%
+  dplyr::mutate(hisei = case_when((is.na(t731453_g14) |
+                                    is.na(t731403_g14)) ~ as.numeric(NA),
+                                  TRUE ~ as.numeric(hisei))) 
 
 # migration background
 data3 <- data2 %>% 
-  dplyr::mutate(mig_bac = case_when((t405060_g1 <= 2 & t405090_g1 <= 2) ~ 0,
+  dplyr::mutate(mig_bac = case_when((t405060_g1 <= 2 & t405090_g1 <= 2) ~ 0,    # NA situation?
                                     (t405060_g1 == 3 | t405090_g1 == 3) ~ 1,
                                     TRUE ~ as.numeric(NA)))
                                     # 0 = both parents born in Germany, 
@@ -355,12 +358,15 @@ data4 <- data3 %>%
 #                                    # 1 = no, 2 = yes
 
 # binary variable for vocational training
-                voc_tra = ifelse(ts15218 == 3, 1, 0),
+                voc_tra = ifelse(ts15218 == 4 | is.na(ts15218), 0, 1),
 
 # gender
-                gender = ifelse(t700001 == 1, 1, 0))
+                gender = ifelse(t700001 == 1, 1, 0),
                 # 1 = male
                 # 0 = female
+
+# age
+                age =  tx29000)
 
 # individual characteristics 
 # (big 5, motivation for choosing teacher education (femola))
@@ -452,325 +458,22 @@ data5 <- data5 %>%
 
 #### ------------------------------ (5) LCA ------------------------------ ####
 
-## LCA
-## Tutorial: https://statistics.ohlsen-web.de/latent-class-analysis-polca/
-## Paper: https://osf.io/preprints/psyarxiv/97uab
-
-data6 <- data5 %>% 
-  dplyr::mutate(across(everything(), ~ ifelse(is.nan(.x), NA, .x)))
-
-# examine variables
-df <- data6 %>%
-  dplyr::select(par_edu, 
-                par_ocu, 
-                mig_bac, 
-                typ_sch, 
-                paa_gpa,
-                voc_tra, 
-                big_ext, 
-                big_agr, 
-                big_con, 
-                big_neu,
-                big_ope, 
-                fem_inm, 
-                fem_exm)
-
-desc <- tidySEM::descriptives(df)
-desc <- desc[, c("name", "type", "n", "missing", "unique", "mode",
-                   "mode_value", "v")]
-
-# continuous variables should have many unique values, if not, it may be better 
-# to model them as "ordinal" (poLCA treats them as nominal)
-
-# simplify categories  
-# otherwise model too complex and ML was not found:
-data7 <- data6 %>% 
-  dplyr::mutate(ext_rnk = case_when(big_ext < 3.0 ~ 1,
-                                     between(big_ext, 3.0, 3.5) ~ 2,
-                                     big_ext > 3.5 ~ 3,
-                                     TRUE ~ as.numeric(NA))) %>%
-  dplyr::mutate(agr_rnk = case_when(big_agr < 3.333333 ~ 1,
-                                     between(big_agr, 3.333333, 3.666667) ~ 2,
-                                     big_agr > 3.666667 ~ 3,
-                                     TRUE ~ as.numeric(NA))) %>%
-  dplyr::mutate(con_rnk = case_when(big_con < 3.0 ~ 1,                          # trichotomized by tertile
-                                     between(big_con, 3.0, 3.5) ~ 2,
-                                     big_con > 3.5 ~ 3,
-                                     TRUE ~ as.numeric(NA))) %>%
-  dplyr::mutate(neu_rnk = case_when(big_neu < 2.5 ~ 1,
-                                     between(big_neu, 2.5, 3.0) ~ 2,
-                                     big_neu > 3.0 ~ 3,
-                                     TRUE ~ as.numeric(NA))) %>%
-  dplyr::mutate(ope_rnk = case_when(big_ope < 3.0 ~ 1,
-                                    between(big_ope, 3.0, 3.5) ~ 2,
-                                    big_ope > 3.5 ~ 3,
-                                    TRUE ~ as.numeric(NA))) %>%
-  dplyr::mutate(inm_di = ifelse(fem_inm < 3.22, 1, 2),                         # dichotomized by mode
-                exm_di = ifelse(fem_exm <= 2.25, 1, 2))
-                
-
-dat_lca <- data7 %>% 
-  dplyr::mutate(
-    across(c(par_edu,
-             par_ocu,
-             mig_bac,
-             typ_sch,
-             paa_gpa,
-             voc_tra,
-             ext_rnk,
-             agr_rnk,
-             con_rnk,
-             neu_rnk,
-             ope_rnk,
-             inm_di,
-             exm_di),
-           as.factor))
-
-
-# plot the data
-dat_plot <- dat_lca %>% 
-  dplyr::select(par_edu,
-                par_ocu,
-                mig_bac,
-                typ_sch,
-                paa_gpa,
-                voc_tra,
-                ext_rnk,
-                agr_rnk,
-                con_rnk,
-                neu_rnk,
-                ope_rnk,
-                inm_di,
-                exm_di)
-
-names(dat_plot) <- paste0("Value.", names(dat_plot))
-dat_plot <- reshape(dat_plot, varying = names(dat_plot), direction = "long")
-
-dat_plot <- ggplot(dat_plot, aes(x = Value)) + geom_bar() + 
-  facet_wrap(~ time, scales = "free") + theme_bw()                              # par_edu, par_ocu prüfen
-
-dat_plot
-
-
-f <- with(dat_lca, cbind(par_edu, par_ocu, mig_bac, typ_sch, paa_gpa,
-                         voc_tra, ext_rnk, agr_rnk, con_rnk, neu_rnk,
-                         ope_rnk, inm_di, exm_di) ~ 1)
-  
-set.seed(123)
-lc1 <- poLCA(f, dat_lca, nclass = 1, na.rm = FALSE, nrep = 10, maxiter = 5000)
-lc2 <- poLCA(f, dat_lca, nclass = 2, na.rm = FALSE, nrep = 10, maxiter = 5000)
-lc3 <- poLCA(f, dat_lca, nclass = 3, na.rm = FALSE, nrep = 10, maxiter = 8000)  
-lc4 <- poLCA(f, dat_lca, nclass = 4, na.rm = FALSE, nrep = 10, maxiter = 5000)
-lc5 <- poLCA(f, dat_lca, nclass = 5, na.rm = FALSE, nrep = 10, maxiter = 8000)
-lc6 <- poLCA(f, dat_lca, nclass = 6, na.rm = FALSE, nrep = 10, maxiter = 5000)
-
-# generate dataframe with fit-values
-results <- data.frame(Modell = c("Modell 1"),
-                      log_likelihood = lc1$llik,
-                      df = lc1$resid.df,
-                      BIC = lc1$bic,
-                      ABIC = (-2 * lc1$llik) + ((log((lc1$N + 2) / 24)) * lc1$npar),
-                      CAIC = (-2 * lc1$llik) + lc1$npar * (1 + log(lc1$N)), 
-                      likelihood_ratio = lc1$Gsq)
-
-results$Modell <- as.integer(results$Modell)
-results[1,1] <- c("Modell 1")
-results[2,1] <- c("Modell 2")
-results[3,1] <- c("Modell 3")
-results[4,1] <- c("Modell 4")
-results[5,1] <- c("Modell 5")
-results[6,1] <- c("Modell 6")
-
-results[2,2] <- lc2$llik
-results[3,2] <- lc3$llik
-results[4,2] <- lc4$llik
-results[5,2] <- lc5$llik
-results[6,2] <- lc6$llik
-
-results[2,3] <- lc2$resid.df
-results[3,3] <- lc3$resid.df
-results[4,3] <- lc4$resid.df
-results[5,3] <- lc5$resid.df
-results[6,3] <- lc6$resid.df
-
-results[2,4] <- lc2$bic
-results[3,4] <- lc3$bic
-results[4,4] <- lc4$bic
-results[5,4] <- lc5$bic
-results[6,4] <- lc6$bic
-
-results[2,5] <- (-2*lc2$llik) + ((log((lc2$N + 2)/24)) * lc2$npar) #abic
-results[3,5] <- (-2*lc3$llik) + ((log((lc3$N + 2)/24)) * lc3$npar)
-results[4,5] <- (-2*lc4$llik) + ((log((lc4$N + 2)/24)) * lc4$npar)
-results[5,5] <- (-2*lc5$llik) + ((log((lc5$N + 2)/24)) * lc5$npar)
-results[6,5] <- (-2*lc6$llik) + ((log((lc6$N + 2)/24)) * lc6$npar)
- 
-results[2,6] <- (-2*lc2$llik) + lc2$npar * (1 + log(lc2$N)) #caic
-results[3,6] <- (-2*lc3$llik) + lc3$npar * (1 + log(lc3$N))
-results[4,6] <- (-2*lc4$llik) + lc4$npar * (1 + log(lc4$N))
-results[5,6] <- (-2*lc5$llik) + lc5$npar * (1 + log(lc5$N))
-results[6,6] <- (-2*lc6$llik) + lc6$npar * (1 + log(lc6$N))
- 
-results[2,7] <- lc2$Gsq
-results[3,7] <- lc3$Gsq
-results[4,7] <- lc4$Gsq
-results[5,7] <- lc5$Gsq
-results[6,7] <- lc6$Gsq
-
-# add entropy
-entropy <- function (p) sum(-p*log(p))
-
-results$R2_entropy
-results[1,8] <- c("-")
-
-error_prior <- entropy(lc2$P) # class proportions model 2
-error_post <- mean(apply(lc2$posterior,1, entropy),na.rm = TRUE)
-results[2,8] <- round(((error_prior-error_post) / error_prior), 3)
-
-error_prior <- entropy(lc3$P) # class proportions model 3
-error_post <- mean(apply(lc3$posterior,1, entropy),na.rm = TRUE)
-results[3,8] <- round(((error_prior-error_post) / error_prior), 3)
-
-error_prior <- entropy(lc4$P) # class proportions model 4
-error_post <- mean(apply(lc4$posterior,1, entropy),na.rm = TRUE)
-results[4,8] <- round(((error_prior-error_post) / error_prior), 3)
-
-error_prior <- entropy(lc5$P) # class proportions model 5
-error_post <- mean(apply(lc5$posterior,1, entropy),na.rm = TRUE)
-results[5,8] <- round(((error_prior-error_post) / error_prior), 3)
-
-error_prior <- entropy(lc6$P) # class proportions model 6
-error_post <- mean(apply(lc6$posterior,1, entropy),na.rm = TRUE)
-results[6,8] <- round(((error_prior-error_post) / error_prior), 3)
-
-colnames(results) <- c("Model","log-likelihood","resid. df","BIC","aBIC","cAIC",
-                       "likelihood-ratio","Entropy")
-
-lca_results <- results
-
-results
-
-plot(lc3)
-
-# average latent class probabilities for most likely latent class membership
-
-# The average latent posterior probabilities are presented in a matrix with 
-# diagonals representing the average probability of a person being assigned to 
-# a class given his or her scores on the indicator variables used to create the 
-# classes. Higher diagonal values (i.e., closer to 1.0) are desirable. 
-# Off-diagonal elements in the posterior probability matrix contain prob-
-# abilities of cases that belong in one class being assigned to another class in 
-# the current solution.
-#
-# We agree that greater than .90 is ideal; but if other criteria are met and the 
-# model is theoretically supported, probabilities between .80 and .90 are 
-# acceptable (Weller et al., 2020). 
-# https://journals.sagepub.com/doi/full/10.1177/0095798420930932 
-
-meanpostprob <- round(aggregate(x = lc3$posterior,
-                                by = list(lc3$predclass),FUN = "mean") , 2)
-# 0.72, 0.90, 0.87
-
-# assign each case to a specific class (group) based on their posterior class 
-# membership probabilities if ≥ 0.5:
-data6$class1 <- lc3$predclass
-data6$class2 <- lc3$posterior >= 0.5
-
-data6 <- data6 %>%
-  dplyr::mutate(class = case_when(lc3$posterior[,1]  >= 0.5 &
-                                    lc3$posterior[,2] < 0.5 &
-                                    lc3$posterior[,3] < 0.5 ~ 1,
-                                  lc3$posterior[,2]  >= 0.5 &
-                                    lc3$posterior[,1] < 0.5 &
-                                    lc3$posterior[,3] < 0.5 ~ 2,
-                                  lc3$posterior[,3]  >= 0.5 &
-                                    lc3$posterior[,1] < 0.5 &
-                                    lc3$posterior[,2] < 0.5 ~ 3,
-                                  TRUE ~ as.numeric(NA)))
-
-View(data6 %>% dplyr::select(class1, class, class2))
-
-data6$class <- as.factor(data6$class)
-mean_socint <- aggregate(data6$soc_int, list(data6$class), mean , na.rm = T)
-violin_socint <- ggplot(data6, aes(x=class, y=soc_int)) + geom_violin()
-
-anova_socint <- aov(soc_int ~ class, data = data6)
-summary(anova_socint)
-# report(anova_socint)
-# The main effect of class is statistically significant and small
-
-anova_acaint <- aov(aca_int ~ class, data = data6)
-summary(anova_acaint)
-# report(anova_acaint)
-# The main effect of class is statistically significant and very small
-
-# Plot
-# https://github.com/DavidykZhao/LCA_plotter/blob/ec11351da67dd41bbf4a9e73a5993912e3a60333/vignettes/Vignette%20of%20LCAplotter.pdf
-# library(devtools)
-# devtools::install_github("DavidykZhao/LCA_plotter")
-
-best_model <- lc3
-plot <-  profile_plot(data = dat_lca, num_var = 13, model = lc3, form = f) 
-plot
-
-# poLCA 3-D plot, without the 3-D:
-lcModelProbs <- melt(lc3$probs)
-lcModelProbs$Var1 <- as.factor(lcModelProbs$Var1)
-
-plot2 <- ggplot(lcModelProbs,
-              aes(x = L1, y = value, fill = Var2))
-plot2 <- plot2 + geom_bar(stat = "identity", position = "stack")
-plot2 <- plot2 + facet_grid(Var1 ~ .) 
-plot2 <- plot2 + guides(fill = guide_legend(reverse = TRUE))
-plot2 <- plot2 + theme_minimal()
-plot2
-
-# class 18,8 % could be our risk group, unfortunately lowest average latent 
-# posterior probability
-
-# poLCA does not treat indicators as ordinal but only as nominal (could be a prob.)
-
-
-#### ------------------------------ (6) ANOVA ------------------------------ ####
-data6 <- data6 %>%
-  dplyr::mutate(rsk_grp = ifelse(class == 3, 1, 0)) 
-
-data6$rsk_grp <- as.factor(data6$rsk_grp)
-
-mean_socint2 <- aggregate(data6$soc_int, list(data6$rsk_grp), mean , na.rm = T)
-boxplot_socint <- ggplot(filter(data6, !is.na(rsk_grp)), aes(x = rsk_grp, y = soc_int)) + geom_boxplot()
-
-anova_socint2 <- aov(soc_int ~ rsk_grp, data = data6)
-summary(anova_socint2)
-report(anova_socint2)
-
-anova_acaint2 <- aov(aca_int ~ rsk_grp, data = data6)
-summary(anova_acaint2)
-report(anova_acaint2)
-
-
-
-#### --------------------------- (6) LCA Mixed ---------------------------- ####
-
-## LCA 2 using depmixS4
 data6 <- data5 %>% 
   dplyr::mutate(across(everything(), ~ ifelse(is.nan(.x), NA, .x)))
 
 dat_lca <- data6 %>% 
   dplyr::mutate(
-    across(c(par_edu,
-             par_ocu,
-             mig_bac,
-             typ_sch, 
-             gender),
+    across(c(gender,
+             par_edu,
+             mig_bac),
            as.factor))
 
 dat_lca <- dat_lca %>%
-  dplyr::select(gender,
+  dplyr::select(age,
+                gender,
                 par_edu,
-                par_ocu,
+                hisei,
                 mig_bac,
-                typ_sch, 
                 paa_gpa, 
                 big_ext,
                 big_agr,
@@ -783,100 +486,124 @@ dat_lca <- dat_lca %>%
 ## step 1: model specification
 
 # class = 1
-m1 <- mix(list(gender ~ 1, par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1, 
-               paa_gpa ~ 1, 
+m1 <- mix(list(gender ~ 1, par_edu ~ 1, mig_bac ~ 1, 
+               hisei ~ 1, paa_gpa ~ 1, 
                big_ext ~ 1, big_agr ~ 1, big_con ~ 1, big_neu ~ 1, big_ope ~ 1,
-               fem_inm ~ 1, fem_exm ~ 1), 
+               fem_inm ~ 1, fem_exm ~ 1, age ~ 1 ), 
           data = dat_lca, nstates = 1,
           family=list(multinomial("identity"), multinomial("identity"), 
-                      multinomial("identity"), multinomial("identity"), 
-                      multinomial("identity"),
+                      multinomial("identity"), 
+                      gaussian(), gaussian(),
                       gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
                       gaussian(), gaussian(), gaussian()))
 
 # class = 2
-m2 <- mix(list(gender ~ 1, par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1, 
-               paa_gpa ~ 1, 
+m2 <- mix(list(gender ~ 1, par_edu ~ 1, mig_bac ~ 1, 
+               hisei ~ 1, paa_gpa ~ 1, 
                big_ext ~ 1, big_agr ~ 1, big_con ~ 1, big_neu ~ 1, big_ope ~ 1,
-               fem_inm ~ 1, fem_exm ~ 1), 
+               fem_inm ~ 1, fem_exm ~ 1, age ~ 1 ), 
           data = dat_lca, nstates = 2,
           family=list(multinomial("identity"), multinomial("identity"), 
-                      multinomial("identity"), multinomial("identity"), 
-                      multinomial("identity"),
+                      multinomial("identity"), 
+                      gaussian(), gaussian(),
                       gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
                       gaussian(), gaussian(), gaussian()))
 
 # class = 3
-m3 <- mix(list(gender ~ 1, par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1, 
-               paa_gpa ~ 1, 
+m3 <- mix(list(gender ~ 1, par_edu ~ 1, mig_bac ~ 1, 
+               hisei ~ 1, paa_gpa ~ 1, 
                big_ext ~ 1, big_agr ~ 1, big_con ~ 1, big_neu ~ 1, big_ope ~ 1,
-               fem_inm ~ 1, fem_exm ~ 1), 
+               fem_inm ~ 1, fem_exm ~ 1, age ~ 1 ), 
           data = dat_lca, nstates = 3,
           family=list(multinomial("identity"), multinomial("identity"), 
-                      multinomial("identity"), multinomial("identity"), 
-                      multinomial("identity"),
+                      multinomial("identity"), 
+                      gaussian(), gaussian(),
                       gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
                       gaussian(), gaussian(), gaussian()))
 
 # class = 4
-m4 <- mix(list(gender ~ 1, par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1, 
-               paa_gpa ~ 1, 
+m4 <- mix(list(gender ~ 1, par_edu ~ 1, mig_bac ~ 1, 
+               hisei ~ 1, paa_gpa ~ 1, 
                big_ext ~ 1, big_agr ~ 1, big_con ~ 1, big_neu ~ 1, big_ope ~ 1,
-               fem_inm ~ 1, fem_exm ~ 1), 
+               fem_inm ~ 1, fem_exm ~ 1, age ~ 1 ), 
           data = dat_lca, nstates = 4,
           family=list(multinomial("identity"), multinomial("identity"), 
-                      multinomial("identity"), multinomial("identity"), 
-                      multinomial("identity"),
+                      multinomial("identity"), 
+                      gaussian(), gaussian(),
                       gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
                       gaussian(), gaussian(), gaussian()))
 
 # class = 5
-m5 <- mix(list(gender ~ 1, par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1, 
-               paa_gpa ~ 1, 
+m5 <- mix(list(gender ~ 1, par_edu ~ 1, mig_bac ~ 1, 
+               hisei ~ 1, paa_gpa ~ 1, 
                big_ext ~ 1, big_agr ~ 1, big_con ~ 1, big_neu ~ 1, big_ope ~ 1,
-               fem_inm ~ 1, fem_exm ~ 1), 
-         data = dat_lca, nstates = 5,
-         family=list(multinomial("identity"), multinomial("identity"), 
-                     multinomial("identity"), multinomial("identity"), 
-                     multinomial("identity"),
-                     gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
-                     gaussian(), gaussian(), gaussian()))
+               fem_inm ~ 1, fem_exm ~ 1, age ~ 1 ), 
+          data = dat_lca, nstates = 5,
+          family=list(multinomial("identity"), multinomial("identity"), 
+                      multinomial("identity"), 
+                      gaussian(), gaussian(),
+                      gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
+                      gaussian(), gaussian(), gaussian()))
 
 # class = 6
-m6 <- mix(list(gender ~ 1, par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1, 
-               paa_gpa ~ 1, 
+m6 <- mix(list(gender ~ 1, par_edu ~ 1, mig_bac ~ 1, 
+               hisei ~ 1, paa_gpa ~ 1, 
                big_ext ~ 1, big_agr ~ 1, big_con ~ 1, big_neu ~ 1, big_ope ~ 1,
-               fem_inm ~ 1, fem_exm ~ 1), 
+               fem_inm ~ 1, fem_exm ~ 1, age ~ 1 ), 
           data = dat_lca, nstates = 6,
           family=list(multinomial("identity"), multinomial("identity"), 
-                      multinomial("identity"), multinomial("identity"), 
-                      multinomial("identity"),
+                      multinomial("identity"), 
+                      gaussian(), gaussian(),
                       gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
                       gaussian(), gaussian(), gaussian()))
 
 # class = 7
-m7 <- mix(list(gender ~ 1, par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1, 
-               paa_gpa ~ 1, 
+m7 <- mix(list(gender ~ 1, par_edu ~ 1, mig_bac ~ 1, 
+               hisei ~ 1, paa_gpa ~ 1, 
                big_ext ~ 1, big_agr ~ 1, big_con ~ 1, big_neu ~ 1, big_ope ~ 1,
-               fem_inm ~ 1, fem_exm ~ 1), 
+               fem_inm ~ 1, fem_exm ~ 1, age ~ 1 ), 
           data = dat_lca, nstates = 7,
           family=list(multinomial("identity"), multinomial("identity"), 
-                      multinomial("identity"), multinomial("identity"), 
-                      multinomial("identity"),
+                      multinomial("identity"), 
+                      gaussian(), gaussian(),
                       gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
                       gaussian(), gaussian(), gaussian()))
 
 # class = 8
-# m8 <- mix(list(gender ~ 1, par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1, 
-#                paa_gpa ~ 1, 
-#                big_ext ~ 1, big_agr ~ 1, big_con ~ 1, big_neu ~ 1, big_ope ~ 1,
-#                fem_inm ~ 1, fem_exm ~ 1), 
-#           data = dat_lca, nstates = 8,
-#           family=list(multinomial("identity"), multinomial("identity"), 
-#                       multinomial("identity"), multinomial("identity"), 
-#                       multinomial("identity"),
-#                       gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
-#                       gaussian(), gaussian(), gaussian()))
+m8 <- mix(list(gender ~ 1, par_edu ~ 1, mig_bac ~ 1, 
+               hisei ~ 1, paa_gpa ~ 1, 
+               big_ext ~ 1, big_agr ~ 1, big_con ~ 1, big_neu ~ 1, big_ope ~ 1,
+               fem_inm ~ 1, fem_exm ~ 1, age ~ 1 ), 
+          data = dat_lca, nstates = 8,
+          family=list(multinomial("identity"), multinomial("identity"), 
+                      multinomial("identity"), 
+                      gaussian(), gaussian(),
+                      gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
+                      gaussian(), gaussian(), gaussian()))
+
+# class = 9
+m9 <- mix(list(gender ~ 1, par_edu ~ 1, mig_bac ~ 1, 
+               hisei ~ 1, paa_gpa ~ 1, 
+               big_ext ~ 1, big_agr ~ 1, big_con ~ 1, big_neu ~ 1, big_ope ~ 1,
+               fem_inm ~ 1, fem_exm ~ 1, age ~ 1 ), 
+          data = dat_lca, nstates = 9,
+          family=list(multinomial("identity"), multinomial("identity"), 
+                      multinomial("identity"), 
+                      gaussian(), gaussian(),
+                      gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
+                      gaussian(), gaussian(), gaussian()))
+
+# class = 10
+m10 <- mix(list(gender ~ 1, par_edu ~ 1, mig_bac ~ 1, 
+               hisei ~ 1, paa_gpa ~ 1, 
+               big_ext ~ 1, big_agr ~ 1, big_con ~ 1, big_neu ~ 1, big_ope ~ 1,
+               fem_inm ~ 1, fem_exm ~ 1, age ~ 1 ), 
+          data = dat_lca, nstates = 10,
+          family=list(multinomial("identity"), multinomial("identity"), 
+                      multinomial("identity"), 
+                      gaussian(), gaussian(),
+                      gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
+                      gaussian(), gaussian(), gaussian()))
 
 
 ## step 2: model fit
@@ -885,47 +612,62 @@ set.seed(123)
 fit_m1 <- fit(m1, verbose = FALSE, 
               emcontrol = em.control(random.start = TRUE, 
                                      maxit = 5000,
+                                     crit = "absolute",
                                      classification = c("soft")))
 
 fit_m2 <- fit(m2, verbose = FALSE, 
               emcontrol = em.control(random.start = TRUE, 
                                      maxit = 5000,
+                                     crit = "absolute",
                                      classification = c("soft")))
 
 fit_m3 <- fit(m3, verbose = FALSE, 
               emcontrol = em.control(random.start = TRUE, 
                                      maxit = 5000,
+                                     crit = "absolute",
                                      classification = c("soft")))
 
 fit_m4 <- fit(m4, verbose = FALSE, 
               emcontrol = em.control(random.start = TRUE, 
                                      maxit = 5000,
-                                     crit = c("absolute"),
+                                     crit = "absolute",
                                      classification = c("soft")))
 
 fit_m5 <- fit(m5, verbose = FALSE, 
               emcontrol = em.control(random.start = TRUE, 
                                      maxit = 5000,
-                                     crit = c("absolute"),
+                                     crit = "absolute",
                                      classification = c("soft")))
 
 fit_m6 <- fit(m6, verbose = FALSE,
               emcontrol = em.control(random.start = TRUE,
                                      maxit = 5000,
-                                     crit = c("absolute"),
+                                     crit = "absolute",
                                      classification = c("soft")))
 
 fit_m7 <- fit(m7, verbose = FALSE,
               emcontrol = em.control(random.start = TRUE,
                                      maxit = 5000,
-                                     crit = c("absolute"),
+                                     crit = "absolute",
                                      classification = c("soft")))
 
-# fit_m8 <- fit(m8, verbose = FALSE,
-#               emcontrol = em.control(random.start = TRUE,
-#                                      maxit = 5000,
-#                                      crit = c("absolute"),
-#                                      classification = c("soft")))
+fit_m8 <- fit(m8, verbose = FALSE,
+              emcontrol = em.control(random.start = TRUE,
+                                     maxit = 5000,
+                                     crit = "absolute",
+                                     classification = c("soft")))
+
+fit_m9 <- fit(m9, verbose = FALSE,
+              emcontrol = em.control(random.start = TRUE,
+                                     maxit = 5000,
+                                     crit = "absolute",
+                                     classification = c("soft")))
+
+fit_m10 <- fit(m10, verbose = FALSE,
+              emcontrol = em.control(random.start = TRUE,
+                                     maxit = 5000,
+                                     crit = "absolute",
+                                     classification = c("soft")))
 
 
 ## generate dataframe with fit-values
@@ -943,7 +685,9 @@ results[4,1] <- c("Modell 4")
 results[5,1] <- c("Modell 5")
 results[6,1] <- c("Modell 6")
 results[7,1] <- c("Modell 7")
-# results[8,1] <- c("Modell 8")
+results[8,1] <- c("Modell 8")
+results[9,1] <- c("Modell 9")
+results[10,1] <- c("Modell 10")
 
 results[2,2] <- logLik(fit_m2)
 results[3,2] <- logLik(fit_m3)
@@ -951,7 +695,9 @@ results[4,2] <- logLik(fit_m4)
 results[5,2] <- logLik(fit_m5)
 results[6,2] <- logLik(fit_m6)
 results[7,2] <- logLik(fit_m7)
-# results[8,2] <- logLik(fit_m8)
+results[8,2] <- logLik(fit_m8)
+results[9,2] <- logLik(fit_m9)
+results[10,2] <- logLik(fit_m10)
 
 results[2,3] <- BIC(fit_m2)
 results[3,3] <- BIC(fit_m3)
@@ -959,7 +705,9 @@ results[4,3] <- BIC(fit_m4)
 results[5,3] <- BIC(fit_m5)
 results[6,3] <- BIC(fit_m6)
 results[7,3] <- BIC(fit_m7)
-# results[8,3] <- BIC(fit_m8)
+results[8,3] <- BIC(fit_m8)
+results[9,3] <- BIC(fit_m9)
+results[10,3] <- BIC(fit_m10)
 
 results[2,4] <- AIC(fit_m2)
 results[3,4] <- AIC(fit_m3)
@@ -967,7 +715,9 @@ results[4,4] <- AIC(fit_m4)
 results[5,4] <- AIC(fit_m5)
 results[6,4] <- AIC(fit_m6)
 results[7,4] <- AIC(fit_m7)
-# results[8,4] <- AIC(fit_m8)
+results[8,4] <- AIC(fit_m8)
+results[9,4] <- AIC(fit_m9)
+results[10,4] <- AIC(fit_m10)
 
 ## entropy
 # model 2
@@ -978,7 +728,7 @@ entropy_m2 <- cbind(postprob_m2$S1,
 
 entropy_m2 <- 1 - 
   (
-    (sum(-entropy_m2*log(entropy_m2), na.rm = T)) /
+    (sum(-entropy_m2*log(entropy_m2), na.rm = TRUE)) /
       (nrow(entropy_m2)*log(ncol(entropy_m2)))
   )
 
@@ -992,9 +742,9 @@ entropy_m3 <- cbind(postprob_m3$S1,
 
 entropy_m3 <- 1 - 
   (
-    (sum(-entropy_m3*log(entropy_m3), na.rm = T)) /
-     (nrow(entropy_m3)*log(ncol(entropy_m3)))
-    )
+    (sum(-entropy_m3*log(entropy_m3), na.rm = TRUE)) /
+      (nrow(entropy_m3)*log(ncol(entropy_m3)))
+  )
 
 
 # model 4
@@ -1007,7 +757,7 @@ entropy_m4 <- cbind(postprob_m4$S1,
 
 entropy_m4 <- 1 - 
   (
-    (sum(-entropy_m4*log(entropy_m4), na.rm = T)) /
+    (sum(-entropy_m4*log(entropy_m4), na.rm = TRUE)) /
       (nrow(entropy_m4)*log(ncol(entropy_m4)))
   )
 
@@ -1023,7 +773,7 @@ entropy_m5 <- cbind(postprob_m5$S1,
 
 entropy_m5 <- 1 - 
   (
-    (sum(-entropy_m5*log(entropy_m5), na.rm = T)) /
+    (sum(-entropy_m5*log(entropy_m5), na.rm = TRUE)) /
       (nrow(entropy_m5)*log(ncol(entropy_m5)))
   )
 
@@ -1040,7 +790,7 @@ entropy_m6 <- cbind(postprob_m6$S1,
 
 entropy_m6 <- 1 - 
   (
-    (sum(-entropy_m6*log(entropy_m6), na.rm = T)) /
+    (sum(-entropy_m6*log(entropy_m6), na.rm = TRUE)) /
       (nrow(entropy_m6)*log(ncol(entropy_m6)))
   )
 
@@ -1058,28 +808,69 @@ entropy_m7 <- cbind(postprob_m7$S1,
 
 entropy_m7 <- 1 - 
   (
-    (sum(-entropy_m7*log(entropy_m7), na.rm = T)) /
+    (sum(-entropy_m7*log(entropy_m7), na.rm = TRUE)) /
       (nrow(entropy_m7)*log(ncol(entropy_m7)))
   )
 
 
 # model 8
-# postprob_m8 <- depmixS4::posterior(fit_m8)
-# entropy_m8 <- as.data.frame(postprob_m8)
-# entropy_m8 <- cbind(postprob_m8$S1,
-#                     postprob_m8$S2,
-#                     postprob_m8$S3,
-#                     postprob_m8$S4,
-#                     postprob_m8$S5,
-#                     postprob_m8$S6,
-#                     postprob_m8$S7,
-#                     postprob_m8$S8)
-# 
-# entropy_m8 <- 1 - 
-#   (
-#     (sum(-entropy_m8*log(entropy_m8), na.rm = T)) /
-#       (nrow(entropy_m8)*log(ncol(entropy_m8)))
-#   )
+postprob_m8 <- depmixS4::posterior(fit_m8)
+entropy_m8 <- as.data.frame(postprob_m8)
+entropy_m8 <- cbind(postprob_m8$S1,
+                    postprob_m8$S2,
+                    postprob_m8$S3,
+                    postprob_m8$S4,
+                    postprob_m8$S5,
+                    postprob_m8$S6,
+                    postprob_m8$S7,
+                    postprob_m8$S8)
+
+entropy_m8 <- 1 - 
+  (
+    (sum(-entropy_m8*log(entropy_m8), na.rm = TRUE)) /
+       (nrow(entropy_m8)*log(ncol(entropy_m8)))
+   )
+
+
+# model 9
+postprob_m9 <- depmixS4::posterior(fit_m9)
+entropy_m9 <- as.data.frame(postprob_m9)
+entropy_m9 <- cbind(postprob_m9$S1,
+                    postprob_m9$S2,
+                    postprob_m9$S3,
+                    postprob_m9$S4,
+                    postprob_m9$S5,
+                    postprob_m9$S6,
+                    postprob_m9$S7,
+                    postprob_m9$S8,
+                    postprob_m9$S9)
+
+entropy_m9 <- 1 - 
+  (
+    (sum(-entropy_m9*log(entropy_m9), na.rm = TRUE)) /
+      (nrow(entropy_m9)*log(ncol(entropy_m9)))
+  )
+
+
+# model 10
+postprob_m10 <- depmixS4::posterior(fit_m10)
+entropy_m10 <- as.data.frame(postprob_m10)
+entropy_m10 <- cbind(postprob_m10$S1,
+                    postprob_m10$S2,
+                    postprob_m10$S3,
+                    postprob_m10$S4,
+                    postprob_m10$S5,
+                    postprob_m10$S6,
+                    postprob_m10$S7,
+                    postprob_m10$S8,
+                    postprob_m10$S9,
+                    postprob_m10$S10)
+
+entropy_m10 <- 1 - 
+  (
+    (sum(-entropy_m10*log(entropy_m10), na.rm = TRUE)) /
+      (nrow(entropy_m10)*log(ncol(entropy_m10)))
+  )
 
 
 # add entropy to results
@@ -1089,13 +880,21 @@ results[4,5] <- entropy_m4
 results[5,5] <- entropy_m5
 results[6,5] <- entropy_m6
 results[7,5] <- entropy_m7
-# results[8,5] <- entropy_m8
+results[8,5] <- entropy_m8
+results[9,5] <- entropy_m9
+results[10,5] <- entropy_m10
 names(results)[5] <- paste("entropy")
 
 results
 
 #elbow plot
-elbow_plot <- results %>% ggplot(aes(x = Modell, y = BIC)) + geom_point()
+results$Modell <- factor(results$Modell, levels = c("Modell 1", "Modell 2", 
+                                                    "Modell 3", "Modell 4", 
+                                                    "Modell 5", "Modell 6", 
+                                                    "Modell 7", "Modell 8", 
+                                                    "Modell 9", "Modell 10"))
+elbow_plot <- results %>% 
+  ggplot(aes(x = Modell, y = BIC, group = 1)) + geom_point() + geom_line() 
 
 ## mean posterior probabilities
 # model 3
@@ -1173,18 +972,19 @@ bf_test <- round(bayestestR::bic_to_bf(c(BIC(fit_m1), BIC(fit_m2),
                                        denominator = BIC(fit_m1)), 2)
 # 1.000000e+00, 4.925037e+182, 7.076083e+275, Inf
 
-# Plot model 5
-posterior_states <- depmixS4::posterior(fit_m5)
+# Plot model 4
+posterior_states <- depmixS4::posterior(fit_m4)
 posterior_states$state <- as.factor(posterior_states$state)
 
 plot_data <- cbind(dat_lca, posterior_states) %>% 
-  pivot_longer(gender:fem_exm, 
+  pivot_longer(age:fem_exm, 
                names_to = "measure", 
                values_to = "value",
                values_transform = as.numeric)
 
 plot_data$measure <- as.factor(plot_data$measure)
-levels(plot_data$measure) <- c("Agreeableness",
+levels(plot_data$measure) <- c("Age",
+                               "Agreeableness",
                                "Conscientiousness",
                                "Extraversion",
                                "Neuroticism",
@@ -1192,11 +992,10 @@ levels(plot_data$measure) <- c("Agreeableness",
                                "Extrinsic Motivation",
                                "Intrinsic Motivation",
                                "Gender (Male)",
+                               "HISEI",
                                "Immigrant Background",
                                "Grade Point Average (-)",
-                               "First-Generation-Student",
-                               "Working Class",
-                               "Non-Gymnasium")
+                               "First-Generation-Student")
 
 # max_lca_probs <- cbind(dat_lca, posterior_states) %>% 
 #  mutate(ID_t = 1:nrow(.)) %>% 
@@ -1206,19 +1005,19 @@ levels(plot_data$measure) <- c("Agreeableness",
 # 
 # summary(max_lca_probs) 
 
-plot_data$var_type <- ifelse(plot_data$measure == "First-Generation-Student" | 
-                               plot_data$measure == "Working Class" | 
-                               plot_data$measure == "Immigrant Background" | 
-                               plot_data$measure == "Non-Gymnasium" | 
-                               plot_data$measure == "Gender (Male)", "categorical",
-                      ifelse(plot_data$measure == "Openess" | 
-                               plot_data$measure == "Conscientiousness"|
-                               plot_data$measure == "Extraversion" | 
-                               plot_data$measure == "Agreeableness" | 
-                               plot_data$measure == "Neuroticism" |
-                               plot_data$measure == "Extrinsic Motivation" |
-                               plot_data$measure == "Intrinsic Motivation" |
-                               plot_data$measure == "Grade Point Average (-)", "continuous", NA))
+plot_data$var_type <- ifelse(plot_data$measure == "Gender (Male)" |
+                               plot_data$measure == "First-Generation-Student" | 
+                               plot_data$measure == "Immigrant Background", "categorical",
+                             ifelse(plot_data$measure == "Openess" | 
+                                      plot_data$measure == "Conscientiousness"|
+                                      plot_data$measure == "Extraversion" | 
+                                      plot_data$measure == "Agreeableness" | 
+                                      plot_data$measure == "Neuroticism" |
+                                      plot_data$measure == "Extrinsic Motivation" |
+                                      plot_data$measure == "Intrinsic Motivation" |
+                                      plot_data$measure == "HISEI" |
+                                      plot_data$measure == "Grade Point Average (-)" |
+                                      plot_data$measure == "Age", "continuous", NA))
 
 plot_data_continuous <- plot_data %>%
   filter(var_type == "continuous") %>%
@@ -1234,29 +1033,25 @@ plot_continuous <- ggplot(plot_data_continuous, aes(x = measure, y = z,
   guides(x =  guide_axis(angle = 45))
 
 
-prob_categorical <- summary(fit_m5)
+prob_categorical <- summary(fit_m4)
 prob_categorical <- as.data.frame(prob_categorical)
 
 df_prob_categorical <- rbind(prob_categorical$Re1.1,  # gender: male 
                              prob_categorical$Re2.1,  # first-generation-student
-                             prob_categorical$Re3.0,  # working-class 
-                             prob_categorical$Re4.1,  # migration background 
-                             prob_categorical$Re5.0)  # non-Gymnasium 
+                             prob_categorical$Re3.1)  # migration background 
 
 df_prob_categorical <- as.data.frame(df_prob_categorical)
 df_prob_categorical$measure <- c("Gender (Male)",             # gender
                                  "First-Generation-Student",  # par_edu
-                                 "Working Class",             # par_ocu
-                                 "Immigrant Background",      # mig_bac
-                                 "Non-Gymnasium")             # typ_sch
+                                 "Immigrant Background")      # mig_bac
 
 df_prob_categorical <- df_prob_categorical %>% 
-  pivot_longer(1:5, names_to = "state", 
+  pivot_longer(1:4, names_to = "state", 
                values_to = "value",
                values_transform = as.numeric) 
 
 df_prob_categorical$state <- as.factor(df_prob_categorical$state)
-levels(df_prob_categorical$state) <- c(1, 2, 3, 4, 5)
+levels(df_prob_categorical$state) <- c(1, 2, 3, 4)
 
 plot_categorical <- ggplot(df_prob_categorical, aes(x = measure, y = value, 
                                                     color = state, group = state)) +
@@ -1277,13 +1072,14 @@ plot_both <- ggplot(df_plot_both, aes(x = measure, y = value,
   stat_summary(geom = "point", fun = mean, size = 3) +
   stat_summary(fun = mean, geom = "line", size = 0.5) +
   guides(x =  guide_axis(angle = 45)) +
-  scale_x_discrete(limits=c("Openess","Conscientiousness","Extraversion", 
+  scale_x_discrete(limits=c("Age", 
+                            "Openess","Conscientiousness","Extraversion", 
                             "Agreeableness", "Neuroticism",
                             "Extrinsic Motivation", "Intrinsic Motivation",
-                            "Grade Point Average (-)", "Non-Gymnasium", 
+                            "Grade Point Average (-)",  "HISEI", 
                             "First-Generation-Student", "Immigrant Background",
-                            "Working Class", "Gender (Male)")) +
-  expand_limits(y=c(-1, 1)) +
+                            "Gender (Male)")) +
+  expand_limits(y = c(-1, 1)) +
   scale_y_continuous(
     name = "z-Value \n",
     sec.axis = sec_axis(trans = ~ . *1, name = "Conditional Probabilities of  \n At-Risk Category\n",
@@ -1292,43 +1088,26 @@ plot_both <- ggplot(df_plot_both, aes(x = measure, y = value,
              color = "grey", size = 0.5) +
   xlab("")
 
-############################## BEGIN Syntax Jürgen ############################# 
-results_mix <- data.frame(n_states = as.numeric(),
-                          bic = as.numeric())
 
-for (i in 1:5) {
-  mod <- mix(list(par_edu ~ 1, par_ocu ~ 1, mig_bac ~ 1, typ_sch ~ 1,
-                  paa_gpa ~ 1, big_ext ~ 1, big_agr ~ 1, big_con ~ 1, 
-                  big_neu ~ 1, big_ope ~ 1, fem_inm ~ 1, fem_exm ~ 1), 
-             data = dat_lca, nstates = i,
-             family=list(multinomial("identity"), multinomial("identity"), 
-                         multinomial("identity"), multinomial("identity"), 
-                         multinomial("identity"),
-                         gaussian(), gaussian(), gaussian(), gaussian(),
-                         gaussian(), gaussian(), gaussian())
-             # ,
-             #respstart=runif(84)
-  )
-  
-  results_mix <- results_mix |>
-    add_row(n_states = i,
-            bic = BIC(mod))
-}
+#### ------------------------------ (6) ANOVA ------------------------------ ####
+data6 <- data6 %>%
+  dplyr::mutate(rsk_grp = ifelse(class == 3, 1, 0)) 
+
+data6$rsk_grp <- as.factor(data6$rsk_grp)
+
+mean_socint2 <- aggregate(data6$soc_int, list(data6$rsk_grp), mean , na.rm = T)
+boxplot_socint <- ggplot(filter(data6, !is.na(rsk_grp)), aes(x = rsk_grp, y = soc_int)) + geom_boxplot()
+
+anova_socint2 <- aov(soc_int ~ rsk_grp, data = data6)
+summary(anova_socint2)
+report(anova_socint2)
+
+anova_acaint2 <- aov(aca_int ~ rsk_grp, data = data6)
+summary(anova_acaint2)
+report(anova_acaint2)
 
 
-tmp <- plot.data |>
-  group_by(measure) |>
-  mutate(value_z = scale(value)) |>
-  ungroup()
-
-tmp |>
-  group_by(measure) |>
-  summarize(val_m = mean(value_z, na.rm = T),
-            val_sd = sd(value_z, na.rm = T))
-
-ggplot(tmp, aes(x=measure, y=value_z, color=state, group=state)) +
-  stat_summary(geom="point", fun=mean) +
-  stat_summary(fun=mean, geom = "line", size=1)
+#### --------------------------- (6) SEM ---------------------------- ####
   
 
 ############################## END Syntax Jürgen ############################

@@ -50,12 +50,13 @@ editor_options:
 # Abweichungen von der Praeregistrierung
 
 ## Andere Items genutzt
-- Age of enrollment
 - Type of higher education inst
 
 ## Datenanalyse
 - Imputation LCA: "No data imputations were performed, as the likelihood approach of LCA accommodates the inclusion of patients with missing values." (Vermunt JK, Magidson J. Latent Gold 4.0 User’s Guide. Belmont, MA: Statistical Innovations; 2005) (?)
-- par_ocu: 3 Teilung (working class, intermediate class, upper class) --> hat großen Effekt auf die Klassenlösung, bei 2 Kategorien Entropie ~ 30%, so bei 65%
+- "par_ocu" durch "hisei" ersetzt
+- vocational training durch "age" ersetzt
+- Schulform bei Abschluss nicht mehr beachtet
 
 \
 \
