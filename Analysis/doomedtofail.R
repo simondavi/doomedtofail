@@ -29,16 +29,14 @@ library(rqdatatable)
 library(fauxnaif)       # for defining missing values 
                           # (remotes::install_github("rossellhayes/fauxnaif")
 library(psych)          # for scale construction
-library(poLCA)          # for LCA
-library(MASS)    
-library(tidySEM)
-library(depmixS4)
+library(depmixS4)       # for LCA
 library(bayestestR)     # convert BIC indices to Bayes Factors 
 library(scatterplot3d)
 library(LCAplotter)     # library(devtools)
                           # devtools::install_github("DavidykZhao/LCA_plotter")
 library(report)         # for producing reports 
 library(lavaan)         # for SEM
+library(ggpubr)         # for arranging plots
 
 
 
@@ -271,14 +269,14 @@ data <- rquery::natural_join(data, ststa,
                              by = "ID_t",
                              jointype = "LEFT") 
   
-  data <- rquery::natural_join(data, basic,
-                               by = "ID_t",
-                               jointype = "LEFT") %>%
+data <- rquery::natural_join(data, basic,
+                             by = "ID_t",
+                             jointype = "LEFT") %>%
   
                              # dplyr::filter(tx80121 == 1) %>%
                              # oversample of tea edu
                              dplyr::filter(tg02001_ha <= 7) %>%
-                             # intended degree = teacher education (wave 1)
+                             #intended degree = teacher education (wave 1)
                              dplyr::filter(tg24150_g1 != 3) %>%
                              # exclude foreign students
                              dplyr::filter(h_aktstu == 1) %>%                   # Hier weden keine Daten mehr ausgeschlossen, 
@@ -609,13 +607,13 @@ m10 <- mix(list(gender ~ 1, par_edu ~ 1, mig_bac ~ 1,
 ## step 2: model fit
 set.seed(123)
 
-fit_m1 <- fit(m1, verbose = FALSE, 
+fit_m1 <- fit(m1, verbose = FALSE, method = 
               emcontrol = em.control(random.start = TRUE, 
                                      maxit = 5000,
                                      crit = "absolute",
                                      classification = c("soft")))
 
-fit_m2 <- fit(m2, verbose = FALSE, 
+fit_m2 <- fit(m2, verbose = FALSE,
               emcontrol = em.control(random.start = TRUE, 
                                      maxit = 5000,
                                      crit = "absolute",
@@ -633,7 +631,7 @@ fit_m4 <- fit(m4, verbose = FALSE,
                                      crit = "absolute",
                                      classification = c("soft")))
 
-fit_m5 <- fit(m5, verbose = FALSE, 
+fit_m5 <- fit(m5, verbose = FALSE,  
               emcontrol = em.control(random.start = TRUE, 
                                      maxit = 5000,
                                      crit = "absolute",
@@ -674,9 +672,11 @@ fit_m10 <- fit(m10, verbose = FALSE,
 results <- data.frame(Modell = c("Modell"),
                       log_likelihood = logLik(fit_m1),
                       BIC = BIC(fit_m1),
-                      AIC = AIC(fit_m1))
-
-
+                      AIC = AIC(fit_m1),
+                      aBIC=  (-2*as.numeric(logLik(fit_m1))) + (log(nobs(fit_m1)) * freepars(fit_m1)),
+                      cAIC = (-2*as.numeric(logLik(fit_m1))) + freepars(fit_m1) * (1 + log(nobs(fit_m1)))
+                      )
+                                                                                
 results$Modell <- as.integer(results$Modell)
 results[1,1] <- c("Modell 1")
 results[2,1] <- c("Modell 2")
@@ -718,6 +718,26 @@ results[7,4] <- AIC(fit_m7)
 results[8,4] <- AIC(fit_m8)
 results[9,4] <- AIC(fit_m9)
 results[10,4] <- AIC(fit_m10)
+
+results[2,5] <- (-2*as.numeric(logLik(fit_m2))) + (log(nobs(fit_m2)) * freepars(fit_m2)) #aBIC
+results[3,5] <- (-2*as.numeric(logLik(fit_m3))) + (log(nobs(fit_m3)) * freepars(fit_m3))
+results[4,5] <- (-2*as.numeric(logLik(fit_m4))) + (log(nobs(fit_m4)) * freepars(fit_m4))
+results[5,5] <- (-2*as.numeric(logLik(fit_m5))) + (log(nobs(fit_m5)) * freepars(fit_m5))
+results[6,5] <- (-2*as.numeric(logLik(fit_m6))) + (log(nobs(fit_m6)) * freepars(fit_m6))
+results[7,5] <- (-2*as.numeric(logLik(fit_m7))) + (log(nobs(fit_m7)) * freepars(fit_m7))
+results[8,5] <- (-2*as.numeric(logLik(fit_m8))) + (log(nobs(fit_m8)) * freepars(fit_m8))
+results[9,5] <- (-2*as.numeric(logLik(fit_m9))) + (log(nobs(fit_m9)) * freepars(fit_m9))
+results[10,5] <- (-2*as.numeric(logLik(fit_m10))) + (log(nobs(fit_m10)) * freepars(fit_m10))
+
+results[2,6] <- (-2*as.numeric(logLik(fit_m2))) + freepars(fit_m2) * (1 + log(nobs(fit_m2))) #cAIC
+results[3,6] <- (-2*as.numeric(logLik(fit_m3))) + freepars(fit_m3) * (1 + log(nobs(fit_m3)))
+results[4,6] <- (-2*as.numeric(logLik(fit_m4))) + freepars(fit_m4) * (1 + log(nobs(fit_m4)))
+results[5,6] <- (-2*as.numeric(logLik(fit_m5))) + freepars(fit_m5) * (1 + log(nobs(fit_m5)))
+results[6,6] <- (-2*as.numeric(logLik(fit_m6))) + freepars(fit_m6) * (1 + log(nobs(fit_m6)))
+results[7,6] <- (-2*as.numeric(logLik(fit_m7))) + freepars(fit_m7) * (1 + log(nobs(fit_m7)))
+results[8,6] <- (-2*as.numeric(logLik(fit_m8))) + freepars(fit_m8) * (1 + log(nobs(fit_m8)))
+results[9,6] <- (-2*as.numeric(logLik(fit_m9))) + freepars(fit_m9) * (1 + log(nobs(fit_m9)))
+results[10,6] <- (-2*as.numeric(logLik(fit_m10))) + freepars(fit_m10) * (1 + log(nobs(fit_m10)))
 
 ## entropy
 # model 2
@@ -874,16 +894,16 @@ entropy_m10 <- 1 -
 
 
 # add entropy to results
-results[2,5] <- entropy_m2
-results[3,5] <- entropy_m3
-results[4,5] <- entropy_m4
-results[5,5] <- entropy_m5
-results[6,5] <- entropy_m6
-results[7,5] <- entropy_m7
-results[8,5] <- entropy_m8
-results[9,5] <- entropy_m9
-results[10,5] <- entropy_m10
-names(results)[5] <- paste("entropy")
+results[2,7] <- entropy_m2
+results[3,7] <- entropy_m3
+results[4,7] <- entropy_m4
+results[5,7] <- entropy_m5
+results[6,7] <- entropy_m6
+results[7,7] <- entropy_m7
+results[8,7] <- entropy_m8
+results[9,7] <- entropy_m9
+results[10,7] <- entropy_m10
+names(results)[7] <- paste("entropy")
 
 results
 
@@ -893,8 +913,15 @@ results$Modell <- factor(results$Modell, levels = c("Modell 1", "Modell 2",
                                                     "Modell 5", "Modell 6", 
                                                     "Modell 7", "Modell 8", 
                                                     "Modell 9", "Modell 10"))
-elbow_plot <- results %>% 
-  ggplot(aes(x = Modell, y = BIC, group = 1)) + geom_point() + geom_line() 
+elbow_plot1 <- results %>% 
+  ggplot(aes(x = Modell, y = BIC, group = 1)) + geom_point() + geom_line()
+elbow_plot2 <- results %>% 
+  ggplot(aes(x = Modell, y = aBIC, group = 1)) + geom_point() + geom_line() 
+elbow_plot3 <- results %>% 
+  ggplot(aes(x = Modell, y = cAIC, group = 1)) + geom_point() + geom_line()
+elbow_plot <-  ggarrange(elbow_plot1, elbow_plot2, elbow_plot3, 
+                         ncol = 1, nrow = 3)
+
 
 ## mean posterior probabilities
 # model 3
@@ -937,39 +964,49 @@ meanpostprob_m4 <- round(cbind(meanpostprob1$s1,
                                meanpostprob3$s3,
                                meanpostprob4$s4), 2)
 
-# model 5
-postprob_m5 <- depmixS4::posterior(fit_m5)
-postprob_m5$state <- as.factor(postprob_m5$state)
+# model 8
+postprob_m8 <- depmixS4::posterior(fit_m8)
+postprob_m8$state <- as.factor(postprob_m8$state)
 
-meanpostprob1 <- as.data.frame(postprob_m5) %>% 
+meanpostprob1 <- as.data.frame(postprob_m8) %>% 
   group_by(state) %>%
   summarise(s1 = mean(S1))
-meanpostprob2 <- as.data.frame(postprob_m5) %>% 
+meanpostprob2 <- as.data.frame(postprob_m8) %>% 
   group_by(state) %>%
   summarise(s2 = mean(S2))
-meanpostprob3 <- as.data.frame(postprob_m5) %>% 
+meanpostprob3 <- as.data.frame(postprob_m8) %>% 
   group_by(state) %>%
   summarise(s3 = mean(S3))
-meanpostprob4 <- as.data.frame(postprob_m5) %>% 
+meanpostprob4 <- as.data.frame(postprob_m8) %>% 
   group_by(state) %>%
   summarise(s4 = mean(S4))
-meanpostprob5 <- as.data.frame(postprob_m5) %>% 
+meanpostprob5 <- as.data.frame(postprob_m8) %>% 
   group_by(state) %>%
   summarise(s5 = mean(S5))
+meanpostprob6 <- as.data.frame(postprob_m8) %>% 
+  group_by(state) %>%
+  summarise(s6 = mean(S6))
+meanpostprob7 <- as.data.frame(postprob_m8) %>% 
+  group_by(state) %>%
+  summarise(s7 = mean(S7))
+meanpostprob8 <- as.data.frame(postprob_m8) %>% 
+  group_by(state) %>%
+  summarise(s8 = mean(S8))
 
-meanpostprob_m5 <- round(cbind(meanpostprob1$s1, 
+meanpostprob_m8 <- round(cbind(meanpostprob1$s1, 
                                meanpostprob2$s2, 
                                meanpostprob3$s3,
                                meanpostprob4$s4,
-                               meanpostprob5$s5), 2)
+                               meanpostprob5$s5,
+                               meanpostprob6$s6,
+                               meanpostprob7$s7,
+                               meanpostprob8$s8), 2)
 
 
 
 # bayes factor ? wirkt falsch
-bf_test <- round(bayestestR::bic_to_bf(c(BIC(fit_m1), BIC(fit_m2), 
-                                         BIC(fit_m3), BIC(fit_m4),
-                                         BIC(fit_m5)), 
-                                       denominator = BIC(fit_m1)), 2)
+bf_test <- bayestestR::bic_to_bf(c(BIC(fit_m8), BIC(fit_m9)),
+                                 denominator = BIC(fit_m8), log = T)
 # 1.000000e+00, 4.925037e+182, 7.076083e+275, Inf
 
 # Plot model 4
@@ -1109,5 +1146,10 @@ report(anova_acaint2)
 
 #### --------------------------- (6) SEM ---------------------------- ####
   
+test <- (-2*as.numeric(logLik(fit_m3))) + ((log((nobs(fit_m3) + 2)/24)) * freepars(fit_m3))
+
+BIC_m3a <- (-2*as.numeric(logLik(fit_m3))) + (log(nobs(fit_m3)) * freepars(fit_m3))
+BIC_m3b <- (-2*as.numeric(logLik(fit_m3))) + (log(sum(ntimes(fit_m3))) * freepars(fit_m3))
+
 
 ############################## END Syntax Jürgen ############################
