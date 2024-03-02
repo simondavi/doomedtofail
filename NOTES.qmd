@@ -29,21 +29,16 @@ editor_options:
 
 - Umgang Längsschnitt (Stichwort: sampling weights)
 - Fehlende Werte mit Werten aus einem späteren Zeitpunkt auffüllen, so gemacht bei Big 5, sonst aber nicht: Wo kommt es noch in Frage?
-- Noten z standardisieren?
 - Current study phase = MZP2; Was, wenn Personen da schon kein Lehramt mehr studieren. Fachwechsler*innen filtern? Oder egal, weil am Ende in der Variable Dropout explizit nach Lehramt geschaut wird und es dadurch egal ist, wann der Abbruch (inkl. Wechsel) passiert ist (Sonst wäre es Abbruch zwischen MZP 2 und 3, oder?) ...aber eine gute Integration in einem anderen Fach ist inhaltlich uninteressant
-- LPA, LCA oder Mixture Model (in den R-Skripten sind Paper und Tutorials verlinkt, Paper von J. Bauer verfügt auch über R-Skripte im Anhang)
-- Packages geben Bayes Faktor nicht aus, mit Shiny App keinen Erfolg <a href="https://robert-fox.shinyapps.io/BF_cmP_Calculator/"> Link </a> (Wie berechnen? Vermutlich gelöst)
+- Packages geben Bayes Faktor nicht aus, mit Shiny App keinen Erfolg <a href="https://robert-fox.shinyapps.io/BF_cmP_Calculator/"> Link </a> (Wie berechnen?)
 - Benutzen alle LCA (LPA) Maximum Likelihood Schätzer (beziehungsweise ist der EM-Algorithmus ein ML-Schätzer (Hintegrund: In Präreg. Nutzung von MLE genannt).
 - Problem: Fast keine Daten nur Nutzung von Lerngelegenheiten - NA bei über 90% (Aber gültige Beobachtungen > 200)
 - Movtivationale Lagen als relativen Wert abbilden?
 \
 - Lehramtsstudierendenpanel oder alle, die angeben Lehramt zu studieren nutzen?<br /> 
-  ? Eher eine abstrakte Frage
 \
-- "Though it may be tempting to simply extract individuals’ modal class assignment from the results and use this as a manifest variable for further analyses, it is well known that this procedure leads to biased results and is inappropriate. The reason is that this hard classification disregards the classification uncertainty." Oh no! tidySEM hat dafür zwar die Funktion BCH()...aber eine Mediation, so wie geplant, ist damit nach erster Durchsicht nicht (so einfach) möglich. Work around: "In our practice, we use a probability cut-off of ≥ 0.5 to assign class." <br /> 
-"Probabilities cut-offs to assign class should be determined a priori. If the entropy of the model is low with poor class separation, the uncertainty of class membership should be incorporated in the analysis." <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7746621/"> Link </a>
-- "poLCA treats all manifest variables as qualitative/categorical/nominal – NOT as ordinal. The model may also be fit to manifest variables that are ordinal, but they will be treated as nominal. In practice, this does not usually restrict analyses in any meaningful way." (?)
-\
+- Migrationshintergrund (First-Generation-Students): Prävalenzen bei uns etwas kleiner (größer) als allgemein angegeben
+- Skript unbedingt nochmal checken
 \
 
 
@@ -53,10 +48,11 @@ editor_options:
 - Type of higher education inst
 
 ## Datenanalyse
-- Imputation LCA: "No data imputations were performed, as the likelihood approach of LCA accommodates the inclusion of patients with missing values." (Vermunt JK, Magidson J. Latent Gold 4.0 User’s Guide. Belmont, MA: Statistical Innovations; 2005) (?)
+- Imputation LCA: "No data imputations were performed, as the likelihood approach of LCA accommodates the inclusion of patients with missing values." (Vermunt JK, Magidson J. Latent Gold 4.0 User’s Guide. Belmont, MA: Statistical Innovations; 2005) (?) --> Imputation vor LCA noch machen
 - "par_ocu" durch "hisei" ersetzt
 - vocational training durch "age" ersetzt
 - Schulform bei Abschluss nicht mehr beachtet
+- gender hinzugefügt
 
 \
 \
