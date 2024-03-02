@@ -603,6 +603,18 @@ m10 <- mix(list(gender ~ 1, par_edu ~ 1, mig_bac ~ 1,
                       gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
                       gaussian(), gaussian(), gaussian()))
 
+# class = 11
+m11 <- mix(list(gender ~ 1, par_edu ~ 1, mig_bac ~ 1, 
+                hisei ~ 1, paa_gpa ~ 1, 
+                big_ext ~ 1, big_agr ~ 1, big_con ~ 1, big_neu ~ 1, big_ope ~ 1,
+                fem_inm ~ 1, fem_exm ~ 1, age ~ 1 ), 
+           data = dat_lca, nstates = 11,
+           family=list(multinomial("identity"), multinomial("identity"), 
+                       multinomial("identity"), 
+                       gaussian(), gaussian(),
+                       gaussian(), gaussian(), gaussian(), gaussian(), gaussian(), 
+                       gaussian(), gaussian(), gaussian()))
+
 
 ## step 2: model fit
 set.seed(123)
@@ -666,6 +678,12 @@ fit_m10 <- fit(m10, verbose = FALSE,
                                      maxit = 5000,
                                      crit = "absolute",
                                      classification = c("soft")))
+
+fit_m11 <- fit(m10, verbose = FALSE,
+               emcontrol = em.control(random.start = TRUE,
+                                      maxit = 5000,
+                                      crit = "absolute",
+                                      classification = c("soft")))
 
 
 ## generate dataframe with fit-values
@@ -1002,11 +1020,15 @@ meanpostprob_m8 <- round(cbind(meanpostprob1$s1,
                                meanpostprob7$s7,
                                meanpostprob8$s8), 2)
 
+# bayes factor, das kann hier nicht die richtige Formel sein
+# A BF less than 3 is generally considered as weak evidence in support of Model 
+# over Model K + 1. A BF greater than or equal to 3 and less than 10 is generally 
+# considered as moderate evidence in support of Model K over Model K + 1.
+# A BF greater than or equal to 10 is generally considered as strong evidence in 
+# support of Model K over Model K + 1.
 
-
-# bayes factor
-bf_test <- bayestestR::bic_to_bf(c(BIC(fit_m8), BIC(fit_m9)),
-                                 denominator = BIC(fit_m8), log = T)
+bf_test <- bayestestR::bic_to_bf(c(BIC(fit_m10), BIC(fit_m11)),
+                                 denominator = BIC(fit_m10), log = T)
 
 # Plot model 8
 posterior_states <- depmixS4::posterior(fit_m8)
