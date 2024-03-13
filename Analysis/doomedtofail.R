@@ -31,10 +31,8 @@ library(fauxnaif)       # for defining missing values
                           # (remotes::install_github("rossellhayes/fauxnaif")
 library(psych)          # for scale construction
 library(depmixS4)       # for LCA
+library(tidyLPA)        # for LMRT
 library(bayestestR)     # convert BIC indices to Bayes Factors 
-library(scatterplot3d)
-library(LCAplotter)     # library(devtools)
-                          # devtools::install_github("DavidykZhao/LCA_plotter")
 library(report)         # for producing reports 
 library(lavaan)         # for SEM
 library(ggpubr)         # for arranging plots
@@ -1202,7 +1200,6 @@ elbow_BIC_N <- results %>%
   ggplot(aes(x = Modell, y = BIC_N, group = 1)) + geom_point() + geom_line()
 
 
-
 # bayes factor, das kann hier nicht die richtige Formel sein
 # A BF less than 3 is generally considered as weak evidence in support of Model 
 # over Model K + 1. A BF greater than or equal to 3 and less than 10 is generally 
@@ -1221,9 +1218,9 @@ bf_test <- bayestestR::bic_to_bf(c(23476.56,
                                  denominator = 23476.56)
                          
 # Lo-Mendell-Rubin likelihood ratio test
-calc_lrt(5775, 
-         as.numeric(logLik(fit_m9)), npar(fit_m9), 9, 
-         as.numeric(logLik(fit_m10)), npar(fit_m10), 10)
+tidyLPA::calc_lrt(1384, 
+                  as.numeric(logLik(fit_m7)), npar(fit_m7), 7, 
+                  as.numeric(logLik(fit_m8)), npar(fit_m8), 8)
 
 # Plot model 4
 posterior_states <- depmixS4::posterior(fit_m4)
@@ -1344,29 +1341,30 @@ plot_both <- ggplot(df_plot_both, aes(x = measure, y = value,
 
 
 #### ------------------------------ (6) ANOVA ------------------------------ ####
-data6 <- data6 %>%
-  dplyr::mutate(rsk_grp = ifelse(class == 3, 1, 0)) 
+posterior_states <- depmixS4::posterior(fit_m4)
+posterior_states$state <- as.factor(posterior_states$state)
 
-data6$rsk_grp <- as.factor(data6$rsk_grp)
+data6 <- cbind(data6, posterior_states)
 
-mean_socint2 <- aggregate(data6$soc_int, list(data6$rsk_grp), mean , na.rm = T)
-boxplot_socint <- ggplot(filter(data6, !is.na(rsk_grp)), aes(x = rsk_grp, y = soc_int)) + geom_boxplot()
+data6$state <- as.factor(data6$state)
 
-anova_socint2 <- aov(soc_int ~ rsk_grp, data = data6)
+mean_socint <- aggregate(data6$soc_int, list(data6$state), mean , 
+                          na.rm = T)
+mean_acaint <- aggregate(data6$aca_int, list(data6$state), mean , 
+                          na.rm = T)
+boxplot_socint <- ggplot(filter(data6, !is.na(data6$state)), 
+                         aes(x = state, y = soc_int)) + geom_boxplot()
+
+anova_socint2 <- aov(soc_int ~ state, data = data6)
 summary(anova_socint2)
 report(anova_socint2)
 
-anova_acaint2 <- aov(aca_int ~ rsk_grp, data = data6)
+anova_acaint2 <- aov(aca_int ~ state, data = data6)
 summary(anova_acaint2)
 report(anova_acaint2)
 
 
 #### --------------------------- (6) SEM ---------------------------- ####
-  
-test <- (-2*as.numeric(logLik(fit_m3))) + ((log((nobs(fit_m3) + 2)/24)) * freepars(fit_m3))
-
-BIC_m3a <- (-2*as.numeric(logLik(fit_m3))) + (log(nobs(fit_m3)) * freepars(fit_m3))
-BIC_m3b <- (-2*as.numeric(logLik(fit_m3))) + (log(sum(ntimes(fit_m3))) * freepars(fit_m3))
 
 
 ############################## END Syntax Jürgen ############################
