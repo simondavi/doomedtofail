@@ -27,9 +27,12 @@ editor_options:
 
 # Stichpunkte und Themen(Ideen)speicher
 
-- Umgang Längsschnitt (Stichwort: sampling weights)
 - Fehlende Werte mit Werten aus einem späteren Zeitpunkt auffüllen, so gemacht bei Big 5, sonst aber nicht: Wo kommt es noch in Frage?
+\
 - Current study phase = MZP2; Was, wenn Personen da schon kein Lehramt mehr studieren. Fachwechsler*innen filtern? Oder egal, weil am Ende in der Variable Dropout explizit nach Lehramt geschaut wird und es dadurch egal ist, wann der Abbruch (inkl. Wechsel) passiert ist (Sonst wäre es Abbruch zwischen MZP 2 und 3, oder?) ...aber eine gute Integration in einem anderen Fach ist inhaltlich uninteressant
+- Umgang Längsschnitt (Stichwort: sampling weights)
+--> Punkt 2: Sampling weights nicht nötig. Punkt 1: Werte derjenigen, die bei der Messung von Integration und Nutzung kein LA mehr studieren auf NA setzen und dann den ganzen Datensatz imputieren und SEM rechnen (Florian Schmiedek, IdeA-Retrat 13.03.24) Und: Korrelationen der einzelnen Variablen berichten und auch einzelne Variablen und Regressionen im Sinne des Modells anschauen: Ist der personenzentrierte Ansatz besser? 
+\
 - Packages geben Bayes Faktor nicht aus, mit Shiny App keinen Erfolg <a href="https://robert-fox.shinyapps.io/BF_cmP_Calculator/"> Link </a> (Wie berechnen?)
 - Benutzen alle LCA (LPA) Maximum Likelihood Schätzer (beziehungsweise ist der EM-Algorithmus ein ML-Schätzer (Hintegrund: In Präreg. Nutzung von MLE genannt).
 - Problem: Fast keine Daten nur Nutzung von Lerngelegenheiten - NA bei über 90% (Aber gültige Beobachtungen > 200)
