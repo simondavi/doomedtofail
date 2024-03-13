@@ -1726,6 +1726,20 @@
       ],
       "Hash": "33a3ca9e732b57244d14f5d732ffc9eb"
     },
+    "mclust": {
+      "Package": "mclust",
+      "Version": "6.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "grDevices",
+        "graphics",
+        "stats",
+        "utils"
+      ],
+      "Hash": "b2aae4a5317fa01aa272c5109ea3ee8e"
+    },
     "memoise": {
       "Package": "memoise",
       "Version": "2.0.1",
@@ -1773,6 +1787,16 @@
         "Rcpp"
       ],
       "Hash": "f48238f8d4740426ca12f53f27d004dd"
+    },
+    "mix": {
+      "Package": "mix",
+      "Version": "1.0-11",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "stats"
+      ],
+      "Hash": "2ed76ae53d246ae88a19420c9d6a55dd"
     },
     "mnormt": {
       "Package": "mnormt",
@@ -2828,6 +2852,25 @@
         "vctrs"
       ],
       "Hash": "a84e2cc86d07289b3b6f5069df7a004c"
+    },
+    "tidyLPA": {
+      "Package": "tidyLPA",
+      "Version": "1.1.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "MplusAutomation",
+        "R",
+        "dplyr",
+        "ggplot2",
+        "grid",
+        "gtable",
+        "mclust",
+        "methods",
+        "mix",
+        "tibble"
+      ],
+      "Hash": "7af9d3221c01e9fa6bd9efddb1a25fe7"
     },
     "tidySEM": {
       "Package": "tidySEM",
