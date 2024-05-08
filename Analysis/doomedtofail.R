@@ -1346,6 +1346,25 @@ posterior_states$state <- as.factor(posterior_states$state)
 
 data6 <- cbind(data6, posterior_states)
 
+data6_1 <- data6 %>% 
+  filter(state == 1)
+
+data6_2 <- data6 %>% 
+  filter(state == 2)
+
+a <- t.test(data6_1$fem_inm, data6_2$fem_inm,p.value = 0.005555556) # yes
+b <- t.test(data6_1$fem_exm, data6_2$fem_exm, p.value = 0.005555556) # yes
+c <- t.test(data6_1$age, data6_2$age, p.value = 0.005555556)         # yes
+
+d <- t.test(data6_1$big_ope, data6_2$big_ope, p.value = 0.005555556) # no
+e <- t.test(data6_1$big_con, data6_2$big_con, p.value = 0.005555556) # yes
+f <- t.test(data6_1$big_neu, data6_2$big_neu, p.value = 0.005555556) # yes
+g <- t.test(data6_1$big_agr, data6_2$big_agr, p.value = 0.005555556) # yes
+
+h <- t.test(data6_1$paa_gpa, data6_2$paa_gpa, p.value = 0.005555556) # yes
+i <- t.test(data6_1$par_edu, data6_2$par_edu, conf.level = (0.95 - 0.0000001)) # yes
+
+
 data6$state <- as.factor(data6$state)
 
 mean_socint <- aggregate(data6$soc_int, list(data6$state), mean , 
@@ -1362,6 +1381,27 @@ report(anova_socint2)
 anova_acaint2 <- aov(aca_int ~ state, data = data6)
 summary(anova_acaint2)
 report(anova_acaint2)
+
+# wide to long?
+posterior_states <- depmixS4::posterior(fit_m4)
+posterior_states$state <- as.factor(posterior_states$state)
+
+plot_data <- cbind(dat_lca, posterior_states) %>% 
+  pivot_longer(age:fem_exm, 
+               names_to = "measure", 
+               values_to = "value",
+               values_transform = as.numeric)
+
+main_model <- lm(value ~ measure * state, data = plot_data)
+
+plot_data %>%
+  filter(state == 1 | state == 2) %>%
+  group_by(measure) %>% 
+  anova_test(value ~ state, error = main_model)
+
+plot_data %>% 
+  filter(state == 1 | state == 2)  %>% 
+  anova_test(dv = value, between = c(measure, state), type = 3)
 
 
 #### --------------------------- (6) SEM ---------------------------- ####
