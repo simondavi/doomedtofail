@@ -175,10 +175,13 @@ spvoc <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%   
 # View(filt %>% dplyr::filter(ID_t == "7002071"))
 
 
-# Filter measures from StudyStates:
-ststa <- haven::read_sav("Data_SC5_D_18-0-0/SC5_StudyStates_D_18-0-0.sav") %>%
-         dplyr::select(ID_t, wave, tx24022,  # Episode number
-                                   tx15318) %>%  # Successful completion
+# Filter measures from StudyStates:                                             # temp solution
+ststa <- haven::read_dta("Data_SC5_D_18-0-0/SC5_StudyStates_D_18-0-0.dta") %>%  # look out: stata file, keeps user defined NAs (did not work with read_sps (should have worked though))
+         dplyr::select(ID_t, wave, tx24001, # interview order
+                                   tx24100, # Status of studies (completed,ongoing)
+                                   tx15318, # Successful completion
+                                   tx15317, # Vocational qualification
+                                   tx15322) %>%  #  Intended qualification
          dplyr::filter(tx24022 > 0) %>% 
          dplyr::group_by(ID_t) %>%
          dplyr::summarise(tx15318 = case_when(any(tx15318 == 1) ~ 3, 
@@ -445,11 +448,13 @@ data5 <- data5 %>%
 
 ## decision
 
-# drop out
+# drop out (using study states, temp solution)
 data5 <- data5 %>% 
  dplyr::mutate(stu_com = case_when(tx15318 == 3 ~ 0, 
                                    tx15318 == 4 ~ 1,
                                    TRUE ~ as.numeric(NA)))
+
+
   
                                  
 
