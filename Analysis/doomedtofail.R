@@ -56,7 +56,7 @@ cati_w1 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCATI_D_18-0-0.sav") %>%
                                      tg24150_g1,  # foreign student (!= 3)
                                      t731301_g1,  # parental education
                                      t731351_g1,  
-                                     t731453_g14,  # parental occupation
+                                     t731453_g14, # parental occupation
                                      t731403_g14,
                                      t405060_g1,  # migration background
                                      t405090_g1,
@@ -79,21 +79,12 @@ cati_b5_w10 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCATI_D_18-0-0.sav")
                                          t66800e, t66800j) %>%      
                dplyr::filter(wave == 10)
 
-cati_do1 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCATI_D_18-0-0.sav") %>%
-            dplyr::select(ID_t, wave, tg60031) %>%
-            dplyr::filter(wave == 10)
-
-
-cati_doi <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCATI_D_18-0-0.sav") %>%
-            dplyr::select(ID_t, wave, tg64051) %>%
-            dplyr::filter(wave == 9)
+cati_help <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
+             dplyr::select(ID_t, wave, tg60021) %>%
+             dplyr::filter(wave == 11) # für Wellen zwischen Entry und Intention definieren (todo)
 
   
 # Filter measures from CAWI:
-
-cati_do2 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
-            dplyr::select(ID_t, wave, tg60021) %>%
-            dplyr::filter(wave == 11)
 
 cawi_w8 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
            dplyr::select(ID_t, wave, tg61031, tg61032, tg61033,  # int mo
@@ -119,7 +110,6 @@ cawi_sp1 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>
 cawi_sp2 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
             dplyr::select(ID_t, wave, t261843, t261845, t261846) %>%  # infor lo
             dplyr::filter(wave == 4)
-                                      
                          
 # Filter measures from spSchool:
 
@@ -163,7 +153,7 @@ spvoc <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%   
          dplyr::filter(wave == 1) %>%
          dplyr::filter(h_aktstu == 1) %>%
          dplyr::group_by(ID_t) %>% dplyr::slice_max(order_by = spell,
-                                                    with_ties = T) %>%
+                                                    with_ties = TRUE) %>%
          dplyr::slice_tail(n = 1)  
          
 # View(spvoc %>% dplyr::filter(ID_t == "7002071"))
@@ -175,19 +165,65 @@ spvoc <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%   
 # View(filt %>% dplyr::filter(ID_t == "7002071"))
 
 
-# Filter measures from StudyStates:                                             # temp solution
-ststa <- haven::read_dta("Data_SC5_D_18-0-0/SC5_StudyStates_D_18-0-0.dta") %>%  # look out: stata file, keeps user defined NAs (did not work with read_sps (should have worked though))
-         dplyr::select(ID_t, wave, tx24001, # interview order
-                                   tx24100, # Status of studies (completed,ongoing)
-                                   tx15318, # Successful completion
-                                   tx15317, # Vocational qualification
-                                   tx15322) %>%  #  Intended qualification
-         dplyr::filter(tx24022 > 0) %>% 
-         dplyr::group_by(ID_t) %>%
-         dplyr::summarise(tx15318 = case_when(any(tx15318 == 1) ~ 3, 
-                                              any(tx15318 == 0)
-                                              & all(tx15318 != 1) ~ 4,
-                                              any(is.na(tx15318)) ~ as.numeric(NA)))
+# Filter measures from StudyStates = definition of dropout:                     # temp solution
+
+# 0 = graduate = successfully completed at least one study episode; 
+#     BA, MA, first state examination - teacher education
+#
+# 1 = dropout = all study episodes have ended, none has been successfully 
+#     completed; additionally: self-reported dropouts in the last CAWI 
+#     if none of the study episodes has been successfully completed and no 
+#     study episode is confirmed ongoing
+#
+# 2 = studying = study episode confirmed to be ongoing in wave 15, none success-
+#     fully completed before
+
+
+sts_tmp <- haven::read_dta("Data_SC5_D_18-0-0/SC5_StudyStates_D_18-0-0.dta") %>% # look out: stata file, keeps user defined NAs (did not work with read_sps (should have worked though))
+           dplyr::select(ID_t, wave, tx24001, # interview order
+                                     tx24100, # Status of studies (completed,ongoing)
+                                     tx15318, # Successful completion
+                                     tx15317, # Vocational qualification
+                                     tx15322) %>%  #  Intended qualification
+           dplyr::filter(wave >= 2) %>%
+ 
+           dplyr::filter(!tx24100 %in% c(-20)) %>% # delete missing episodes
+
+           dplyr::filter(tx15322 %in% c(12, 14, 17) | is.na(tx15322)) %>%       # tea edu completed? all: c(7:19, 29) 
+  
+           dplyr::group_by(ID_t) %>%                                            # any completion?
+           dplyr::mutate(any_com = max(tx15318, na.rm = TRUE)) %>%
+           dplyr::ungroup() %>% 
+  
+           dplyr::arrange(ID_t, tx24001) %>%                                    # last state available
+           dplyr::group_by(ID_t) %>%
+           dplyr::mutate(las_sta = last(tx24100)) %>%
+           dplyr::ungroup() %>%
+
+           dplyr::mutate(dro_out = (any_com == 0 & las_sta == 0))               # create drop out variable
+
+# add CAWI data
+cawi_do <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
+           dplyr::select(ID_t, wave, tg51000, tg51004)
+
+sts <- merge(sts_tmp, cawi_do, by = c("ID_t", "wave"), all.x = TRUE) %>%
+
+# create dropout variable for distinct ID_t where dropout is true 
+# or conditions on tg51004 and tg51000 are met
+  
+       dplyr::mutate(dro_fin = case_when(
+         dro_out == TRUE | tg51004 == 3 | tg51000 == 2 ~ 1,                     # dropout
+         any_com ==  1 ~ 0,                                                     # graduate
+         las_sta == 1 ~ 2,                                                      # studying
+         TRUE ~ as.numeric(NA)
+         )) %>%
+       dplyr::group_by(ID_t) %>%
+       dplyr::summarise(dro_fin = case_when(any(dro_fin == 1) ~ 1,
+                                            TRUE ~ as.numeric(NA)))
+
+# count_do <- data %>%
+#   filter(dro_fin == 1) %>%
+#   summarise(count = n_distinct(ID_t)) # 278, wirkt erstmal zu niedrig (ca. 5%) - bei anderen Autoren: 8 % observed (ganzes sample)
 
 # Filter measures from Basics:
 basic <- haven::read_sav("Data_SC5_D_18-0-0/SC5_Basics_D_18-0-0.sav") %>% 
@@ -266,7 +302,7 @@ data <- rquery::natural_join(data, spvoc,
                              jointype = "LEFT") 
 
 
-data <- rquery::natural_join(data, ststa,
+data <- rquery::natural_join(data, sts,
                              by = "ID_t",
                              jointype = "LEFT") 
   
@@ -291,8 +327,6 @@ data <- rquery::natural_join(data, basic,
                              dplyr::mutate(across(everything(), 
                                                   ~ fauxnaif::na_if_in(., ~ . < 0)))
                              # replace all negative Values with NA  
-                             # Nicht nötig, warum gibt es keine negativen NAs, 
-                             # z.B. t261846 (vgl. NEPSplorer)
 
 # Only one ID per line?                                                   
 # x <- data %>% dplyr::count(ID_t)
@@ -449,10 +483,7 @@ data5 <- data5 %>%
 ## decision
 
 # drop out (using study states, temp solution)
-data5 <- data5 %>% 
- dplyr::mutate(stu_com = case_when(tx15318 == 3 ~ 0, 
-                                   tx15318 == 4 ~ 1,
-                                   TRUE ~ as.numeric(NA)))
+# defined above
 
 
   
