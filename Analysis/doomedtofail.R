@@ -157,11 +157,11 @@ spvoc <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%   
          dplyr::slice_tail(n = 1)  
          
 # View(spvoc %>% dplyr::filter(ID_t == "7002071"))
-
+#
 # filt <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%                     
 #        dplyr::select(ID_t, wave, h_aktstu, spell) %>%  
 #        dplyr::filter(wave == 1)
-
+#
 # View(filt %>% dplyr::filter(ID_t == "7002071"))
 
 
@@ -177,6 +177,9 @@ spvoc <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%   
 #
 # 2 = studying = study episode confirmed to be ongoing in wave 15, none success-
 #     fully completed before
+#
+# Quelle: https://forum.lifbi.de/t/sc5-studienabbruch-syntax-vorschlag/3963
+# Umsetzung hier nicht vollständig
 
 
 sts_tmp <- haven::read_dta("Data_SC5_D_18-0-0/SC5_StudyStates_D_18-0-0.dta") %>% # look out: stata file, keeps user defined NAs (did not work with read_sps (should have worked though))
@@ -189,41 +192,49 @@ sts_tmp <- haven::read_dta("Data_SC5_D_18-0-0/SC5_StudyStates_D_18-0-0.dta") %>%
  
            dplyr::filter(!tx24100 %in% c(-20)) %>% # delete missing episodes
 
-           dplyr::filter(tx15322 %in% c(12, 14, 17) | is.na(tx15322)) %>%       # tea edu completed? all: c(7:19, 29) 
-  
-           dplyr::group_by(ID_t) %>%                                            # any completion?
-           dplyr::mutate(any_com = max(tx15318, na.rm = TRUE)) %>%
-           dplyr::ungroup() %>% 
-  
-           dplyr::arrange(ID_t, tx24001) %>%                                    # last state available
-           dplyr::group_by(ID_t) %>%
-           dplyr::mutate(las_sta = last(tx24100)) %>%
-           dplyr::ungroup() %>%
+           dplyr::filter(tx15322 %in% c(12, 14, 17) | is.na(tx15322))           # tea edu completed? all: c(7:19, 29) 
 
-           dplyr::mutate(dro_out = (any_com == 0 & las_sta == 0))               # create drop out variable
+any_comp_df <- sts_tmp %>%  
+               dplyr::group_by(ID_t) %>%                                        # any completion?
+               dplyr::summarise(any_com = max(tx15318, na.rm = FALSE)) 
+ 
+las_sta_df <- sts_tmp %>%   
+              dplyr::arrange(ID_t, tx24001) %>%                                 # last state available
+              dplyr::group_by(ID_t) %>%
+              dplyr::summarise(las_sta = last(tx24100))
 
-# add CAWI data
+sts <- merge(any_comp_df, las_sta_df, by = c("ID_t"), all.x = TRUE) %>%        
+       dplyr::mutate(dro_out = (any_com == 0 & las_sta == 0))                   # create drop out variable
+
+# add CAWI data                                                                 
 cawi_do <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
            dplyr::select(ID_t, wave, tg51000, tg51004)
 
-sts <- merge(sts_tmp, cawi_do, by = c("ID_t", "wave"), all.x = TRUE) %>%
+tg51004_df <- cawi_do %>%
+              dplyr::group_by(ID_t) %>%
+              dplyr::summarise(tg51004a = case_when(any(tg51004 == 3) ~ 3))
+
+tg51000_df <- cawi_do %>%
+              dplyr::group_by(ID_t) %>%
+              dplyr::summarise(tg51000a = case_when(any(tg51000 == 2) ~ 2))
+
+sts <- merge(sts, tg51004_df, by = c("ID_t"), all.x = FALSE)
+sts <- merge(sts, tg51000_df, by = c("ID_t"), all.x = FALSE)
 
 # create dropout variable for distinct ID_t where dropout is true 
 # or conditions on tg51004 and tg51000 are met
   
-       dplyr::mutate(dro_fin = case_when(
-         dro_out == TRUE | tg51004 == 3 | tg51000 == 2 ~ 1,                     # dropout
-         any_com ==  1 ~ 0,                                                     # graduate
-         las_sta == 1 ~ 2,                                                      # studying
-         TRUE ~ as.numeric(NA)
-         )) %>%
-       dplyr::group_by(ID_t) %>%
-       dplyr::summarise(dro_fin = case_when(any(dro_fin == 1) ~ 1,
-                                            TRUE ~ as.numeric(NA)))
+sts <- sts %>%
+  dplyr::mutate(dro_fin = case_when(
+  dro_out == TRUE | tg51004a == 3 | tg51000a == 2 ~ 1,                          # dropout
+  any_com ==  1 | tg51004a == 2 ~ 0,                                            # graduate
+  las_sta == 1 & any_com != 1 ~ 2,                                              # studying
+  TRUE ~ as.numeric(NA)
+  ))
 
 # count_do <- data %>%
 #   filter(dro_fin == 1) %>%
-#   summarise(count = n_distinct(ID_t)) # 278, wirkt erstmal zu niedrig (ca. 5%) - bei anderen Autoren: 8 % observed (ganzes sample)
+#   summarise(count = n_distinct(ID_t)) # 286, wirkt erstmal zu niedrig (ca. 5%) - bei anderen Autoren: 8 % observed (ganzes sample)
 
 # Filter measures from Basics:
 basic <- haven::read_sav("Data_SC5_D_18-0-0/SC5_Basics_D_18-0-0.sav") %>% 
