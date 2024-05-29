@@ -7,7 +7,8 @@
 #        SC5_pTargetCAWI_D_18-0-0.sav
 #        SC5_spSchool_D_18-0-0.sav
 #        SC5_spVocTrain_D_18-0-0.sav 
-#        unvollständig
+#        SC5_StudyStates_D_18-0-0.dta
+#        SC5_Basics_D_18-0-0.sav
 # Output: --
 #
 # Contents: (1) Load Packages
@@ -79,11 +80,7 @@ cati_b5_w10 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCATI_D_18-0-0.sav")
                                          t66800e, t66800j) %>%      
                dplyr::filter(wave == 10)
 
-cati_help <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
-             dplyr::select(ID_t, wave, tg60021) %>%
-             dplyr::filter(wave == 11) # für Wellen zwischen Entry und Intention definieren (todo)
 
-  
 # Filter measures from CAWI:
 
 cawi_w8 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
@@ -100,7 +97,7 @@ cawi_sp1 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>
             dplyr::select(ID_t, wave, tg53232, tg53234, tg53236,  # ac int
                                       tg53231, tg53233, tg53235,
                                       tg53211, tg53212, tg53213,
-                                      tg53111, tg53112, tg53112,  # so int
+                                      tg53111, tg53112, tg53113, tg53114,  # so int
                                       tg53121, tg53122, tg53123,
                                       t241011, t241012, t241013,  # for lo  
                                       t246411, t246412, t246413) %>%
@@ -164,77 +161,112 @@ spvoc <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%   
 #
 # View(filt %>% dplyr::filter(ID_t == "7002071"))
 
+spvoc_help <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%
+              dplyr::select(ID_t, wave, spell, subspell,
+                            tg24201) %>% # Did you study with the objective of becoming a teacher?
+              dplyr::filter(wave == 3) %>% 
+              dplyr::filter(subspell == 0) %>%  # keep full / harmonized episodes
+              dplyr::group_by(ID_t) %>%
+              dplyr::slice_max(order_by = spell, with_ties = T) %>%
+              dplyr::slice_tail(n = 1) # keep highest spell                     # 2 = no
 
-# Filter measures from StudyStates = definition of dropout:                     # temp solution
+# define people who are not enrolled in a teacher education program prior to the 
+# measurement of integration and may therefore have changed their intended degree
+# they will be assigned NA on integration. As this was not part of wave 2, the 
+# the information is taken form wave 3
+
+
+# Filter measures from StudyStates = definition of dropout:                     # temp solution?
 
 # 0 = graduate = successfully completed at least one study episode; 
-#     BA, MA, first state examination - teacher education
+#     BA, MA, state examination (in teacher education)
 #
 # 1 = dropout = all study episodes have ended, none has been successfully 
 #     completed; additionally: self-reported dropouts in the last CAWI 
 #     if none of the study episodes has been successfully completed and no 
 #     study episode is confirmed ongoing
 #
-# 2 = studying = study episode confirmed to be ongoing in wave 15, none success-
-#     fully completed before
+# 2 = studying = study episode confirmed to be ongoing in wave 15 and 
+#     participation in wave 15 and none successfully completed before
 #
 # Quelle: https://forum.lifbi.de/t/sc5-studienabbruch-syntax-vorschlag/3963
-# Umsetzung hier nicht vollständig
+# und: https://forum.lifbi.de/t/sc5-studienabbruch/3956
 
 
 sts_tmp <- haven::read_dta("Data_SC5_D_18-0-0/SC5_StudyStates_D_18-0-0.dta") %>% # look out: stata file, keeps user defined NAs (did not work with read_sps (should have worked though))
-           dplyr::select(ID_t, wave, tx24001, # interview order
-                                     tx24100, # Status of studies (completed,ongoing)
-                                     tx15318, # Successful completion
-                                     tx15317, # Vocational qualification
-                                     tx15322) %>%  #  Intended qualification
-           dplyr::filter(wave >= 2) %>%
+           dplyr::select(ID_t, wave, tx24001,      # interview order
+                                     tx24100,      # Status of studies (completed,ongoing)
+                                     tx15318,      # Successful completion
+                                     tx15317,      # Vocational qualification
+                                     tx15322) %>%  # Intended qualification
+           dplyr::filter(wave >= 2 & wave <= 15) %>%  # period of observation wave 2 to 15
  
-           dplyr::filter(!tx24100 %in% c(-20)) %>% # delete missing episodes
+           dplyr::filter(!tx24100 %in% c(-20)) %>%  # delete missing episodes
 
-           dplyr::filter(tx15322 %in% c(12, 14, 17) | is.na(tx15322))           # tea edu completed? all: c(7:19, 29) 
+           dplyr::filter(tx15322 %in% c(12, 14, 17) | is.na(tx15322))           # tea edu completed? all subjects: c(7:19, 29) 
 
 any_comp_df <- sts_tmp %>%  
                dplyr::group_by(ID_t) %>%                                        # any completion?
-               dplyr::summarise(any_com = max(tx15318, na.rm = FALSE)) 
+               dplyr::summarise(any_com = max(tx15318, na.rm = FALSE))          # 0 = no, 1 = yes
  
 las_sta_df <- sts_tmp %>%   
               dplyr::arrange(ID_t, tx24001) %>%                                 # last state available
-              dplyr::group_by(ID_t) %>%
-              dplyr::summarise(las_sta = last(tx24100))
+              dplyr::group_by(ID_t) %>%                                         # 0 = all episodes completed
+              dplyr::summarise(las_sta = last(tx24100))                         # 1 = episodes ongoing, 2 = some ongoing
 
-sts <- merge(any_comp_df, las_sta_df, by = c("ID_t"), all.x = TRUE) %>%        
+sts <- merge(any_comp_df, las_sta_df, by = c("ID_t"), all.x = FALSE) %>%        
        dplyr::mutate(dro_out = (any_com == 0 & las_sta == 0))                   # create drop out variable
 
 # add CAWI data                                                                 
 cawi_do <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
-           dplyr::select(ID_t, wave, tg51000, tg51004)
+           dplyr::select(ID_t, wave, tg51004, # degree course abandoned?
+                                     tg51000) # currently studying?
 
-tg51004_df <- cawi_do %>%
+tg51004_df <- cawi_do %>%                                                       # summarise to one line per ID
               dplyr::group_by(ID_t) %>%
-              dplyr::summarise(tg51004a = case_when(any(tg51004 == 3) ~ 3))
+              dplyr::summarise(tg51004_one = case_when(any(tg51004 == 3) ~ 3))  # 3 = I've given up studying completely
 
 tg51000_df <- cawi_do %>%
               dplyr::group_by(ID_t) %>%
-              dplyr::summarise(tg51000a = case_when(any(tg51000 == 2) ~ 2))
+              dplyr::summarise(tg51000_one = case_when(any(tg51000 == 2) ~ 2))  # 2 = I've given up studying completely.
 
 sts <- merge(sts, tg51004_df, by = c("ID_t"), all.x = FALSE)
 sts <- merge(sts, tg51000_df, by = c("ID_t"), all.x = FALSE)
+
+# Do people still have participated in the survey?
+participate  <- haven::read_sav("Data_SC5_D_18-0-0/SC5_CohortProfile_D_18-0-0.sav") %>%
+                dplyr::select(ID_t, wave, tx80220)  %>%  # Participation/drop-out status
+                dplyr::filter(wave == 15) 
+
+# Which wave was their latest state?
+las_wav_df <- sts_tmp %>%   
+              dplyr::arrange(ID_t, tx24001) %>%                                 
+              dplyr::group_by(ID_t) %>%                                         
+              dplyr::summarise(las_wav = last(wave))  
+
+sts <- merge(sts, participate, by = c("ID_t"), all.x = FALSE)
+sts <- merge(sts, las_wav_df, by = c("ID_t"), all.x = FALSE)
 
 # create dropout variable for distinct ID_t where dropout is true 
 # or conditions on tg51004 and tg51000 are met
   
 sts <- sts %>%
   dplyr::mutate(dro_fin = case_when(
-  dro_out == TRUE | tg51004a == 3 | tg51000a == 2 ~ 1,                          # dropout
-  any_com ==  1 | tg51004a == 2 ~ 0,                                            # graduate
-  las_sta == 1 & any_com != 1 ~ 2,                                              # studying
+  dro_out == TRUE | tg51004_one == 3 | tg51000_one == 2 ~ 1,                    # dropout = 1
+  
+# people are considered as graduated if completed any state in regards to the
+# prior defined range of intended vocational qualifications
+  any_com ==  1 ~ 0,                                                            # graduate = 0
+
+# people are considered still studying if they participated in the latest wave 
+# (here: wave 15) and this wave equals there latest state and at least some study 
+# episodes are ongoing
+  las_sta != 0 & tx80220 == 1 & las_wav == 15 ~ 2,                              # studying = 2
   TRUE ~ as.numeric(NA)
   ))
 
-# count_do <- data %>%
-#   filter(dro_fin == 1) %>%
-#   summarise(count = n_distinct(ID_t)) # 286, wirkt erstmal zu niedrig (ca. 5%) - bei anderen Autoren: 8 % observed (ganzes sample)
+# 280, wirkt erstmal zu niedrig (ca. 5%) - bei anderen Autoren: 8 % observed (ganzes sample)
+# vielleicht passt es aber schon
 
 # Filter measures from Basics:
 basic <- haven::read_sav("Data_SC5_D_18-0-0/SC5_Basics_D_18-0-0.sav") %>% 
@@ -288,18 +320,6 @@ data <- rquery::natural_join(data, cawi_sp2,
                              by = "ID_t",
                              jointype = "LEFT")
 
-data <- rquery::natural_join(data, cati_do1,
-                             by = "ID_t",
-                             jointype = "LEFT")
-
-data <- rquery::natural_join(data, cati_doi,
-                             by = "ID_t",
-                             jointype = "LEFT")
-
-data <- rquery::natural_join(data, cati_do2,
-                             by = "ID_t",
-                             jointype = "LEFT") 
-
 data <- rquery::natural_join(data, spsch,
                              by = "ID_t",
                              jointype = "LEFT") 
@@ -311,7 +331,6 @@ data <- rquery::natural_join(data, spvoc_pr,
 data <- rquery::natural_join(data, spvoc,
                              by = "ID_t",
                              jointype = "LEFT") 
-
 
 data <- rquery::natural_join(data, sts,
                              by = "ID_t",
@@ -479,6 +498,10 @@ data5 <- data4 %>%
 ## current study situation                                                      # Nummerierung dataX überarbeiten (?)
 
 # social and academic integration
+# recode inverse items integration:
+data5$tg53234 <- 6 - data5$tg53234
+data5$tg53231 <- 6 - data5$tg53231
+
 data5 <- data5 %>% 
   dplyr::mutate(aca_int = rowMeans(subset(data5, select = c(tg53232, tg53234, 
                                                             tg53236, tg53231, 
@@ -487,9 +510,14 @@ data5 <- data5 %>%
                                                             tg53213)),
                                    na.rm = TRUE),
                 soc_int = rowMeans(subset(data5, select = c(tg53111, tg53112, 
-                                                            tg53112, tg53121, 
-                                                            tg53122, tg53123)),
-                                   na.rm = TRUE))
+                                                            tg53113, tg53114, 
+                                                            tg53121, tg53122,
+                                                            tg53123)),
+                                   na.rm = TRUE)) %>% 
+  dplyr::mutate(aca_int = if_else(tg24201 == 2, as.numeric(NA), aca_int),
+                soc_int = if_else(tg24201 == 2, as.numeric(NA), soc_int))  
+# NA if not enrolled in a teacher education program
+
 
 ## decision
 
