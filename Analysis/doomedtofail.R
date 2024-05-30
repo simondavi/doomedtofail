@@ -32,11 +32,17 @@ library(fauxnaif)       # for defining missing values
 library(psych)          # for scale construction
 library(depmixS4)       # for LCA
 library(tidyLPA)        # for LMRT
+library(tidySEM)
 library(bayestestR)     # convert BIC indices to Bayes Factors 
 library(report)         # for producing reports 
 library(lavaan)         # for SEM
+library(semTools)
+library(Amelia)
+library(naniar)         # for Little-Test
+library(mice)           # for handling of missing values
 library(ggpubr)         # for arranging plots
 
+# renv::snapshot()
 # renv::restore()
 
 #### ----------------- (2) Read Data and Data Management ----------------- ####
@@ -90,7 +96,8 @@ cawi_w8 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
                                      tg61021, tg61022, tg61023,  # ext mo
                                      tg61011, tg61012, tg61013,
                                      tg61071, tg61072, tg61073,  
-                                     tg61051, tg61052, tg61053) %>%
+                                     tg61051, tg61052, tg61053,
+                                     tg53221) %>%                # dropout intention
            dplyr::filter(wave == 8)
 
 cawi_sp1 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
@@ -193,29 +200,29 @@ spvoc_help <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %
 # und: https://forum.lifbi.de/t/sc5-studienabbruch/3956
 
 
-sts_tmp <- haven::read_dta("Data_SC5_D_18-0-0/SC5_StudyStates_D_18-0-0.dta") %>% # look out: stata file, keeps user defined NAs (did not work with read_sps (should have worked though))
-           dplyr::select(ID_t, wave, tx24001,      # interview order
-                                     tx24100,      # Status of studies (completed,ongoing)
-                                     tx15318,      # Successful completion
-                                     tx15317,      # Vocational qualification
-                                     tx15322) %>%  # Intended qualification
-           dplyr::filter(wave >= 2 & wave <= 15) %>%  # period of observation wave 2 to 15
+ststa_tmp <- haven::read_dta("Data_SC5_D_18-0-0/SC5_StudyStates_D_18-0-0.dta") %>% # look out: stata file, keeps user defined NAs (did not work with read_sps (should have worked though))
+             dplyr::select(ID_t, wave, tx24001,      # interview order
+                                       tx24100,      # Status of studies (completed,ongoing)
+                                       tx15318,      # Successful completion
+                                       tx15317,      # Vocational qualification
+                                       tx15322) %>%  # Intended qualification
+              dplyr::filter(wave >= 2 & wave <= 15) %>%  # period of observation wave 2 to 15
  
-           dplyr::filter(!tx24100 %in% c(-20)) %>%  # delete missing episodes
+              dplyr::filter(!tx24100 %in% c(-20)) %>%  # delete missing episodes
 
-           dplyr::filter(tx15322 %in% c(12, 14, 17) | is.na(tx15322))           # tea edu completed? all subjects: c(7:19, 29) 
+              dplyr::filter(tx15322 %in% c(12, 14, 17) | is.na(tx15322))       # tea edu completed? all subjects: c(7:19, 29) 
 
-any_comp_df <- sts_tmp %>%  
-               dplyr::group_by(ID_t) %>%                                        # any completion?
-               dplyr::summarise(any_com = max(tx15318, na.rm = FALSE))          # 0 = no, 1 = yes
+any_com_df <- ststa_tmp %>%  
+              dplyr::group_by(ID_t) %>%                                         # any completion?
+              dplyr::summarise(any_com = max(tx15318, na.rm = FALSE))           # 0 = no, 1 = yes
  
-las_sta_df <- sts_tmp %>%   
+las_sta_df <- ststa_tmp %>%   
               dplyr::arrange(ID_t, tx24001) %>%                                 # last state available
               dplyr::group_by(ID_t) %>%                                         # 0 = all episodes completed
               dplyr::summarise(las_sta = last(tx24100))                         # 1 = episodes ongoing, 2 = some ongoing
 
-sts <- merge(any_comp_df, las_sta_df, by = c("ID_t"), all.x = FALSE) %>%        
-       dplyr::mutate(dro_out = (any_com == 0 & las_sta == 0))                   # create drop out variable
+ststa <- merge(any_com_df, las_sta_df, by = c("ID_t"), all.x = FALSE) %>%        
+         dplyr::mutate(dro_out = (any_com == 0 & las_sta == 0))               # create drop out variable
 
 # add CAWI data                                                                 
 cawi_do <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
@@ -230,43 +237,46 @@ tg51000_df <- cawi_do %>%
               dplyr::group_by(ID_t) %>%
               dplyr::summarise(tg51000_one = case_when(any(tg51000 == 2) ~ 2))  # 2 = I've given up studying completely.
 
-sts <- merge(sts, tg51004_df, by = c("ID_t"), all.x = FALSE)
-sts <- merge(sts, tg51000_df, by = c("ID_t"), all.x = FALSE)
+ststa <- merge(ststa, tg51004_df, by = c("ID_t"), all.x = FALSE)
+ststa <- merge(ststa, tg51000_df, by = c("ID_t"), all.x = FALSE)
 
-# Do people still have participated in the survey?
-participate  <- haven::read_sav("Data_SC5_D_18-0-0/SC5_CohortProfile_D_18-0-0.sav") %>%
-                dplyr::select(ID_t, wave, tx80220)  %>%  # Participation/drop-out status
-                dplyr::filter(wave == 15) 
+# Do people even have participated in the last survey (here wave 15)?
+part_stat <- haven::read_sav("Data_SC5_D_18-0-0/SC5_CohortProfile_D_18-0-0.sav") %>%
+             dplyr::select(ID_t, wave, tx80220)  %>%  # participation/drop-out status
+             dplyr::filter(wave == 15) 
 
-# Which wave was their latest state?
-las_wav_df <- sts_tmp %>%   
+# Which wave was their last state?
+las_wav_df <- ststa_tmp %>%   
               dplyr::arrange(ID_t, tx24001) %>%                                 
               dplyr::group_by(ID_t) %>%                                         
               dplyr::summarise(las_wav = last(wave))  
 
-sts <- merge(sts, participate, by = c("ID_t"), all.x = FALSE)
-sts <- merge(sts, las_wav_df, by = c("ID_t"), all.x = FALSE)
+ststa <- merge(ststa, part_stat, by = c("ID_t"), all.x = FALSE)
+ststa <- merge(ststa, las_wav_df, by = c("ID_t"), all.x = FALSE)
 
-# create dropout variable for distinct ID_t where dropout is true 
-# or conditions on tg51004 and tg51000 are met
+# create finale dropout state
   
-sts <- sts %>%
+ststa <- ststa %>%
   dplyr::mutate(dro_fin = case_when(
+    
+# people are considered dropout if dropout is true or conditions on tg51004 or 
+# tg51000 are met
   dro_out == TRUE | tg51004_one == 3 | tg51000_one == 2 ~ 1,                    # dropout = 1
   
-# people are considered as graduated if completed any state in regards to the
-# prior defined range of intended vocational qualifications
+# people are considered as graduated if they completed any state in regards to 
+# the prior defined range of intended vocational qualifications
   any_com ==  1 ~ 0,                                                            # graduate = 0
 
 # people are considered still studying if they participated in the latest wave 
-# (here: wave 15) and this wave equals there latest state and at least some study 
+# (here: wave 15) and this wave equals there last state and at least some study 
 # episodes are ongoing
   las_sta != 0 & tx80220 == 1 & las_wav == 15 ~ 2,                              # studying = 2
-  TRUE ~ as.numeric(NA)
-  ))
+  TRUE ~ as.numeric(NA)                                                         # Notiz: Anpassen, wenn last wave != 15
+  ))                                                                            
 
-# 280, wirkt erstmal zu niedrig (ca. 5%) - bei anderen Autoren: 8 % observed (ganzes sample)
-# vielleicht passt es aber schon
+# ~ 280 (nach (3) Merge Data), wirkt erstmal zu niedrig (ca. 5%)
+# bei anderen Autoren: 8 % observed (ganzes sample (imputiert))
+# vielleicht passt es aber schon (Anzunehmen wären ca. 15%)
 
 # Filter measures from Basics:
 basic <- haven::read_sav("Data_SC5_D_18-0-0/SC5_Basics_D_18-0-0.sav") %>% 
@@ -330,9 +340,13 @@ data <- rquery::natural_join(data, spvoc_pr,
 
 data <- rquery::natural_join(data, spvoc,
                              by = "ID_t",
+                             jointype = "LEFT")
+
+data <- rquery::natural_join(data, spvoc_help,
+                             by = "ID_t",
                              jointype = "LEFT") 
 
-data <- rquery::natural_join(data, sts,
+data <- rquery::natural_join(data, ststa,
                              by = "ID_t",
                              jointype = "LEFT") 
   
@@ -352,7 +366,7 @@ data <- rquery::natural_join(data, basic,
                              dplyr::filter(tx80107 == 1) %>%
                              # only first participation in wave 1
                              dplyr::select(-wave) %>%
-                             # drop wave, contains no information anymore
+                             # drop wave, it contains no information anymore
                              
                              dplyr::mutate(across(everything(), 
                                                   ~ fauxnaif::na_if_in(., ~ . < 0)))
@@ -513,10 +527,12 @@ data5 <- data5 %>%
                                                             tg53113, tg53114, 
                                                             tg53121, tg53122,
                                                             tg53123)),
-                                   na.rm = TRUE)) %>% 
-  dplyr::mutate(aca_int = if_else(tg24201 == 2, as.numeric(NA), aca_int),
-                soc_int = if_else(tg24201 == 2, as.numeric(NA), soc_int))  
+                                   na.rm = TRUE)) 
+# %>% 
+#  dplyr::mutate(aca_int = if_else(tg24201 == 2, as.numeric(NA), aca_int),
+#                soc_int = if_else(tg24201 == 2, as.numeric(NA), soc_int))  
 # NA if not enrolled in a teacher education program
+# tg24201 ist die falsche Variable: Ziel Lehrering
 
 
 ## decision
@@ -524,9 +540,10 @@ data5 <- data5 %>%
 # drop out (using study states, temp solution)
 # defined above
 
+#dorpoit intention
+data5 <- data5 %>%
+  dplyr::mutate(dro_int = tg53221)
 
-  
-                                 
 
 #### ------------------------------ (5) LCA ------------------------------ ####
 
@@ -1414,3 +1431,100 @@ plot_both <- ggplot(df_plot_both, aes(x = measure, y = value,
   xlab("")
 
 #### --------------------------- (6) SEM ---------------------------- ####
+
+# select data
+posterior_states <- depmixS4::posterior(fit_m4)
+posterior_states$state <- as.factor(posterior_states$state)
+
+dat_sem <- cbind(data6, posterior_states)                                       # data6
+
+dat_sem <- dat_sem %>%
+  dplyr::select(gender,
+                age,
+                state,
+                aca_int,
+                soc_int,
+                dro_fin,
+                dro_int)
+
+dat_sem$gender <- as.factor(dat_sem$gender) 
+dat_sem$state <- as.factor(dat_sem$state)
+dat_sem$dro_fin <- as.factor(dat_sem$dro_fin)
+
+# "Assuming that variables are missing at random, we will handle missing values 
+# by multiple imputations via chained equations (MICE) following van Buuren (2018)." 
+# see preregistration: https://doi.org/10.17605/OSF.IO/D2K7Y
+
+# Are they MAR?
+
+# Little-test
+mcar_test <- mcar_test(dat_sem) # n.s. --> H0, dass Daten mcar sind wird beibehalten
+# complete case analysis would be unbiased only if data are missing completely at random
+# trotzdem imputieren?
+
+# Visualisation
+
+# Proportion of Missingness
+propmiss <- tidySEM::descriptives(dat_sem)
+propmiss <- propmiss[, c("name", "type", "n", "missing")]
+
+# tbc ...
+
+# Imputation
+set.seed(123)
+dat_sem < -as.data.frame(dat_sem)
+str(dat_sem)
+
+predictormatrix <- quickpred(dat_sem, 
+                             include=c("dro_int"),
+                             exclude=NULL,
+                             mincor = 0.1)
+
+str(dat_sem)
+
+imp_gen <- mice(data = dat_sem,
+                predictorMatrix = predictormatrix,
+                m = 10,
+                maxit = 5,            
+                diagnostics = TRUE)
+
+# extract the imputed datasets into a list of data frames
+imp_dat_sem <- map(1:10, function(x) complete(imp_gen, x))
+
+# bring your imputed data in long format for estimating dropout
+imp_dat_sem_long <- mice::complete(imp_gen,"long", inc = FALSE) 
+do_imp <- (100/nrow(imp_dat_sem_long))*(as.data.frame(table(imp_dat_sem_long$dro_fin))[2,2])
+# ~11%
+
+# lavaan model
+model <- ' # direct effect
+             dro_fin ~ c*state
+           # mediator
+             aca_int ~ a*state
+             dro_fin ~ b*aca_int
+           # indirect effect (a*b)
+             ab := a*b
+           # total effect
+             total := c + (a*b)'
+
+# recode exogenous covariates dro_fin and state as a dummy
+imp_dat_sem <- imp_dat_sem %>% 
+  purrr::map( ~ .x  %>% 
+              dplyr::mutate(dro_fin = if_else(dro_fin == 1, 1, 0),
+                            state = if_else(state == 1, 1, 0)),
+            ) # bleiben states stabil
+
+
+# run lavaan with previously imputed data using runMI
+out2 <- semTools::runMI(model, 
+                        data = imp_dat_sem,
+                        fun = "lavaan",
+                        meanstructure = TRUE,
+                        ordered = c("dro_fin"))
+              
+summary(out2, fit.measures = TRUE)
+
+
+
+
+
