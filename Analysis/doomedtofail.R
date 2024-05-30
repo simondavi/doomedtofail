@@ -35,11 +35,12 @@ library(tidyLPA)        # for LMRT
 library(tidySEM)
 library(bayestestR)     # convert BIC indices to Bayes Factors 
 library(report)         # for producing reports 
+library(naniar)         # for Little-Test
+library(mice)           # for handling of missing values
 library(lavaan)         # for SEM
 library(semTools)
 library(Amelia)
-library(naniar)         # for Little-Test
-library(mice)           # for handling of missing values
+library(purrr)
 library(ggpubr)         # for arranging plots
 
 # renv::snapshot()
@@ -1500,29 +1501,51 @@ do_imp <- (100/nrow(imp_dat_sem_long))*(as.data.frame(table(imp_dat_sem_long$dro
 model <- ' # direct effect
              dro_fin ~ c*state
            # mediator
-             aca_int ~ a*state
-             dro_fin ~ b*aca_int
+             soc_int ~ a*state
+             dro_fin ~ b*soc_int
            # indirect effect (a*b)
              ab := a*b
            # total effect
              total := c + (a*b)'
 
-# recode exogenous covariates dro_fin and state as a dummy
+# recode exogenous variable state as a dummy 
+# and endogenous variable (outcome) dro_fin as a binary variable
 imp_dat_sem <- imp_dat_sem %>% 
   purrr::map( ~ .x  %>% 
               dplyr::mutate(dro_fin = if_else(dro_fin == 1, 1, 0),
-                            state = if_else(state == 1, 1, 0)),
-            ) # bleiben states stabil
+                            state = if_else(state == 1, 1, 0))
+              ) # bleiben states stabil
+
+imp_dat_sem <- imp_dat_sem %>% 
+  purrr::map( ~ .x  %>% 
+                dplyr::mutate(state = as.factor(state)
+                              )
+              ) 
 
 
 # run lavaan with previously imputed data using runMI
-out2 <- semTools::runMI(model, 
-                        data = imp_dat_sem,
-                        fun = "lavaan",
-                        meanstructure = TRUE,
-                        ordered = c("dro_fin"))
+fit <- semTools::runMI(model, 
+                       data = imp_dat_sem,
+                       fun = "lavaan",
+                       ordered = c("dro_fin"),
+                       estimator = "WLSMV")
               
-summary(out2, fit.measures = TRUE)
+summary(fit)
+
+# ohne Imputation
+
+dat_sem <- dat_sem %>% 
+                dplyr::mutate(dro_fin = if_else(dro_fin == 1, 1, 0),
+                              state = if_else(state == 1, 1, 0))  %>% 
+                dplyr::mutate(state = as.factor(state))
+
+fit2 <- sem(model, 
+            data = dat_sem, 
+            ordered = c("dro_fin"))
+
+summary(fit2, fit.measures = TRUE, standardize = TRUE, missing = "ML")
+
+
 
 
 
