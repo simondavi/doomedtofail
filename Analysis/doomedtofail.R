@@ -1473,12 +1473,12 @@ propmiss <- propmiss[, c("name", "type", "n", "missing")]
 
 # Imputation
 set.seed(123)
-dat_sem < -as.data.frame(dat_sem)
+dat_sem <- as.data.frame(dat_sem)
 str(dat_sem)
 
 predictormatrix <- quickpred(dat_sem, 
-                             include=c("dro_int"),
-                             exclude=NULL,
+                             include = c("dro_int"),
+                             exclude = NULL,
                              mincor = 0.1)
 
 str(dat_sem)
@@ -1506,7 +1506,7 @@ model <- ' # direct effect
            # indirect effect (a*b)
              ab := a*b
            # total effect
-             total := c + (a*b)'
+             total := c + (a*b)'                                                # ggf. rausnehmen (#) und schauen, ob Modell nicht gesättigt
 
 # recode exogenous variable state as a dummy 
 # and endogenous variable (outcome) dro_fin as a binary variable
@@ -1514,7 +1514,7 @@ imp_dat_sem <- imp_dat_sem %>%
   purrr::map( ~ .x  %>% 
               dplyr::mutate(dro_fin = if_else(dro_fin == 1, 1, 0),
                             state = if_else(state == 1, 1, 0))
-              ) # bleiben states stabil
+              )                                                                 # bleiben states stabil?
 
 imp_dat_sem <- imp_dat_sem %>% 
   purrr::map( ~ .x  %>% 
@@ -1534,20 +1534,13 @@ summary(fit)
 
 # ohne Imputation
 
-dat_sem <- dat_sem %>% 
+dat_semX <- dat_sem %>% 
                 dplyr::mutate(dro_fin = if_else(dro_fin == 1, 1, 0),
                               state = if_else(state == 1, 1, 0))  %>% 
                 dplyr::mutate(state = as.factor(state))
 
 fit2 <- sem(model, 
-            data = dat_sem, 
+            data = dat_semX, 
             ordered = c("dro_fin"))
 
-summary(fit2, fit.measures = TRUE, standardize = TRUE, missing = "ML")
-
-
-
-
-
-
-
+summary(fit2, fit.measures = TRUE, standardize = TRUE)
