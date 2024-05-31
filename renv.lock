@@ -32,6 +32,25 @@
     "Version": "3.18"
   },
   "Packages": {
+    "Amelia": {
+      "Package": "Amelia",
+      "Version": "1.8.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "RcppArmadillo",
+        "foreign",
+        "grDevices",
+        "graphics",
+        "methods",
+        "rlang",
+        "stats",
+        "utils"
+      ],
+      "Hash": "c8ad86fab0d93cceb4c7941818e113a4"
+    },
     "BH": {
       "Package": "BH",
       "Version": "1.84.0-0",
@@ -242,6 +261,20 @@
         "utils"
       ],
       "Hash": "5ea2700d21e038ace58269ecdbeb9ec0"
+    },
+    "RcppArmadillo": {
+      "Package": "RcppArmadillo",
+      "Version": "0.12.6.6.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "methods",
+        "stats",
+        "utils"
+      ],
+      "Hash": "d2b60e0a15d73182a3a766ff0a7d0d7f"
     },
     "RcppEigen": {
       "Package": "RcppEigen",
@@ -1081,6 +1114,19 @@
         "utils"
       ],
       "Hash": "618609b42c9406731ead03adf5379850"
+    },
+    "foreign": {
+      "Package": "foreign",
+      "Version": "0.8-86",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "methods",
+        "stats",
+        "utils"
+      ],
+      "Hash": "550170303dbb19d07b2bcc288068e7dc"
     },
     "fs": {
       "Package": "fs",
@@ -2897,6 +2943,22 @@
         "stringr"
       ],
       "Hash": "3838071b66e0c566d55cc26bd6e27bf4"
+    },
+    "semTools": {
+      "Package": "semTools",
+      "Version": "0.5-6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "graphics",
+        "lavaan",
+        "methods",
+        "pbivnorm",
+        "stats",
+        "utils"
+      ],
+      "Hash": "9374d79226103541b8293009f81da90f"
     },
     "shape": {
       "Package": "shape",
