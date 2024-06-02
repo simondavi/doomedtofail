@@ -541,7 +541,7 @@ data5 <- data5 %>%
 # drop out (using study states, temp solution)
 # defined above
 
-#dorpoit intention
+#dorpout intention
 data5 <- data5 %>%
   dplyr::mutate(dro_int = tg53221)
 
@@ -1476,12 +1476,10 @@ set.seed(123)
 dat_sem <- as.data.frame(dat_sem)
 str(dat_sem)
 
-predictormatrix <- quickpred(dat_sem, 
-                             include = c("dro_int"),
-                             exclude = NULL,
-                             mincor = 0.1)
-
-str(dat_sem)
+predictormatrix <- mice::quickpred(dat_sem, 
+                                   include = c("gender", "age"),
+                                   exclude = NULL,
+                                   mincor = 0.4) # default = 0.1
 
 imp_gen <- mice(data = dat_sem,
                 predictorMatrix = predictormatrix,
@@ -1516,31 +1514,114 @@ imp_dat_sem <- imp_dat_sem %>%
                             state = if_else(state == 1, 1, 0))
               )                                                                 # bleiben states stabil?
 
-imp_dat_sem <- imp_dat_sem %>% 
-  purrr::map( ~ .x  %>% 
-                dplyr::mutate(state = as.factor(state)
-                              )
-              ) 
-
-
+library(semTools)
 # run lavaan with previously imputed data using runMI
 fit <- semTools::runMI(model, 
                        data = imp_dat_sem,
-                       fun = "lavaan",
-                       ordered = c("dro_fin"),
-                       estimator = "WLSMV")
-              
-summary(fit)
+                       fun = "sem",
+                       miPackage = "mice",
+                       ordered = c("dro_fin")
+                       )
+
+lavaan::summary(fit,
+        test = "D2",
+        pool.robust = TRUE,
+        ci = TRUE,
+        fit.measures = TRUE,
+        standardized = TRUE
+)
+
+# Compute standardized estimates
+std_estimates <- standardizedSolution(fit)
+# Extract R-squared values
+r_squared <- std_estimates$std.all$std.all^2
+# Print R-squared values
+print(r_squared)
 
 # ohne Imputation
-
 dat_semX <- dat_sem %>% 
                 dplyr::mutate(dro_fin = if_else(dro_fin == 1, 1, 0),
-                              state = if_else(state == 1, 1, 0))  %>% 
-                dplyr::mutate(state = as.factor(state))
+                              state1 = if_else(state == 1, 1, 0),
+                              state2 = if_else(state == 2, 1, 0),
+                              state3 = if_else(state == 3, 1, 0),
+                              state4 = if_else(state == 4, 1, 0)
+                              )
 
-fit2 <- sem(model, 
+modelX <- 'dro_fin ~ state1 + state2 + state3 + state4 + soc_int + aca_int
+           soc_int ~ state1 + state2 + state3 + state4
+           aca_int ~ state1 + state2 + state3 + state4
+'  
+
+fitX <- sem(modelX, 
             data = dat_semX, 
-            ordered = c("dro_fin"))
+            ordered = c("dro_fin")
+)
 
-summary(fit2, fit.measures = TRUE, standardize = TRUE)
+# Fehler in if (!all(x == cache$theta)) { :                                     # ?
+# Fehlender Wert, wo TRUE/FALSE nötig ist
+
+lavaan::summary(fitX, fit.measures = TRUE, standardize = TRUE, rsq = TRUE)
+# In the case of categorical (binary or ordinal) outcomes, lavaan uses a probit 
+# model that assumes there is a normally distributed latent response underlying 
+# the observed response.  Read these for details:
+
+lavaan::standardizedSolution(fitX) 
+
+
+
+
+modelX_1 <- 'dro_fin ~ state1' 
+
+modelX_1 <- 'dro_fin ~ state1 + soc_int + aca_int
+             soc_int ~ state1
+             aca_int ~ state1' 
+
+fitX_1 <- sem(modelX_1, 
+            data = dat_semX, 
+            ordered = c("dro_fin")
+            )
+
+lavaan::summary(fitX_1, fit.measures = TRUE, standardize = TRUE, rsq = TRUE)
+lavaan::standardizedSolution(fitX_1)
+
+modelX_2 <- 'dro_fin ~ state2' 
+
+modelX_2 <- 'dro_fin ~ state2 + soc_int + aca_int
+             soc_int ~ state2
+             aca_int ~ state2' 
+
+fitX_2 <- sem(modelX_2, 
+              data = dat_semX, 
+              ordered = c("dro_fin")
+)
+
+lavaan::summary(fitX_2, fit.measures = TRUE, standardize = TRUE, rsq = TRUE)
+lavaan::standardizedSolution(fitX_2) 
+
+
+modelX_3 <- 'dro_fin ~ state3 + soc_int + aca_int
+             soc_int ~ state3
+             aca_int ~ state3' 
+
+fitX_3 <- sem(modelX_3, 
+              data = dat_semX, 
+              ordered = c("dro_fin")
+)
+
+lavaan::summary(fitX_3, fit.measures = TRUE, standardize = TRUE, rsq = TRUE)
+lavaan::standardizedSolution(fitX_3) 
+
+
+modelX_4 <- 'dro_fin ~ state4 + soc_int + aca_int
+             soc_int ~ state4
+             aca_int ~ state4' 
+
+modelX_4 <- 'dro_fin ~ state4 ' 
+
+fitX_4 <- sem(modelX_4, 
+              data = dat_semX, 
+              ordered = c("dro_fin")
+)
+
+lavaan::summary(fitX_4, fit.measures = TRUE, standardize = TRUE, rsq = TRUE)
+lavaan::standardizedSolution(fitX_4) 
