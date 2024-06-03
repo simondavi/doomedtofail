@@ -38,11 +38,13 @@ library(report)         # for producing reports
 library(naniar)         # for Little-Test
 library(mice)           # for handling of missing values
 library(lavaan)         # for SEM
+library(devtools)
 library(semTools)       # (!) install via devtools::install_github("simsem/semTools/semTools")
 library(Amelia)
 library(purrr)
 library(ggpubr)         # for arranging plots
 
+# renv::clean()
 # renv::snapshot()
 # renv::restore()
 
