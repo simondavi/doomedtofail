@@ -1572,9 +1572,14 @@ lavaan::standardizedSolution(fitX)
 
 modelX_1 <- 'dro_fin ~ state1' 
 
-modelX_1 <- 'dro_fin ~ state1 + soc_int + aca_int
-             soc_int ~ state1
-             aca_int ~ state1' 
+modelX_1 <- 'dro_fin ~ c*state1 + b2*soc_int + b1*aca_int
+             soc_int ~ a2*state1
+             aca_int ~ a1*state1
+
+             IE_soc := a2*b2
+             IE_aca := a1*b1
+             DE := c
+             TE := IE_soc + IE_aca +c' 
 
 fitX_1 <- sem(modelX_1, 
             data = dat_semX, 
@@ -1599,6 +1604,8 @@ lavaan::summary(fitX_2, fit.measures = TRUE, standardize = TRUE, rsq = TRUE)
 lavaan::standardizedSolution(fitX_2) 
 
 
+modelX_3 <- 'dro_fin ~ state3' 
+
 modelX_3 <- 'dro_fin ~ state3 + soc_int + aca_int
              soc_int ~ state3
              aca_int ~ state3' 
@@ -1611,6 +1618,7 @@ fitX_3 <- sem(modelX_3,
 lavaan::summary(fitX_3, fit.measures = TRUE, standardize = TRUE, rsq = TRUE)
 lavaan::standardizedSolution(fitX_3) 
 
+modelX_4 <- 'dro_fin ~ state4'
 
 modelX_4 <- 'dro_fin ~ state4 + soc_int + aca_int
              soc_int ~ state4
