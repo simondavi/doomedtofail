@@ -2946,9 +2946,15 @@
     },
     "semTools": {
       "Package": "semTools",
-      "Version": "0.5-6",
-      "Source": "Repository",
-      "Repository": "CRAN",
+      "Version": "0.5-6.933",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "semTools",
+      "RemoteUsername": "simsem",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "07ec11a6a1f4807b50382587596c6d798b607a9b",
+      "RemoteSubdir": "semTools",
       "Requirements": [
         "R",
         "graphics",
@@ -2958,7 +2964,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "9374d79226103541b8293009f81da90f"
+      "Hash": "597699fa2163dde77635b114310ad4d1"
     },
     "shape": {
       "Package": "shape",
