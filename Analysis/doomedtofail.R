@@ -38,7 +38,7 @@ library(report)         # for producing reports
 library(naniar)         # for Little-Test
 library(mice)           # for handling of missing values
 library(lavaan)         # for SEM
-library(semTools)
+library(semTools)       # (!) install via devtools::install_github("simsem/semTools/semTools")
 library(Amelia)
 library(purrr)
 library(ggpubr)         # for arranging plots
@@ -697,7 +697,7 @@ m10 <- mix(list(gender ~ 1, par_edu ~ 1, mig_bac ~ 1,
                       gaussian(), gaussian(), gaussian()))
 
 
-## step 2: model fit
+## step 2: model fit                                                            # Problem: Wenn direkt Klasse 4 geschätzt wird, dann andere Lösung (vielleicht sind em.control Einstellungen ungünstig gewählt)
 set.seed(123)
 
 fit_m1 <- fit(m1, verbose = FALSE,
@@ -1488,7 +1488,8 @@ imp_gen <- mice(data = dat_sem,
                 diagnostics = TRUE)
 
 # extract the imputed datasets into a list of data frames
-imp_dat_sem <- map(1:10, function(x) complete(imp_gen, x))
+imp_dat_sem <- list() 
+for (i in 1:imp_gen$m) imp_dat_sem[[i]] <- complete(imp_gen, action = i) 
 
 # bring your imputed data in long format for estimating dropout
 imp_dat_sem_long <- mice::complete(imp_gen,"long", inc = FALSE) 
@@ -1496,40 +1497,37 @@ do_imp <- (100/nrow(imp_dat_sem_long))*(as.data.frame(table(imp_dat_sem_long$dro
 # ~11%
 
 # lavaan model
-model <- ' # direct effect
-             dro_fin ~ c*state
-           # mediator
-             soc_int ~ a*state
-             dro_fin ~ b*soc_int
-           # indirect effect (a*b)
-             ab := a*b
-           # total effect
-             total := c + (a*b)'                                                # ggf. rausnehmen (#) und schauen, ob Modell nicht gesättigt
+model <-  'dro_fin ~ c*state1 + b2*soc_int + b1*aca_int
+           soc_int ~ a2*state1
+           aca_int ~ a1*state1
+
+           IE_soc := a2*b2
+           IE_aca := a1*b1
+           DE := c
+           TE := IE_soc + IE_aca +c'                                              
 
 # recode exogenous variable state as a dummy 
 # and endogenous variable (outcome) dro_fin as a binary variable
 imp_dat_sem <- imp_dat_sem %>% 
   purrr::map( ~ .x  %>% 
               dplyr::mutate(dro_fin = if_else(dro_fin == 1, 1, 0),
-                            state = if_else(state == 1, 1, 0))
-              )                                                                 # bleiben states stabil?
+                            state1 = if_else(state == 1, 1, 0),
+                            state2 = if_else(state == 2, 1, 0),
+                            state3 = if_else(state == 3, 1, 0),
+                            state4 = if_else(state == 4, 1, 0)
+                            )
+              )
+                                                                               # bleiben states stabil?
 
-library(semTools)
 # run lavaan with previously imputed data using runMI
 fit <- semTools::runMI(model, 
                        data = imp_dat_sem,
                        fun = "sem",
-                       miPackage = "mice",
                        ordered = c("dro_fin")
                        )
 
-lavaan::summary(fit,
-        test = "D2",
-        pool.robust = TRUE,
-        ci = TRUE,
-        fit.measures = TRUE,
-        standardized = TRUE
-)
+summary(fit)
+fitMeasures(fit)
 
 # Compute standardized estimates
 std_estimates <- standardizedSolution(fit)
