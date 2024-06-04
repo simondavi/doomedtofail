@@ -575,6 +575,10 @@ dat_lca <- dat_lca %>%
                 fem_inm,
                 fem_exm)
 
+## save dat_lca as .csv for M-Plus Calculations
+write.csv(dat_lca, "dat_lca.csv")
+
+
 
 ## step 1: model specification
 
@@ -699,63 +703,69 @@ m10 <- mix(list(gender ~ 1, par_edu ~ 1, mig_bac ~ 1,
                       gaussian(), gaussian(), gaussian()))
 
 
-## step 2: model fit                                                            # Problem: Wenn direkt Klasse 4 geschätzt wird, dann andere Lösung (vielleicht sind em.control Einstellungen ungünstig gewählt)
-set.seed(123)
+## step 2: model fit                                                            
 
+set.seed(1)
 fit_m1 <- fit(m1, verbose = FALSE,
               emcontrol = em.control(random.start = TRUE, 
                                      maxit = 5000,
                                      crit = "absolute",
                                      classification = c("soft")))
-
+set.seed(2)
 fit_m2 <- fit(m2, verbose = FALSE,
               emcontrol = em.control(random.start = TRUE, 
                                      maxit = 5000,
                                      crit = "absolute",
                                      classification = c("soft")))
-
+set.seed(3)
 fit_m3 <- fit(m3, verbose = FALSE, 
               emcontrol = em.control(random.start = TRUE, 
                                      maxit = 5000,
                                      crit = "absolute",
                                      classification = c("soft")))
-
+set.seed(4)
 fit_m4 <- fit(m4, verbose = FALSE, 
               emcontrol = em.control(random.start = TRUE, 
                                      maxit = 5000,
                                      crit = "absolute",
                                      classification = c("soft")))
 
+set.seed(5)
 fit_m5 <- fit(m5, verbose = FALSE,  
               emcontrol = em.control(random.start = TRUE, 
                                      maxit = 5000,
                                      crit = "absolute",
                                      classification = c("soft")))
 
+set.seed(6)
 fit_m6 <- fit(m6, verbose = FALSE,
               emcontrol = em.control(random.start = TRUE,
                                      maxit = 5000,
                                      crit = "absolute",
                                      classification = c("soft")))
 
+set.seed(7)
 fit_m7 <- fit(m7, verbose = FALSE,
               emcontrol = em.control(random.start = TRUE,
                                      maxit = 5000,
                                      crit = "absolute",
                                      classification = c("soft")))
 
+set.seed(8)
 fit_m8 <- fit(m8, verbose = FALSE,
               emcontrol = em.control(random.start = TRUE,
                                      maxit = 5000,
                                      crit = "absolute",
                                      classification = c("soft")))
 
+set.seed(9)
 fit_m9 <- fit(m9, verbose = FALSE,
               emcontrol = em.control(random.start = TRUE,
                                      maxit = 5000,
                                      crit = "absolute",
                                      classification = c("soft")))
 
+set.seed(10)
 fit_m10 <- fit(m10, verbose = FALSE,
               emcontrol = em.control(random.start = TRUE,
                                      maxit = 5000,
