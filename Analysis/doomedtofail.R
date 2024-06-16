@@ -578,8 +578,6 @@ dat_lca <- dat_lca %>%
 ## save dat_lca as .csv for M-Plus Calculations
 write.csv(dat_lca, "dat_lca.csv")
 
-
-
 ## step 1: model specification
 
 # class = 1
@@ -705,25 +703,25 @@ m10 <- mix(list(gender ~ 1, par_edu ~ 1, mig_bac ~ 1,
 
 ## step 2: model fit                                                            
 
-set.seed(1)
+set.seed(123)
 fit_m1 <- fit(m1, verbose = FALSE,
               emcontrol = em.control(random.start = TRUE, 
                                      maxit = 5000,
                                      crit = "absolute",
                                      classification = c("soft")))
-set.seed(2)
+
 fit_m2 <- fit(m2, verbose = FALSE,
               emcontrol = em.control(random.start = TRUE, 
                                      maxit = 5000,
                                      crit = "absolute",
                                      classification = c("soft")))
-set.seed(3)
+
 fit_m3 <- fit(m3, verbose = FALSE, 
               emcontrol = em.control(random.start = TRUE, 
                                      maxit = 5000,
                                      crit = "absolute",
                                      classification = c("soft")))
-set.seed(4)
+
 fit_m4 <- fit(m4, verbose = FALSE, 
               emcontrol = em.control(random.start = TRUE, 
                                      maxit = 5000,
@@ -1384,7 +1382,8 @@ plot_continuous <- ggplot(plot_data_continuous, aes(x = measure, y = z,
                                                     color = state,
                                                     group = state)) +
   stat_summary(geom = "point", fun = mean, size = 3) +
-  stat_summary(fun = mean, geom = "line", size = 0.5)+
+  stat_summary(geom = "errorbar", fun.data = mean_se, width = 0.2) +
+  stat_summary(fun = mean, geom = "line", size = 0.5) +
   guides(x =  guide_axis(angle = 45))
 
 
@@ -1426,6 +1425,7 @@ plot_both <- ggplot(df_plot_both, aes(x = measure, y = value,
                                       color  = state, group = state)) +
   stat_summary(geom = "point", fun = mean, size = 3) +
   stat_summary(fun = mean, geom = "line", size = 0.5) +
+  stat_summary(geom = "errorbar", fun.data = mean_se, width = 0.2) +
   guides(x =  guide_axis(angle = 45)) +
   scale_x_discrete(limits=c("Age", 
                             "Openess","Conscientiousness","Extraversion", 
@@ -1449,7 +1449,7 @@ plot_both <- ggplot(df_plot_both, aes(x = measure, y = value,
 posterior_states <- depmixS4::posterior(fit_m4)
 posterior_states$state <- as.factor(posterior_states$state)
 
-dat_sem <- cbind(data6, posterior_states)                                       # data6
+dat_sem <- cbind(data6, posterior_states)  # data6
 
 dat_sem <- dat_sem %>%
   dplyr::select(gender,
@@ -1538,17 +1538,10 @@ fit <- semTools::runMI(model,
                        ordered = c("dro_fin")
                        )
 
-summary(fit)
-fitMeasures(fit)
+lavaan::summary(fit, standardized = TRUE)
 
-# Compute standardized estimates
-std_estimates <- standardizedSolution(fit)
-# Extract R-squared values
-r_squared <- std_estimates$std.all$std.all^2
-# Print R-squared values
-print(r_squared)
 
-# ohne Imputation
+# ohne Imputation# ohne ImputationTRUE
 dat_semX <- dat_sem %>% 
                 dplyr::mutate(dro_fin = if_else(dro_fin == 1, 1, 0),
                               state1 = if_else(state == 1, 1, 0),
@@ -1559,8 +1552,7 @@ dat_semX <- dat_sem %>%
 
 modelX <- 'dro_fin ~ state1 + state2 + state3 + state4 + soc_int + aca_int
            soc_int ~ state1 + state2 + state3 + state4
-           aca_int ~ state1 + state2 + state3 + state4
-'  
+           aca_int ~ state1 + state2 + state3 + state4'  
 
 fitX <- sem(modelX, 
             data = dat_semX, 
@@ -1575,12 +1567,12 @@ lavaan::summary(fitX, fit.measures = TRUE, standardize = TRUE, rsq = TRUE)
 # model that assumes there is a normally distributed latent response underlying 
 # the observed response.  Read these for details:
 
-lavaan::standardizedSolution(fitX) 
+lavaan::standardizedSolution(fitX_1) 
 
 
 
 
-modelX_1 <- 'dro_fin ~ state1' 
+modelX_1 <- 'dro_fin ~ state1'
 
 modelX_1 <- 'dro_fin ~ c*state1 + b2*soc_int + b1*aca_int
              soc_int ~ a2*state1
@@ -1597,7 +1589,7 @@ fitX_1 <- sem(modelX_1,
             )
 
 lavaan::summary(fitX_1, fit.measures = TRUE, standardize = TRUE, rsq = TRUE)
-lavaan::standardizedSolution(fitX_1)
+lavaan::standardizedSolution(fitX_1) 
 
 modelX_2 <- 'dro_fin ~ state2' 
 
@@ -1612,7 +1604,6 @@ fitX_2 <- sem(modelX_2,
 
 lavaan::summary(fitX_2, fit.measures = TRUE, standardize = TRUE, rsq = TRUE)
 lavaan::standardizedSolution(fitX_2) 
-
 
 modelX_3 <- 'dro_fin ~ state3' 
 
@@ -1633,8 +1624,6 @@ modelX_4 <- 'dro_fin ~ state4'
 modelX_4 <- 'dro_fin ~ state4 + soc_int + aca_int
              soc_int ~ state4
              aca_int ~ state4' 
-
-modelX_4 <- 'dro_fin ~ state4 ' 
 
 fitX_4 <- sem(modelX_4, 
               data = dat_semX, 
