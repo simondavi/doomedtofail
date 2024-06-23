@@ -282,7 +282,7 @@ ststa <- ststa %>%
 # vielleicht passt es aber schon (Anzunehmen wären ca. 15%)
 
 # Filter measures from Basics:
-basic <- haven::read_sav("Data_SC5_D_18-0-0/SC5_Basics_D_18-0-0.sav") %>% 
+basic <- haven::read_sav("Data_SC5_D_18-0-0/SC5_Basics_D_18-0-0.sav") %>%       # Fehler: Latest "age", nicht wave 1
          dplyr::select(ID_t, tx29000)  # age
 
 
@@ -576,7 +576,7 @@ dat_lca <- dat_lca %>%
                 fem_exm)
 
 ## save dat_lca as .csv for M-Plus Calculations
-write.csv(dat_lca, "dat_lca.csv")
+## write.csv(dat_lca, "dat_lca.csv")
 
 ## step 1: model specification
 
