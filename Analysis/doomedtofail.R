@@ -47,6 +47,7 @@ library(ggpubr)         # for arranging plots
 # renv::clean()
 # renv::snapshot()
 # renv::restore()
+Test 
 
 #### ----------------- (2) Read Data and Data Management ----------------- ####
 
@@ -1574,9 +1575,9 @@ lavaan::standardizedSolution(fitX_1)
 
 modelX_1 <- 'dro_fin ~ state1'
 
-modelX_1 <- 'dro_fin ~ c*state1 + b2*soc_int + b1*aca_int
-             soc_int ~ a2*state1
-             aca_int ~ a1*state1
+modelX_1 <- 'dro_fin ~ c*S1 + b2*soc_int + b1*aca_int
+             soc_int ~ a2*S1
+             aca_int ~ a1*S1
 
              IE_soc := a2*b2
              IE_aca := a1*b1
@@ -1584,7 +1585,7 @@ modelX_1 <- 'dro_fin ~ c*state1 + b2*soc_int + b1*aca_int
              TE := IE_soc + IE_aca +c' 
 
 fitX_1 <- sem(modelX_1, 
-            data = dat_semX, 
+            data = dat_sem, 
             ordered = c("dro_fin")
             )
 
