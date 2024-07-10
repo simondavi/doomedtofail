@@ -47,7 +47,6 @@ library(ggpubr)         # for arranging plots
 # renv::clean()
 # renv::snapshot()
 # renv::restore()
-Test 
 
 #### ----------------- (2) Read Data and Data Management ----------------- ####
 
@@ -64,7 +63,7 @@ cohort <- haven::read_sav("Data_SC5_D_18-0-0/SC5_CohortProfile_D_18-0-0.sav") %>
 
 cati_w1 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCATI_D_18-0-0.sav") %>%
            dplyr::select(ID_t, wave, tg02001_ha,  # intended degree
-                                     tg24150_g1,  # foreign student (!= 3)
+                                     tg24150_g1,  # foreign student (!= 3)      # Überdenken
                                      t731301_g1,  # parental education
                                      t731351_g1,  
                                      t731453_g14, # parental occupation
@@ -101,7 +100,7 @@ cawi_w8 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
                                      tg61011, tg61012, tg61013,
                                      tg61071, tg61072, tg61073,  
                                      tg61051, tg61052, tg61053,
-                                     tg53221) %>%                # dropout intention
+                                     tg53221) %>%                # dropout intention (ggf. alle 5 nutzen)
            dplyr::filter(wave == 8)
 
 cawi_sp1 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
@@ -121,7 +120,7 @@ cawi_sp2 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>
                          
 # Filter measures from spSchool:
 
-spsch <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spSchool_D_18-0-0.sav") %>%
+spsch <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spSchool_D_18-0-0.sav") %>%     # Überarbeiten
          dplyr::select(ID_t, wave, spell, subspell, ts11204,       # school
                                                     ts11209,       # certificate
                                                     ts11218) %>%   # GPA
@@ -172,7 +171,7 @@ spvoc <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%   
 #
 # View(filt %>% dplyr::filter(ID_t == "7002071"))
 
-spvoc_help <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%
+spvoc_help <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>% # falsch, Stichwort wave = 3
               dplyr::select(ID_t, wave, spell, subspell,
                             tg24201) %>% # Did you study with the objective of becoming a teacher?
               dplyr::filter(wave == 3) %>% 
@@ -364,8 +363,7 @@ data <- rquery::natural_join(data, basic,
                              #intended degree = teacher education (wave 1)
                              dplyr::filter(tg24150_g1 != 3) %>%
                              # exclude foreign students
-                             dplyr::filter(h_aktstu == 1) %>%                   # Hier weden keine Daten mehr ausgeschlossen, 
-                                                                                # Warum hat h_aktstu keine Missings in wave 1 
+                             dplyr::filter(h_aktstu == 1) %>%                   
                              # only start of studies WT 2010
                              dplyr::filter(tx80107 == 1) %>%
                              # only first participation in wave 1
