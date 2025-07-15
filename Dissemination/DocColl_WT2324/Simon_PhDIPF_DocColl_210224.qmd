@@ -7,7 +7,7 @@ date: today
 date-format: "DD MMMM YYYY"
 editor: source
 execute:
-#  echo: true
+  echo: false
   warning: false
   message: false
   cache: true

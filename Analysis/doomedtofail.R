@@ -186,7 +186,7 @@ spvoc_help <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %
 # the information is taken form wave 3
 
 
-# Filter measures from StudyStates = definition of dropout:                     # temp solution?
+# Filter measures from StudyStates = definition of dropout:                     
 
 # 0 = graduate = successfully completed at least one study episode; 
 #     BA, MA, state examination (in teacher education)
@@ -412,7 +412,7 @@ data3 <- data2 %>%
 
 # View(data3 %>% dplyr::select(mig_bac, t405060_g1, t405090_g1))
 
-# educational background (type of entrance certificate (schoool), GPA, prior 
+# educational background (type of entrance certificate (school), GPA, prior 
 # completion of vocational training)
 data4 <- data3 %>% 
   dplyr::mutate(typ_sch = case_when(ts11204 != 8 ~ 0,
