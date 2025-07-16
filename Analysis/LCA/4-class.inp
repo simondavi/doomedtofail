@@ -1,0 +1,89 @@
+Title: 4-class
+
+data: 
+   file is "S:\Temp\MPlus\data_lca_doomedtofail.csv";
+   
+variable: 
+    names = ID_t big_ext big_agr big_con big_neu big_ope int_edi int_ssi
+            ext_ext ext_uti aca_abi par_edu hisei aca_int soc_int age gender 
+            dro_out;
+    missing = all(-99);
+    idvariable = ID_t;
+    
+    usevariables = big_ext big_agr big_con big_neu big_ope int_edi int_ssi ext_ext
+                   ext_uti aca_abi par_edu hisei;
+    auxiliary = aca_int soc_int age gender dro_out;
+    
+    classes = C (4);
+    categorical = par_edu;
+    
+analysis: 
+   type = mixture;
+   estimator = mlr;
+   starts 400 100;
+   process = 4;
+
+model:
+  %c#1%
+   big_ext*;
+   big_agr*;
+   big_con*;
+   big_neu*;
+   big_ope*;
+   int_edi*;
+   int_ssi*;
+   ext_ext*;
+   ext_uti*;
+   aca_abi*;
+   hisei*;
+
+   %c#2%
+   big_ext*;
+   big_agr*;
+   big_con*;
+   big_neu*;
+   big_ope*;
+   int_edi*;
+   int_ssi*;
+   ext_ext*;
+   ext_uti*;
+   aca_abi*;
+   hisei*;
+
+   %c#3%
+   big_ext*;
+   big_agr*;
+   big_con*;
+   big_neu*;
+   big_ope*;
+   int_edi*;
+   int_ssi*;
+   ext_ext*;
+   ext_uti*;
+   aca_abi*;
+   hisei*;
+   
+   %c#4%
+   big_ext*;
+   big_agr*;
+   big_con*;
+   big_neu*;
+   big_ope*;
+   int_edi*;
+   int_ssi*;
+   ext_ext*;
+   ext_uti*;
+   aca_abi*;
+   hisei*;
+
+
+output:
+  residual;
+  Tech14;
+  Tech11;
+  sampstat;
+
+savedata:
+  save =  bchweights;
+  missflag = 9999;
+  file = lca_bch_4class.dat;

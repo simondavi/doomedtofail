@@ -1,4 +1,4 @@
-# datamanagement_doomedtofail.R
+# 01_datamanagement_doomedtofail.R
 #
 # Comment: 
 #
@@ -9,7 +9,7 @@
 #        SC5_spVocTrain_D_18-0-0.sav 
 #        SC5_StudyStates_D_18-0-0.dta
 #        SC5_Basics_D_18-0-0.sav
-# Output: data_doomedtofail.csv
+# Output: data_lca_doomedtofail.csv
 #
 # Contents: (1) Load Packages
 #           (2) Read Data and Data Management
@@ -51,6 +51,8 @@ cati_w1 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCATI_D_18-0-0.sav") %>%
                                      tg24150_g1,  # foreign student (!= 3)      # Überdenken
                                      t731301_g1,  # parental education
                                      t731351_g1,  
+                                     t731453_g14, # parental occupation
+                                     t731403_g14,
                                      t700001) %>% # gender
            dplyr::filter(wave == 1)
            
@@ -282,15 +284,7 @@ data <- rquery::natural_join(data, cawi_sp1,
                              by = "ID_t",
                              jointype = "LEFT") 
 
-data <- rquery::natural_join(data, cawi_sp2,
-                             by = "ID_t",
-                             jointype = "LEFT")
-
 data <- rquery::natural_join(data, spsch,
-                             by = "ID_t",
-                             jointype = "LEFT") 
-
-data <- rquery::natural_join(data, spvoc_pr,
                              by = "ID_t",
                              jointype = "LEFT") 
 
@@ -339,7 +333,7 @@ data <- rquery::natural_join(data, basic,
 
 ## entry characteristics
                              
-# Parental education (par_edu), SES (hisei)
+# students background: Parental education (par_edu), SES (hisei)
 data2 <- data %>%
   dplyr::mutate(par_edu = case_when((t731301_g1 < 9 & t731351_g1 < 9) ~ 1,
                                     (t731301_g1 >= 9 & t731351_g1 >= 9) ~ 3,
@@ -355,107 +349,66 @@ data2 <- data %>%
                                     is.na(t731403_g14)) ~ as.numeric(NA),
                                   TRUE ~ as.numeric(hisei))) 
 
-# migration background
+# academic aptitude: GPA
 data3 <- data2 %>% 
-  dplyr::mutate(mig_bac = case_when((t405060_g1 <= 2 & t405090_g1 <= 2) ~ 0,    # NA situation?
-                                    (t405060_g1 == 3 | t405090_g1 == 3) ~ 1,
-                                    TRUE ~ as.numeric(NA)))
-                                    # 0 = both parents born in Germany, 
-                                    # 1 = at least one abroad
-
-# View(data3 %>% dplyr::select(mig_bac, t405060_g1, t405090_g1))
-
-# educational background (type of entrance certificate (school), GPA, prior 
-# completion of vocational training)
-data4 <- data3 %>% 
-  dplyr::mutate(typ_sch = case_when(ts11204 != 8 ~ 0,
-                                    ts11204 == 8 ~ 1,
-                                    TRUE ~ as.numeric(NA)),
-                                    # 0 = non-Gymnasium,
-                                    # 1 = Gymnasium (also Kolleg)
-  
-#  dplyr::mutate(paa_gpa = case_when(ts11218 >= 3.6 & ts11218 <= 4.0 ~ 1,
-#                                    ts11218 >= 2.6 & ts11218 < 3.6 ~ 2,
-#                                    ts11218 >= 1.6 & ts11218 < 2.6 ~ 3,
-#                                    ts11218 >= 1.0 & ts11218 < 1.6 ~ 4,
-#                                    TRUE ~ as.numeric(NA)))  %>%
-#                                    # 1 = sufficient, 2 = satisfactory, 
-#                                    # 3 = good, 4 = very good)
-  
-# gpa as continous variable
-                paa_gpa = ts11218,
-  
-# dplyr::mutate(voc_tra = case_when(ts15218 == 4 ~ 1,
-#                                    ts15218 == 3 ~ 2,
-#                                    TRUE ~ as.numeric(NA)))
-#                                    # 1 = no, 2 = yes
-
-# binary variable for vocational training
-                voc_tra = ifelse(ts15218 == 4 | is.na(ts15218), 0, 1),
-
-# gender
-                gender = ifelse(t700001 == 1, 1, 0),
+  dplyr::mutate(aca_abi = (5 - ts11218),              # inverse grade
+                gender = ifelse(t700001 == 1, 1, 0),  # gender
                 # 1 = male
                 # 0 = female
+                age =  tx29000)  # age
 
-# age
-                age =  tx29000)
-
-# individual characteristics 
-# (big 5, motivation for choosing teacher education (femola))
-
-# scales
+# personality (big 5, motivation for choosing teacher education (femola))
 
 # Big 5
 # recode inverse items big 5:
-data4$t66800a <- 6 - data4$t66800a
-data4$t66800g <- 6 - data4$t66800g
-data4$t66800c <- 6 - data4$t66800c
-data4$t66800d <- 6 - data4$t66800d
-data4$t66800e <- 6 - data4$t66800e
+data3$t66800a <- 6 - data3$t66800a
+data3$t66800g <- 6 - data3$t66800g
+data3$t66800c <- 6 - data3$t66800c
+data3$t66800d <- 6 - data3$t66800d
+data3$t66800e <- 6 - data3$t66800e
 
-data5 <- data4 %>% 
-  dplyr::mutate(big_ext = rowMeans(subset(data4, select = c(t66800a, t66800f)),
+data4 <- data3 %>% 
+  dplyr::mutate(big_ext = rowMeans(subset(data3, select = c(t66800a, t66800f)),
                                    na.rm = TRUE),
-                big_agr = rowMeans(subset(data4, select = c(t66800b, t66800g,
+                big_agr = rowMeans(subset(data3, select = c(t66800b, t66800g,
                                                             t66800k)),
                                    na.rm = TRUE),
-                big_con = rowMeans(subset(data4, select = c(t66800c, t66800h)),
+                big_con = rowMeans(subset(data3, select = c(t66800c, t66800h)),
                                    na.rm = TRUE),
-                big_neu = rowMeans(subset(data4, select = c(t66800d, t66800i)),
+                big_neu = rowMeans(subset(data3, select = c(t66800d, t66800i)),
                                    na.rm = TRUE),
-                big_ope = rowMeans(subset(data4, select = c(t66800e, t66800j)),
+                big_ope = rowMeans(subset(data3, select = c(t66800e, t66800j)),
                                    na.rm = TRUE),
-                fem_edi = rowMeans(subset(data4, select = c(tg61031, tg61032,
+                fem_edi = rowMeans(subset(data3, select = c(tg61031, tg61032,
                                                             tg61033)),
                                    na.rm = TRUE),
-                fem_ssi = rowMeans(subset(data4, select = c(tg61061, tg61062, 
+                fem_ssi = rowMeans(subset(data3, select = c(tg61061, tg61062, 
                                                             tg61063)), 
                                    na.rm = TRUE),
-                fem_abe = rowMeans(subset(data4, select = c(tg61041, tg61042,
+                fem_abe = rowMeans(subset(data3, select = c(tg61041, tg61042,
                                                             tg61043)), 
                                    na.rm = TRUE),
-                fem_tff = rowMeans(subset(data4, select = c(tg61021, tg61022,
+                fem_tff = rowMeans(subset(data3, select = c(tg61021, tg61022,
                                                             tg61023)), 
                                    na.rm = TRUE),
-                fem_fis = rowMeans(subset(data4, select = c(tg61011, tg61012,
+                fem_fis = rowMeans(subset(data3, select = c(tg61011, tg61012,
                                                             tg61013)), 
                                    na.rm = TRUE),
-                fem_lod = rowMeans(subset(data4, select = c(tg61071, tg61072, 
+                fem_lod = rowMeans(subset(data3, select = c(tg61071, tg61072, 
                                                             tg61073)), 
                                    na.rm = TRUE),
-                fem_soi = rowMeans(subset(data4, select = c(tg61051, tg61052, 
+                fem_soi = rowMeans(subset(data3, select = c(tg61051, tg61052, 
                                                             tg61053)),
                                    na.rm = TRUE),
                 
-                fem_inm = rowMeans(subset(data4, select = c(tg61031, tg61032, 
+                fem_inm = rowMeans(subset(data3, select = c(tg61031, tg61032, 
                                                             tg61033, tg61061, 
                                                             tg61062, tg61063,
                                                             tg61041, tg61042, 
                                                             tg61043)),
                                    na.rm = TRUE),
                                                 
-                fem_exm = rowMeans(subset(data4, select = c(tg61021, tg61022, 
+                fem_exm = rowMeans(subset(data3, select = c(tg61021, tg61022, 
                                                             tg61023, tg61011, 
                                                             tg61012, tg61013,
                                                             tg61071, tg61072, 
@@ -463,22 +416,111 @@ data5 <- data4 %>%
                                                             tg61052, tg61053)),
                                    na.rm = TRUE))
 
+# Evaluate factor structure
 
-## current study situation                                                      # Nummerierung dataX überarbeiten (?)
+# motivation fpr choosing teacher education (intrinsic, extrinsic)
+# specify the model
+cfa_model_femola <- ' int =~ tg61031 + tg61032 + tg61033 + tg61061 + tg61062 + 
+                             tg61063 + tg61041 + tg61042 + tg61043
+                      ext =~ tg61021 + tg61022 + tg61023 + tg61011 + tg61012 + 
+                             tg61013 + tg61071 + tg61072 + tg61073 + tg61051 + 
+                             tg61052 + tg61053 '
+
+# fit the model
+fit_cfa_femola <- lavaan::cfa(cfa_model_femola, data = data4)
+
+# evaluate the model
+summary(fit_cfa_femola, standardized = TRUE)
+
+# evaluate the model fit
+fit_mea_femola <- lavaan::fitMeasures(fit_cfa_femola, c("chisq", "df", "pvalue", "cfi", "srmr", "rmsea"))
+
+# evaluate factor loadings
+inspect_fit_cfa_femola <- lavaan::inspect(fit_cfa_femola, what = "std")
+inspect_fit_cfa_femola$lambda
+
+# respecify the model
+# int1: educational interest
+# int2: subject specif interest
+# ext1: low difficulty, social influences
+# ext2: uti = utility: time for family/leisure, financial security
+
+cfa_model_femola_2 <- ' int_edi =~ tg61031 + tg61032 + tg61033
+                        int_ssi =~ tg61061 + tg61062 + tg61063
+                        ext_ext =~ tg61071 + tg61072 + tg61073 + tg61051 + 
+                                   tg61052 + tg61053
+                        ext_uti =~ tg61021 + tg61022 + tg61023 + tg61011 + 
+                                   tg61012 + tg61013'
+
+# fit the model
+fit_cfa_femola_2 <- lavaan::cfa(cfa_model_femola_2, data = data4)
+
+# evaluate the model
+summary(fit_cfa_femola_2, standardized = TRUE)
+
+# evaluate the model fit
+fit_mea_femola_2 <- lavaan::fitMeasures(fit_cfa_femola_2, c("chisq", "df", "pvalue", "cfi", "srmr", "rmsea"))
+
+# evaluate factor loadings
+inspect_fit_cfa_femola_2 <- lavaan::inspect(fit_cfa_femola_2, what = "std")
+inspect_fit_cfa_femola_2$lambda
+
+# evaluate modification indices
+lavaan::modindices(fit_cfa_femola_2, sort = TRUE, minimum.value = 8)
+
+# discard lowest loadings (below .5)
+
+cfa_model_femola_3 <- ' int_edi =~ tg61031 + tg61032 + tg61033
+                        int_ssi =~ tg61061 + tg61062 + tg61063
+                        ext_ext =~ tg61071 + tg61072 + tg61073 + 
+                                   tg61052 + tg61053
+                        ext_uti =~ tg61022 + tg61023 + tg61011 + 
+                                   tg61012 + tg61013'
+
+# fit the model
+fit_cfa_femola_3 <- lavaan::cfa(cfa_model_femola_3, data = data4)
+
+# evaluate the model
+summary(fit_cfa_femola_3, standardized = TRUE)
+
+# evaluate the model fit
+fit_mea_femola_3 <- lavaan::fitMeasures(fit_cfa_femola_3, c("chisq", "df", "pvalue", "cfi", "srmr", "rmsea"))
+
+# add scales to dataset
+
+data4 <- data4 %>% 
+  dplyr::mutate(int_edi = rowMeans(subset(data4, select = c(tg61031, tg61032,
+                                                            tg61033)),
+                                   na.rm = TRUE),
+                int_ssi = rowMeans(subset(data4, select = c(tg61061, tg61062,
+                                                            tg61063)),
+                                   na.rm = TRUE),
+                ext_ext = rowMeans(subset(data4, select = c(tg61071, tg61072,
+                                                            tg61073, tg61052,
+                                                            tg61053)),
+                                   na.rm = TRUE),
+                
+                ext_uti = rowMeans(subset(data4, select = c(tg61022, tg61023,
+                                                            tg61011, tg61012,
+                                                            tg61013)),
+                                   na.rm = TRUE))
+
+
+## current study situation
 
 # social and academic integration
 # recode inverse items integration:
-data5$tg53234 <- 6 - data5$tg53234
-data5$tg53231 <- 6 - data5$tg53231
+data4$tg53234 <- 6 - data4$tg53234
+data4$tg53231 <- 6 - data4$tg53231
 
-data5 <- data5 %>% 
-  dplyr::mutate(aca_int = rowMeans(subset(data5, select = c(tg53232, tg53234, 
+data5 <- data4 %>% 
+  dplyr::mutate(aca_int = rowMeans(subset(data4, select = c(tg53232, tg53234, 
                                                             tg53236, tg53231, 
                                                             tg53233, tg53235,
                                                             tg53211, tg53212, 
                                                             tg53213)),
                                    na.rm = TRUE),
-                soc_int = rowMeans(subset(data5, select = c(tg53111, tg53112, 
+                soc_int = rowMeans(subset(data4, select = c(tg53111, tg53112, 
                                                             tg53113, tg53114, 
                                                             tg53121, tg53122,
                                                             tg53123)),
@@ -492,15 +534,52 @@ data5 <- data5 %>%
 
 ## decision
 
-# drop out (using study states, temp solution)
-# defined above
+# drop out (using study states, defined above)
 
-#dorpout intention
-data5 <- data5 %>%
+#dropout intention
+data6 <- data5 %>%
   dplyr::mutate(dro_int = tg53221)
 
 
 #### ----------------------------- (5) Output ----------------------------- ####
-
-data6 <- data5 %>% 
+data6 <- data6 %>% 
   dplyr::mutate(across(everything(), ~ ifelse(is.nan(.x), NA, .x)))
+
+data7 <- data6 %>%
+  dplyr::mutate(dro_out = as.numeric(dro_out)) %>%
+  dplyr::select(ID_t, big_ext, big_agr, big_con, big_neu, big_ope, int_edi, 
+                int_ssi, ext_ext, ext_uti, aca_abi, par_edu, hisei, aca_int, 
+                soc_int, age, gender, dro_out)
+
+vars_to_scale <- c("big_ext", "big_agr", "big_con", "big_neu", "big_ope",
+                   "int_edi", "int_ssi", "ext_ext", "ext_uti", "aca_abi", "hisei")
+
+data7[vars_to_scale] <- scale(data6[vars_to_scale])
+
+write.table(data7,
+            file = "data-gen/data_lca_doomedtofail.csv",
+            sep = " ",
+            row.names = FALSE,
+            col.names = FALSE,
+            quote = FALSE,
+            na = "-99")
+
+# for LCA-folder 02
+data8 <- data6 %>%
+  dplyr::mutate(dro_out = as.numeric(dro_out)) %>%
+  dplyr::select(ID_t, big_ext, big_con, big_neu, int_edi, 
+                int_ssi, ext_uti, aca_abi, par_edu, hisei, aca_int, 
+                soc_int, age, gender, dro_out)
+
+vars_to_scale <- c("big_ext", "big_con", "big_neu",
+                   "int_edi", "int_ssi", "ext_uti", "aca_abi", "hisei")
+
+data8[vars_to_scale] <- scale(data6[vars_to_scale])
+
+write.table(data8,
+            file = "data-gen/data_lca_doomedtofail_2.csv",
+            sep = " ",
+            row.names = FALSE,
+            col.names = FALSE,
+            quote = FALSE,
+            na = "-99")
