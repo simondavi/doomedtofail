@@ -1,4 +1,4 @@
-Title: 1-class
+Title: 2_class
 
 data: 
    file is "S:\Temp\MPlus\data_lca_doomedtofail.csv";
@@ -14,7 +14,7 @@ variable:
                    ext_uti aca_abi par_edu hisei;
     auxiliary = aca_int soc_int age gender dro_out;
     
-    classes = C (1);
+    classes = C (2);
     categorical = par_edu;
     
 analysis: 
@@ -37,6 +37,19 @@ model:
    aca_abi*;
    hisei*;
 
+   %c#2%
+   big_ext*;
+   big_agr*;
+   big_con*;
+   big_neu*;
+   big_ope*;
+   int_edi*;
+   int_ssi*;
+   ext_ext*;
+   ext_uti*;
+   aca_abi*;
+   hisei*;
+
 
 output:
   residual;
@@ -47,4 +60,4 @@ output:
 savedata:
   save =  bchweights;
   missflag = 9999;
-  file = lca_bch_1class.dat;
+  file = lca_bch_2class.dat;

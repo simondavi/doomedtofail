@@ -48,7 +48,7 @@ cohort <- haven::read_sav("Data_SC5_D_18-0-0/SC5_CohortProfile_D_18-0-0.sav") %>
 
 cati_w1 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCATI_D_18-0-0.sav") %>%
            dplyr::select(ID_t, wave, tg02001_ha,  # intended degree
-                                     tg24150_g1,  # foreign student (!= 3)      # Überdenken
+                                     tg24150_g1,  # foreign student (!= 3)      
                                      t731301_g1,  # parental education
                                      t731351_g1,  
                                      t731453_g14, # parental occupation
@@ -343,7 +343,7 @@ data2 <- data %>%
                                     # 1 = no parent tertiary education, 2 = one 
                                     # parent, 3 = both parents
   dplyr::group_by(ID_t) %>% 
-  dplyr::mutate(hisei = max(t731453_g14, t731403_g14)) %>% 
+  dplyr::mutate(hisei = max(t731453_g14, t731403_g14)) %>%  # ISCO-08
   dplyr::ungroup() %>%
   dplyr::mutate(hisei = case_when((is.na(t731453_g14) |
                                     is.na(t731403_g14)) ~ as.numeric(NA),
@@ -547,37 +547,18 @@ data6 <- data6 %>%
 
 data7 <- data6 %>%
   dplyr::mutate(dro_out = as.numeric(dro_out)) %>%
+  dplyr::mutate(gender = as.numeric(gender)) %>%
   dplyr::select(ID_t, big_ext, big_agr, big_con, big_neu, big_ope, int_edi, 
                 int_ssi, ext_ext, ext_uti, aca_abi, par_edu, hisei, aca_int, 
                 soc_int, age, gender, dro_out)
 
 vars_to_scale <- c("big_ext", "big_agr", "big_con", "big_neu", "big_ope",
-                   "int_edi", "int_ssi", "ext_ext", "ext_uti", "aca_abi", "hisei")
+                   "int_edi", "int_ssi", "ext_ext", "ext_uti", "aca_abi", "hisei", "age")
 
 data7[vars_to_scale] <- scale(data6[vars_to_scale])
 
 write.table(data7,
-            file = "data-gen/data_lca_doomedtofail.csv",
-            sep = " ",
-            row.names = FALSE,
-            col.names = FALSE,
-            quote = FALSE,
-            na = "-99")
-
-# for LCA-folder 02
-data8 <- data6 %>%
-  dplyr::mutate(dro_out = as.numeric(dro_out)) %>%
-  dplyr::select(ID_t, big_ext, big_con, big_neu, int_edi, 
-                int_ssi, ext_uti, aca_abi, par_edu, hisei, aca_int, 
-                soc_int, age, gender, dro_out)
-
-vars_to_scale <- c("big_ext", "big_con", "big_neu",
-                   "int_edi", "int_ssi", "ext_uti", "aca_abi", "hisei")
-
-data8[vars_to_scale] <- scale(data6[vars_to_scale])
-
-write.table(data8,
-            file = "data-gen/data_lca_doomedtofail_2.csv",
+            file = "Data_Gen/data_lca_doomedtofail.csv",
             sep = " ",
             row.names = FALSE,
             col.names = FALSE,
