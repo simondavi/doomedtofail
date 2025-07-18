@@ -39,8 +39,11 @@ library(psych)          # for scale construction
 
 cohort <- haven::read_sav("Data_SC5_D_18-0-0/SC5_CohortProfile_D_18-0-0.sav") %>%
           dplyr::select(ID_t, wave, cohort,
-                                    tx80121,      # oversample of tea edu (= 1)
-                                    tx80107) %>%  # first participation in wave 1
+                                    tx80121,       # oversample of tea edu (= 1)
+                                    tx80107,       # first participation in wave 1
+                                    tx8600y,       # survey year  
+                                    tx8600m,       # survey month
+                                    tx8600d) %>%   # survey day
           dplyr::filter(wave == 1)                       
 
 
@@ -83,15 +86,15 @@ cawi_w8 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
                                      tg61011, tg61012, tg61013,
                                      tg61071, tg61072, tg61073,  
                                      tg61051, tg61052, tg61053,
-                                     tg53221) %>%                # dropout intention (ggf. alle 5 nutzen)
+                                     tg53221) %>%                # dropout intention
            dplyr::filter(wave == 8)
 
 cawi_sp1 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
-            dplyr::select(ID_t, wave, tg53232, tg53234, tg53236,  # ac int
+            dplyr::select(ID_t, wave, tg53232, tg53234, tg53236,  # aca int
                                       tg53231, tg53233, tg53235,
                                       tg53211, tg53212, tg53213,
                                       tg53111, tg53112, tg53113, 
-                                      tg53114, tg53121, tg53122,  # so int
+                                      tg53114, tg53121, tg53122,  # soc int
                                       tg53123) %>%
             dplyr::filter(wave == 2)
            
@@ -102,29 +105,26 @@ spsch <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spSchool_D_18-0-0.sav") %>%
          filter(ts11211 %in% c(1, 2)) %>%
          group_by(ID_t) %>%
          mutate(spell = row_number(), maxspell = n()) %>%
-         filter(spell == maxspell) %>%  # for each person GPA is used of the latest school episode possible -> most likely higher education entrance qualification
-         filter(ts11218 <= 4 & !is.na(ts11218)) %>%  # values above 4.0 as missings
+         filter(spell == maxspell) %>%  # for each person secondary school leaving grade is 
+                                        # used of the latest school episode possible 
+                                        # -> most likely higher education entrance qualification
+         filter(ts11218 <= 4 & !is.na(ts11218)) %>%  # values above 4.0 as missing
          select(ID_t, ts11218) 
+
+
+# Filter measures from spVocTrain:
 
 spvoc <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%   
          dplyr::select(ID_t, wave, spell, subspell, 
                        h_aktstu,        # 1st study episode WT 2010
                        tg24202_g1,      # type of intended teaching degree
                        tg24170_g5,      # subject group
-                       tg01003_ha) %>%  # Type of higher education inst         
+                       tg01003_ha) %>%  # type of higher education inst         
          dplyr::filter(wave == 1) %>%
          dplyr::filter(h_aktstu == 1) %>%
          dplyr::group_by(ID_t) %>% dplyr::slice_max(order_by = spell,
                                                     with_ties = TRUE) %>%
          dplyr::slice_tail(n = 1)  
-         
-# View(spvoc %>% dplyr::filter(ID_t == "7002071"))
-#
-# filt <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%                     
-#        dplyr::select(ID_t, wave, h_aktstu, spell) %>%  
-#        dplyr::filter(wave == 1)
-#
-# View(filt %>% dplyr::filter(ID_t == "7002071"))
 
 spvoc_help <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>% # falsch, Stichwort wave = 3
               dplyr::select(ID_t, wave, spell, subspell,
@@ -158,7 +158,7 @@ spvoc_help <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %
 # und: https://forum.lifbi.de/t/sc5-studienabbruch/3956
 
 
-ststa_tmp <- haven::read_dta("Data_SC5_D_18-0-0/SC5_StudyStates_D_18-0-0.dta") %>% # look out: stata file, keeps user defined NAs (did not work with read_sps (should have worked though))
+ststa_tmp <- haven::read_dta("Data_SC5_D_18-0-0/SC5_StudyStates_D_18-0-0.dta") %>% 
              dplyr::select(ID_t, wave, tx24001,      # interview order
                                        tx24100,      # Status of studies (completed,ongoing)
                                        tx15318,      # Successful completion
@@ -236,9 +236,11 @@ ststa <- ststa %>%
 # bei anderen Autoren: 8 % observed (ganzes sample (imputiert))
 # vielleicht passt es aber schon (Anzunehmen wären ca. 15%)
 
+
 # Filter measures from Basics:
-basic <- haven::read_sav("Data_SC5_D_18-0-0/SC5_Basics_D_18-0-0.sav") %>%       # Fehler: Latest "age", nicht wave 1
-         dplyr::select(ID_t, tx29000)  # age
+basic <- haven::read_sav("Data_SC5_D_18-0-0/SC5_Basics_D_18-0-0.sav") %>%       
+         dplyr::select(ID_t, t70000m,  # month of birth 
+                             t70000y)  # year of birth 
 
 
 ####  -------------------------- (3) Merge Data -------------------------- ####
@@ -349,15 +351,17 @@ data2 <- data %>%
                                     is.na(t731403_g14)) ~ as.numeric(NA),
                                   TRUE ~ as.numeric(hisei))) 
 
-# academic aptitude: GPA
+# academic aptitude: secondary school leaving grade, age, gender
 data3 <- data2 %>% 
   dplyr::mutate(aca_abi = (5 - ts11218),              # inverse grade
                 gender = ifelse(t700001 == 1, 1, 0),  # gender
                 # 1 = male
                 # 0 = female
-                age =  tx29000)  # age
+                age_month =  (tx8600y - t70000y) * 12 + (tx8600m - t70000m),
+                age  = round(age_month / 12, 2))
 
-# personality (big 5, motivation for choosing teacher education (femola))
+
+## personality (big 5, motivation for choosing teacher education (femola))
 
 # Big 5
 # recode inverse items big 5:
