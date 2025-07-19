@@ -35,7 +35,7 @@ library(psych)          # for scale construction
 
 #### ----------------- (2) Read Data and Data Management ----------------- ####
 
-# Cohort Profile as a starting point
+# cohort profile as a starting point
 
 cohort <- haven::read_sav("Data_SC5_D_18-0-0/SC5_CohortProfile_D_18-0-0.sav") %>%
           dplyr::select(ID_t, wave, cohort,
@@ -47,7 +47,7 @@ cohort <- haven::read_sav("Data_SC5_D_18-0-0/SC5_CohortProfile_D_18-0-0.sav") %>
           dplyr::filter(wave == 1)                       
 
 
-# Filter measures from CATI:
+# filter measures from CATI:
 
 cati_w1 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCATI_D_18-0-0.sav") %>%
            dplyr::select(ID_t, wave, tg02001_ha,  # intended degree
@@ -76,7 +76,7 @@ cati_b5_w10 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCATI_D_18-0-0.sav")
                dplyr::filter(wave == 10)
 
 
-# Filter measures from CAWI:
+# filter measures from CAWI:
 
 cawi_w8 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
            dplyr::select(ID_t, wave, tg61031, tg61032, tg61033,  # int mo
@@ -99,12 +99,12 @@ cawi_sp1 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>
             dplyr::filter(wave == 2)
            
               
-# Filter measures from spSchool:
+# filter measures from spSchool:
 
 spsch <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spSchool_D_18-0-0.sav") %>%
          filter(ts11211 %in% c(1, 2)) %>%
          group_by(ID_t) %>%
-         mutate(spell = row_number(), maxspell = n()) %>%
+         mutate(spell == row_number(), maxspell = n()) %>%
          filter(spell == maxspell) %>%  # for each person secondary school leaving grade is 
                                         # used of the latest school episode possible 
                                         # -> most likely higher education entrance qualification
@@ -112,7 +112,7 @@ spsch <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spSchool_D_18-0-0.sav") %>%
          select(ID_t, ts11218) 
 
 
-# Filter measures from spVocTrain:
+# filter measures from spVocTrain:
 
 spvoc <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%   
          dplyr::select(ID_t, wave, spell, subspell, 
@@ -126,22 +126,22 @@ spvoc <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>%
                                                     with_ties = TRUE) %>%
          dplyr::slice_tail(n = 1)  
 
-spvoc_help <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %>% # falsch, Stichwort wave = 3
-              dplyr::select(ID_t, wave, spell, subspell,
-                            tg24201) %>% # Did you study with the objective of becoming a teacher?
-              dplyr::filter(wave == 3) %>% 
-              dplyr::filter(subspell == 0) %>%  # keep full / harmonized episodes
-              dplyr::group_by(ID_t) %>%
-              dplyr::slice_max(order_by = spell, with_ties = T) %>%
-              dplyr::slice_tail(n = 1) # keep highest spell                     # 2 = no
 
-# define people who are not enrolled in a teacher education program prior to the 
+# filter measures from StudyState:
+
+ststa_help <- haven::read_dta("Data_SC5_D_18-0-0/SC5_StudyStates_D_18-0-0.dta") %>% 
+              dplyr::select(ID_t, wave,
+                            tx15322) %>%   # intended vocational qualification
+              dplyr::filter(wave == 2) %>%
+              dplyr::mutate(still_teaedu = ifelse(tx15322 %in% c(12, 14, 17), 1, 0)) %>%  # 1 = still teacher education
+              select(ID_t, still_teaedu) # 1 = still teacher education
+
+# purpose: define people who are not enrolled in a teacher education program at 
 # measurement of integration and may therefore have changed their intended degree
-# they will be assigned NA on integration. As this was not part of wave 2, the 
-# the information is taken form wave 3
+# they will be assigned NA on integration (see bewlow).
 
 
-# Filter measures from StudyStates = definition of dropout:                     
+# filter measures from StudyStates = definition of dropout:                     
 
 # 0 = graduate = successfully completed at least one study episode; 
 #     BA, MA, state examination (in teacher education)
@@ -154,8 +154,8 @@ spvoc_help <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spVocTrain_D_18-0-0.sav") %
 # 2 = studying = study episode confirmed to be ongoing in wave 15 and 
 #     participation in wave 15 and none successfully completed before
 #
-# Quelle: https://forum.lifbi.de/t/sc5-studienabbruch-syntax-vorschlag/3963
-# und: https://forum.lifbi.de/t/sc5-studienabbruch/3956
+# Source: https://forum.lifbi.de/t/sc5-studienabbruch-syntax-vorschlag/3963
+# and: https://forum.lifbi.de/t/sc5-studienabbruch/3956
 
 
 ststa_tmp <- haven::read_dta("Data_SC5_D_18-0-0/SC5_StudyStates_D_18-0-0.dta") %>% 
@@ -237,7 +237,7 @@ ststa <- ststa %>%
 # vielleicht passt es aber schon (Anzunehmen wären ca. 15%)
 
 
-# Filter measures from Basics:
+# filter measures from Basics:
 basic <- haven::read_sav("Data_SC5_D_18-0-0/SC5_Basics_D_18-0-0.sav") %>%       
          dplyr::select(ID_t, t70000m,  # month of birth 
                              t70000y)  # year of birth 
@@ -245,19 +245,14 @@ basic <- haven::read_sav("Data_SC5_D_18-0-0/SC5_Basics_D_18-0-0.sav") %>%
 
 ####  -------------------------- (3) Merge Data -------------------------- ####
 
-# 1. CohortProfile + pTargetCATI (1:1)
-# 2. + pTargetCAWI (1:1)
-# 3. + spSchool (1:m)     
-# 4. + spVocTrain (1:m)
-#
 # every data set is prepared 1 line per person, so that 1:1 merging works and
 # results in wide data as required 
 #
-# To combine multiple tables in rquery one uses the natural_join operator:
+# to combine multiple tables in rquery one uses the natural_join operator:
 # In the rquery natural_join, rows are matched by column keys and any two 
 # columns with the same name are coalesced (meaning the first table with a 
 # non-missing values supplies the answer) jointype = 'LEFT' is used to augment 
-# the left table with additional values from the right (as ordered)
+# the left table with additional values from the right (as ordered).
 
 data <- rquery::natural_join(cohort, cati_w1,
                              by = "ID_t",
@@ -294,7 +289,7 @@ data <- rquery::natural_join(data, spvoc,
                              by = "ID_t",
                              jointype = "LEFT")
 
-data <- rquery::natural_join(data, spvoc_help,
+data <- rquery::natural_join(data, ststa_help,
                              by = "ID_t",
                              jointype = "LEFT") 
 
@@ -340,7 +335,7 @@ data2 <- data %>%
   dplyr::mutate(par_edu = case_when((t731301_g1 < 9 & t731351_g1 < 9) ~ 1,
                                     (t731301_g1 >= 9 & t731351_g1 >= 9) ~ 3,
                                     (t731301_g1 >= 9 & t731351_g1 < 9 | 
-                                       t731301_g1 < 9 & t731351_g1 >= 9) ~ 2,
+                                     t731301_g1 < 9 & t731351_g1 >= 9) ~ 2,
                                     TRUE ~ as.numeric(NA))) %>%
                                     # 1 = no parent tertiary education, 2 = one 
                                     # parent, 3 = both parents
@@ -348,10 +343,10 @@ data2 <- data %>%
   dplyr::mutate(hisei = max(t731453_g14, t731403_g14)) %>%  # ISCO-08
   dplyr::ungroup() %>%
   dplyr::mutate(hisei = case_when((is.na(t731453_g14) |
-                                    is.na(t731403_g14)) ~ as.numeric(NA),
+                                   is.na(t731403_g14)) ~ as.numeric(NA),
                                   TRUE ~ as.numeric(hisei))) 
 
-# academic aptitude: secondary school leaving grade, age, gender
+# academic aptitude: secondary school leaving grade (+ age, gender)
 data3 <- data2 %>% 
   dplyr::mutate(aca_abi = (5 - ts11218),              # inverse grade
                 gender = ifelse(t700001 == 1, 1, 0),  # gender
@@ -363,7 +358,7 @@ data3 <- data2 %>%
 
 ## personality (big 5, motivation for choosing teacher education (femola))
 
-# Big 5
+# big 5
 # recode inverse items big 5:
 data3$t66800a <- 6 - data3$t66800a
 data3$t66800g <- 6 - data3$t66800g
@@ -420,7 +415,7 @@ data4 <- data3 %>%
                                                             tg61052, tg61053)),
                                    na.rm = TRUE))
 
-# Evaluate factor structure
+# evaluate factor structure
 
 # motivation fpr choosing teacher education (intrinsic, extrinsic)
 # specify the model
@@ -528,12 +523,10 @@ data5 <- data4 %>%
                                                             tg53113, tg53114, 
                                                             tg53121, tg53122,
                                                             tg53123)),
-                                   na.rm = TRUE)) 
-# %>% 
-#  dplyr::mutate(aca_int = if_else(tg24201 == 2, as.numeric(NA), aca_int),
-#                soc_int = if_else(tg24201 == 2, as.numeric(NA), soc_int))  
-# NA if not enrolled in a teacher education program
-# tg24201 ist die falsche Variable: Ziel Lehrering
+                                   na.rm = TRUE)) %>% 
+  dplyr::mutate(aca_int = if_else(still_teaedu != 1, as.numeric(NA), aca_int),
+                soc_int = if_else(still_teaedu != 1, as.numeric(NA), soc_int))  
+# NA if not enrolled in a teacher education program at wave 2
 
 
 ## decision
@@ -544,10 +537,12 @@ data5 <- data4 %>%
 data6 <- data5 %>%
   dplyr::mutate(dro_int = tg53221)
 
-
-#### ----------------------------- (5) Output ----------------------------- ####
 data6 <- data6 %>% 
   dplyr::mutate(across(everything(), ~ ifelse(is.nan(.x), NA, .x)))
+# replace NaN with NA
+
+
+#### ----------------------------- (5) Output ----------------------------- ####
 
 data7 <- data6 %>%
   dplyr::mutate(dro_out = as.numeric(dro_out)) %>%
@@ -556,10 +551,11 @@ data7 <- data6 %>%
                 int_ssi, ext_ext, ext_uti, aca_abi, par_edu, hisei, aca_int, 
                 soc_int, age, gender, dro_out)
 
-vars_to_scale <- c("big_ext", "big_agr", "big_con", "big_neu", "big_ope",
-                   "int_edi", "int_ssi", "ext_ext", "ext_uti", "aca_abi", "hisei", "age")
-
-data7[vars_to_scale] <- scale(data6[vars_to_scale])
+data7 <- data6 %>%
+  dplyr::mutate(dro_out = as.numeric(dro_out)) %>%
+  dplyr::mutate(gender = as.numeric(gender)) %>%
+  dplyr::select(ID_t, big_ext, big_agr, big_con, big_neu, big_ope, fem_edi, fem_ssi, fem_abe, fem_tff, fem_fis, fem_lod, fem_soi, aca_abi, par_edu, hisei, aca_int, 
+                soc_int, age, gender, dro_out)
 
 write.table(data7,
             file = "Data_Gen/data_lca_doomedtofail.csv",
