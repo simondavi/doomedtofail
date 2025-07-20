@@ -89,6 +89,43 @@ cawi_w8 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
                                      tg53221) %>%                # dropout intention
            dplyr::filter(wave == 8)
 
+cawi_w8_wtg <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>% # retrospective data from those
+               dplyr::select(ID_t, wave, tg61131, tg61132, tg61133,                  # who already have a teaching degree
+                                         tg61161, tg61162, tg61163,
+                                         tg61141, tg61142, tg61143,  
+                                         tg61121, tg61122, tg61123,
+                                         tg61111, tg61112, tg61113,
+                                         tg61171, tg61172, tg61173,  
+                                         tg61151, tg61152, tg61153) %>%
+               dplyr::filter(wave == 8) %>%
+               dplyr::rename(tg61031 = tg61131,
+                             tg61032 = tg61132,
+                             tg61033 = tg61133,
+                             
+                             tg61061 = tg61161,
+                             tg61062 = tg61162,
+                             tg61063 = tg61163,
+                             
+                             tg61041 = tg61141,
+                             tg61042 = tg61142,
+                             tg61043 = tg61143,
+                             
+                             tg61021 = tg61121,
+                             tg61022 = tg61122,
+                             tg61023 = tg61123,
+                             
+                             tg61011 = tg61111,
+                             tg61012 = tg61112,
+                             tg61013 = tg61113,
+                             
+                             tg61071 = tg61171,
+                             tg61072 = tg61172,
+                             tg61073 = tg61173,
+                             
+                             tg61051 = tg61151,
+                             tg61052 = tg61152,
+                             tg61053 = tg61153)
+
 cawi_sp1 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
             dplyr::select(ID_t, wave, tg53232, tg53234, tg53236,  # aca int
                                       tg53231, tg53233, tg53235,
@@ -104,7 +141,7 @@ cawi_sp1 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>
 spsch <- haven::read_sav("Data_SC5_D_18-0-0/SC5_spSchool_D_18-0-0.sav") %>%
          filter(ts11211 %in% c(1, 2)) %>%
          group_by(ID_t) %>%
-         mutate(spell == row_number(), maxspell = n()) %>%
+         mutate(spell = row_number(), maxspell = n()) %>%
          filter(spell == maxspell) %>%  # for each person secondary school leaving grade is 
                                         # used of the latest school episode possible 
                                         # -> most likely higher education entrance qualification
@@ -277,6 +314,10 @@ data <- rquery::natural_join(data, cawi_w8,
                              by = "ID_t",
                              jointype = "LEFT") 
 
+data <- rquery::natural_join(data, cawi_w8_wtg, # supply femola
+                             by = "ID_t",       # with answers from students
+                             jointype = "LEFT") # with a teaching degree
+
 data <- rquery::natural_join(data, cawi_sp1,
                              by = "ID_t",
                              jointype = "LEFT") 
@@ -333,12 +374,10 @@ data <- rquery::natural_join(data, basic,
 # students background: Parental education (par_edu), SES (hisei)
 data2 <- data %>%
   dplyr::mutate(par_edu = case_when((t731301_g1 < 9 & t731351_g1 < 9) ~ 1,
-                                    (t731301_g1 >= 9 & t731351_g1 >= 9) ~ 3,
-                                    (t731301_g1 >= 9 & t731351_g1 < 9 | 
-                                     t731301_g1 < 9 & t731351_g1 >= 9) ~ 2,
+                                    (t731301_g1 >= 9 | t731351_g1 >= 9) ~ 0,
                                     TRUE ~ as.numeric(NA))) %>%
                                     # 1 = no parent tertiary education, 2 = one 
-                                    # parent, 3 = both parents
+                                    # or both parent
   dplyr::group_by(ID_t) %>% 
   dplyr::mutate(hisei = max(t731453_g14, t731403_g14)) %>%  # ISCO-08
   dplyr::ungroup() %>%
@@ -377,53 +416,20 @@ data4 <- data3 %>%
                 big_neu = rowMeans(subset(data3, select = c(t66800d, t66800i)),
                                    na.rm = TRUE),
                 big_ope = rowMeans(subset(data3, select = c(t66800e, t66800j)),
-                                   na.rm = TRUE),
-                fem_edi = rowMeans(subset(data3, select = c(tg61031, tg61032,
-                                                            tg61033)),
-                                   na.rm = TRUE),
-                fem_ssi = rowMeans(subset(data3, select = c(tg61061, tg61062, 
-                                                            tg61063)), 
-                                   na.rm = TRUE),
-                fem_abe = rowMeans(subset(data3, select = c(tg61041, tg61042,
-                                                            tg61043)), 
-                                   na.rm = TRUE),
-                fem_tff = rowMeans(subset(data3, select = c(tg61021, tg61022,
-                                                            tg61023)), 
-                                   na.rm = TRUE),
-                fem_fis = rowMeans(subset(data3, select = c(tg61011, tg61012,
-                                                            tg61013)), 
-                                   na.rm = TRUE),
-                fem_lod = rowMeans(subset(data3, select = c(tg61071, tg61072, 
-                                                            tg61073)), 
-                                   na.rm = TRUE),
-                fem_soi = rowMeans(subset(data3, select = c(tg61051, tg61052, 
-                                                            tg61053)),
-                                   na.rm = TRUE),
-                
-                fem_inm = rowMeans(subset(data3, select = c(tg61031, tg61032, 
-                                                            tg61033, tg61061, 
-                                                            tg61062, tg61063,
-                                                            tg61041, tg61042, 
-                                                            tg61043)),
-                                   na.rm = TRUE),
-                                                
-                fem_exm = rowMeans(subset(data3, select = c(tg61021, tg61022, 
-                                                            tg61023, tg61011, 
-                                                            tg61012, tg61013,
-                                                            tg61071, tg61072, 
-                                                            tg61073, tg61051, 
-                                                            tg61052, tg61053)),
                                    na.rm = TRUE))
 
+# femola
 # evaluate factor structure
 
 # motivation fpr choosing teacher education (intrinsic, extrinsic)
 # specify the model
-cfa_model_femola <- ' int =~ tg61031 + tg61032 + tg61033 + tg61061 + tg61062 + 
-                             tg61063 + tg61041 + tg61042 + tg61043
-                      ext =~ tg61021 + tg61022 + tg61023 + tg61011 + tg61012 + 
-                             tg61013 + tg61071 + tg61072 + tg61073 + tg61051 + 
-                             tg61052 + tg61053 '
+cfa_model_femola <- ' f_int_edi =~ tg61031 + tg61032 + tg61033
+                      f_int_ssi =~ tg61061 + tg61062 + tg61063
+                      f_int_abi =~ tg61041 + tg61042 + tg61043
+                      f_ext_uti =~ tg61021 + tg61022 + tg61023 + 
+                                   tg61011 + tg61012 + tg61013
+                      f_ext_lod =~ tg61071 + tg61072 + tg61073 
+                      f_ext_soi =~ tg61051 + tg61052 + tg61053 '
 
 # fit the model
 fit_cfa_femola <- lavaan::cfa(cfa_model_femola, data = data4)
@@ -438,70 +444,47 @@ fit_mea_femola <- lavaan::fitMeasures(fit_cfa_femola, c("chisq", "df", "pvalue",
 inspect_fit_cfa_femola <- lavaan::inspect(fit_cfa_femola, what = "std")
 inspect_fit_cfa_femola$lambda
 
-# respecify the model
-# int1: educational interest
-# int2: subject specif interest
-# ext1: low difficulty, social influences
-# ext2: uti = utility: time for family/leisure, financial security
-
-cfa_model_femola_2 <- ' int_edi =~ tg61031 + tg61032 + tg61033
-                        int_ssi =~ tg61061 + tg61062 + tg61063
-                        ext_ext =~ tg61071 + tg61072 + tg61073 + tg61051 + 
-                                   tg61052 + tg61053
-                        ext_uti =~ tg61021 + tg61022 + tg61023 + tg61011 + 
-                                   tg61012 + tg61013'
+# delete the lowest loading item in the scale with the most items (tg61021)
+# specify the model
+cfa_model_femola2 <- ' f_int_edi =~ tg61031 + tg61032 + tg61033
+                       f_int_ssi =~ tg61061 + tg61062 + tg61063
+                       f_int_abi =~ tg61041 + tg61042 + tg61043
+                       f_ext_uti =~ tg61022 + tg61023 + 
+                                    tg61011 + tg61012 + tg61013
+                       f_ext_lod =~ tg61071 + tg61072 + tg61073 
+                       f_ext_soi =~ tg61051 + tg61052 + tg61053 '
 
 # fit the model
-fit_cfa_femola_2 <- lavaan::cfa(cfa_model_femola_2, data = data4)
+fit_cfa_femola2 <- lavaan::cfa(cfa_model_femola2, data = data4)
 
 # evaluate the model
-summary(fit_cfa_femola_2, standardized = TRUE)
+summary(fit_cfa_femola2, standardized = TRUE)
 
 # evaluate the model fit
-fit_mea_femola_2 <- lavaan::fitMeasures(fit_cfa_femola_2, c("chisq", "df", "pvalue", "cfi", "srmr", "rmsea"))
+fit_mea_femola2 <- lavaan::fitMeasures(fit_cfa_femola2, c("chisq", "df", "pvalue", "cfi", "srmr", "rmsea"))
 
-# evaluate factor loadings
-inspect_fit_cfa_femola_2 <- lavaan::inspect(fit_cfa_femola_2, what = "std")
-inspect_fit_cfa_femola_2$lambda
-
-# evaluate modification indices
-lavaan::modindices(fit_cfa_femola_2, sort = TRUE, minimum.value = 8)
-
-# discard lowest loadings (below .5)
-
-cfa_model_femola_3 <- ' int_edi =~ tg61031 + tg61032 + tg61033
-                        int_ssi =~ tg61061 + tg61062 + tg61063
-                        ext_ext =~ tg61071 + tg61072 + tg61073 + 
-                                   tg61052 + tg61053
-                        ext_uti =~ tg61022 + tg61023 + tg61011 + 
-                                   tg61012 + tg61013'
-
-# fit the model
-fit_cfa_femola_3 <- lavaan::cfa(cfa_model_femola_3, data = data4)
-
-# evaluate the model
-summary(fit_cfa_femola_3, standardized = TRUE)
-
-# evaluate the model fit
-fit_mea_femola_3 <- lavaan::fitMeasures(fit_cfa_femola_3, c("chisq", "df", "pvalue", "cfi", "srmr", "rmsea"))
-
-# add scales to dataset
+# add scales to data set
 
 data4 <- data4 %>% 
-  dplyr::mutate(int_edi = rowMeans(subset(data4, select = c(tg61031, tg61032,
+  dplyr::mutate(int_edi = rowMeans(subset(data4, select = c(tg61031, tg61032,   # educational interest
                                                             tg61033)),
                                    na.rm = TRUE),
-                int_ssi = rowMeans(subset(data4, select = c(tg61061, tg61062,
+                int_ssi = rowMeans(subset(data4, select = c(tg61061, tg61062,   # subject specific interest
                                                             tg61063)),
                                    na.rm = TRUE),
-                ext_ext = rowMeans(subset(data4, select = c(tg61071, tg61072,
-                                                            tg61073, tg61052,
-                                                            tg61053)),
+                int_abi = rowMeans(subset(data4, select = c(tg61041, tg61042,   # ability beliefs
+                                                            tg61043)),
                                    na.rm = TRUE),
                 
-                ext_uti = rowMeans(subset(data4, select = c(tg61022, tg61023,
+                ext_uti = rowMeans(subset(data4, select = c(tg61022, tg61023,   # utility (time for family/ leisure, financial security)
                                                             tg61011, tg61012,
                                                             tg61013)),
+                                   na.rm = TRUE),
+                ext_lod = rowMeans(subset(data4, select = c(tg61071, tg61072,   # low-difficulty degree programme
+                                                            tg61073)),
+                                   na.rm = TRUE),
+                ext_soi = rowMeans(subset(data4, select = c(tg61051, tg61052,   # social influences
+                                                            tg61053)),
                                    na.rm = TRUE))
 
 
@@ -546,17 +529,13 @@ data6 <- data6 %>%
 
 data7 <- data6 %>%
   dplyr::mutate(dro_out = as.numeric(dro_out)) %>%
-  dplyr::mutate(gender = as.numeric(gender)) %>%
-  dplyr::select(ID_t, big_ext, big_agr, big_con, big_neu, big_ope, int_edi, 
-                int_ssi, ext_ext, ext_uti, aca_abi, par_edu, hisei, aca_int, 
-                soc_int, age, gender, dro_out)
+  dplyr::select(ID_t, big_ope, big_con, big_ext, big_agr, big_neu,
+                int_edi, int_ssi, int_abi, ext_uti, ext_lod, ext_soi,
+                par_edu, hisei, 
+                aca_int, soc_int, 
+                age, gender, dro_out)
 
-data7 <- data6 %>%
-  dplyr::mutate(dro_out = as.numeric(dro_out)) %>%
-  dplyr::mutate(gender = as.numeric(gender)) %>%
-  dplyr::select(ID_t, big_ext, big_agr, big_con, big_neu, big_ope, fem_edi, fem_ssi, fem_abe, fem_tff, fem_fis, fem_lod, fem_soi, aca_abi, par_edu, hisei, aca_int, 
-                soc_int, age, gender, dro_out)
-
+# for MPlus import
 write.table(data7,
             file = "Data_Gen/data_lca_doomedtofail.csv",
             sep = " ",
