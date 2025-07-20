@@ -374,10 +374,12 @@ data <- rquery::natural_join(data, basic,
 # students background: Parental education (par_edu), SES (hisei)
 data2 <- data %>%
   dplyr::mutate(par_edu = case_when((t731301_g1 < 9 & t731351_g1 < 9) ~ 1,
-                                    (t731301_g1 >= 9 | t731351_g1 >= 9) ~ 0,
+                                    (t731301_g1 >= 9 & t731351_g1 >= 9) ~ 3,
+                                    (t731301_g1 >= 9 & t731351_g1 < 9 | 
+                                     t731301_g1 < 9 & t731351_g1 >= 9) ~ 2,
                                     TRUE ~ as.numeric(NA))) %>%
                                     # 1 = no parent tertiary education, 2 = one 
-                                    # or both parent
+                                    # parent, 3 = both parents
   dplyr::group_by(ID_t) %>% 
   dplyr::mutate(hisei = max(t731453_g14, t731403_g14)) %>%  # ISCO-08
   dplyr::ungroup() %>%
@@ -531,7 +533,7 @@ data7 <- data6 %>%
   dplyr::mutate(dro_out = as.numeric(dro_out)) %>%
   dplyr::select(ID_t, big_ope, big_con, big_ext, big_agr, big_neu,
                 int_edi, int_ssi, int_abi, ext_uti, ext_lod, ext_soi,
-                par_edu, hisei, 
+                aca_abi, par_edu, hisei, 
                 aca_int, soc_int, 
                 age, gender, dro_out)
 
@@ -543,3 +545,6 @@ write.table(data7,
             col.names = FALSE,
             quote = FALSE,
             na = "-99")
+
+# save data set
+save(data7,file = "Data_Gen/data_doomedtofail.Rda")

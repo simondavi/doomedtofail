@@ -1,4 +1,4 @@
-Title: 1_class
+Title: 6_class
 
 data: 
   file is "S:\Temp\MPlus\data_lca_doomedtofail.csv";
@@ -17,7 +17,7 @@ variable:
                  par_edu hisei;
   auxiliary = aca_int soc_int age gender dro_out;
     
-  classes = C (1);
+  classes = C (6);
   categorical = par_edu;
 
 define:
@@ -45,6 +45,76 @@ model:
   [ext_lod*]; 
   [ext_soi*];
   [hisei*];
+  
+  %c#2%
+  [big_ope*];
+  [big_con*]; 
+  [big_ext*]; 
+  [big_agr*]; 
+  [big_neu*]; 
+  [int_edi*]; 
+  [int_ssi*]; 
+  [int_abi*]; 
+  [ext_uti*];
+  [ext_lod*]; 
+  [ext_soi*];
+  [hisei*];
+  
+  %c#3%
+  [big_ope*];
+  [big_con*]; 
+  [big_ext*]; 
+  [big_agr*]; 
+  [big_neu*]; 
+  [int_edi*]; 
+  [int_ssi*]; 
+  [int_abi*]; 
+  [ext_uti*];
+  [ext_lod*]; 
+  [ext_soi*];
+  [hisei*];
+  
+  %c#4%
+  [big_ope*];
+  [big_con*]; 
+  [big_ext*]; 
+  [big_agr*]; 
+  [big_neu*]; 
+  [int_edi*]; 
+  [int_ssi*]; 
+  [int_abi*]; 
+  [ext_uti*];
+  [ext_lod*]; 
+  [ext_soi*];
+  [hisei*];
+  
+  %c#5%
+  [big_ope*];
+  [big_con*]; 
+  [big_ext*]; 
+  [big_agr*]; 
+  [big_neu*]; 
+  [int_edi*]; 
+  [int_ssi*]; 
+  [int_abi*]; 
+  [ext_uti*];
+  [ext_lod*]; 
+  [ext_soi*];
+  [hisei*];
+
+  %c#6%
+  [big_ope*];
+  [big_con*]; 
+  [big_ext*]; 
+  [big_agr*]; 
+  [big_neu*]; 
+  [int_edi*]; 
+  [int_ssi*]; 
+  [int_abi*]; 
+  [ext_uti*];
+  [ext_lod*]; 
+  [ext_soi*];
+  [hisei*];
 
 output:
   residual;
@@ -55,4 +125,4 @@ output:
 savedata:
   save =  bchweights;
   missflag = 9999;
-  file = lca_bch_1class.dat;
+  file = lca_bch_6class.dat;

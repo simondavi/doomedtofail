@@ -1,13 +1,14 @@
 # mplus import
 
 nprofiles <- 3
-bchweights <- read.table(paste0("data-gen/lcaresults/lca_bch_3class.dat"), na.strings = "9999.000", sep = "", header = FALSE,
-                         col.names = c( "big_ext", "big_agr", "big_con", "big_neu", "big_ope",
-                                        "int_edi", "int_ssi", "ext_ext", "ext_uti", "aca_abi",
-                                        "par_edu", "hisei", "aca_int", "soc_int", "age", "gender",
-                                        "dro_out",
-                                       paste0("BCHW", 1:nprofiles),
-                                       "ID_t"))
+bchweights <- read.table(paste0("Data_Gen/LCA_Results/lca_bch_3class.dat"), na.strings = "9999.000", sep = "", header = FALSE,
+                         col.names = c("big_ope", "big_con", "big_ext", "big_agr", "big_neu",
+                                        "int_edi", "int_ssi",  "ext_lds", "ext_uti",
+                                        "aca_abi", "par_edu", "hisei",
+                                        "aca_int", "soc_int",
+                                        "age", "gender", "dro_out",
+                                      paste0("BCHW", 1:nprofiles),
+                                      "ID_t"))
 
 getMostLikelyMembership <- function (df) {
   apply(df,1,function(r) {
@@ -18,6 +19,7 @@ getMostLikelyMembership <- function (df) {
   })
 }
 
+bchweights$class <- getMostLikelyMembership(bchweights[,paste0("BCHW", 1:nprofiles)])
 
 #####
 
@@ -26,7 +28,9 @@ library(tidyr)
 library(ggplot2)
 
 # Define continuous variables (replace with your exact variable names)
-cont_vars <- c("big_ext", "big_con", "big_neu", "int_edi", "int_ssi", "ext_uti", "aca_abi", "hisei")
+cont_vars <- c("big_ope", "big_con", "big_ext", "big_agr", "big_neu",
+               "int_edi", "int_ssi",  "ext_lds", "ext_uti",
+               "aca_abi", "par_edu", "hisei")
 
 # Convert continuous vars to numeric (suppress warnings here)
 bchweights <- bchweights %>%
