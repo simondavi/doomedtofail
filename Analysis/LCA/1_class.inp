@@ -6,7 +6,7 @@ data:
 variable: 
   names = ID_t big_ope big_con big_ext big_agr big_neu
           int_edi int_ssi int_abi ext_uti ext_lod ext_soi
-          par_edu hisei 
+          aca_abi par_edu hisei 
           aca_int soc_int 
           age gender dro_out;
   missing = all(-99);
@@ -14,7 +14,7 @@ variable:
     
   usevariables = big_ope big_con big_ext big_agr big_neu
                  int_edi int_ssi int_abi ext_uti ext_lod ext_soi
-                 par_edu hisei;
+                 aca_abi par_edu hisei;
   auxiliary = aca_int soc_int age gender dro_out;
     
   classes = C (1);
@@ -23,7 +23,7 @@ variable:
 define:
   standardize big_ope big_con big_ext big_agr big_neu
               int_edi int_ssi int_abi ext_uti ext_lod ext_soi
-              hisei;
+              aca_abi hisei;
   
 analysis: 
   type = mixture;
@@ -44,6 +44,7 @@ model:
   [ext_uti*];
   [ext_lod*]; 
   [ext_soi*];
+  [aca_abi*];
   [hisei*];
 
 output:
