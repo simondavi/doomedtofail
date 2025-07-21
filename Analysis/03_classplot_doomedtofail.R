@@ -143,7 +143,7 @@ plot_both <- ggplot(df_plot_both, aes(x = measure, y = value,
                                        "Utility",
                                        "Low Difficulty",
                                        "Social Influences",
-                                       "School Leaving Grade",
+                                       "School Leaving Grade*",
                                        "HISEI",
                                        "Parental Education")) +
   
