@@ -523,10 +523,8 @@ data5 <- data4 %>%
 
 #dropout intention
 data6 <- data5 %>%
-  dplyr::mutate(dro_int = tg53221) %>%
-  dplyr::mutate(as.numeric(dro_int))
+  dplyr::mutate(dro_int = tg53221) 
   
-
 data6 <- data6 %>% 
   dplyr::mutate(across(everything(), ~ ifelse(is.nan(.x), NA, .x)))
 # replace NaN with NA
@@ -535,6 +533,7 @@ data6 <- data6 %>%
 #### ----------------------------- (5) Output ----------------------------- ####
 
 data7 <- data6 %>%
+  dplyr::mutate(dro_out = as.numeric(dro_out)) %>%
   dplyr::select(ID_t, big_ope, big_con, big_ext, big_agr, big_neu,
                 int_edi, int_ssi, int_abi, ext_uti, ext_lod, ext_soi,
                 aca_abi, par_edu, hisei, 
@@ -550,5 +549,6 @@ write.table(data7,
             quote = FALSE,
             na = "-99")
 
-# save data set
-save(data7,file = "Data_Gen/data_doomedtofail.Rda")
+# save data6
+data_doomedtofail <- data6
+save(data_doomedtofail, file = "Data_Gen/data_doomedtofail.Rdata")

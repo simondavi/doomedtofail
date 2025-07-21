@@ -91,3 +91,9 @@ savedata:
   save =  bchweights;
   missflag = 9999;
   file = lca_bch_3class.dat;
+  
+!* for plotting the data
+!savedata:
+!  save =  cprob;
+!  missflag = 9999;
+!  file = lca_cprob_3class.dat;

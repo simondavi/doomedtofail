@@ -1,0 +1,1893 @@
+Mplus VERSION 8.10
+MUTHEN & MUTHEN
+07/21/2025  10:38 AM
+
+INPUT INSTRUCTIONS
+
+  Title: 6_class
+
+  data:
+    file is "S:\Temp\MPlus\data_lca_doomedtofail.csv";
+
+  variable:
+    names = ID_t
+            big_ope big_con big_ext big_agr big_neu
+            int_edi int_ssi int_abi ext_uti ext_lod ext_soi
+            aca_abi
+            par_edu hisei
+            str_aca_int nor_aca_int pee_soc_int fac_soc_int
+            age gender dro_out;
+    missing = all(-99);
+    idvariable = ID_t;
+
+    usevariables = big_ope big_con big_ext big_agr big_neu
+                   int_edi int_ssi int_abi ext_uti ext_lod ext_soi
+                   aca_abi
+                   par_edu hisei;
+    auxiliary = str_aca_int nor_aca_int pee_soc_int fac_soc_int
+                age gender dro_out;
+
+    classes = C (6);
+    categorical = par_edu;
+
+  define:
+    standardize big_ope big_con big_ext big_agr big_neu
+                int_edi int_ssi int_abi ext_uti ext_lod ext_soi
+                aca_abi hisei;
+
+  analysis:
+    type = mixture;
+    estimator = mlr;
+    starts 400 100;
+    process = 4;
+
+  model:
+    %c#1%
+    [big_ope*];
+    [big_con*];
+    [big_ext*];
+    [big_agr*];
+    [big_neu*];
+    [int_edi*];
+    [int_ssi*];
+    [int_abi*];
+    [ext_uti*];
+    [ext_lod*];
+    [ext_soi*];
+    [aca_abi*];
+    [hisei*];
+
+    %c#2%
+    [big_ope*];
+    [big_con*];
+    [big_ext*];
+    [big_agr*];
+    [big_neu*];
+    [int_edi*];
+    [int_ssi*];
+    [int_abi*];
+    [ext_uti*];
+    [ext_lod*];
+    [ext_soi*];
+    [aca_abi*];
+    [hisei*];
+
+    %c#3%
+    [big_ope*];
+    [big_con*];
+    [big_ext*];
+    [big_agr*];
+    [big_neu*];
+    [int_edi*];
+    [int_ssi*];
+    [int_abi*];
+    [ext_uti*];
+    [ext_lod*];
+    [ext_soi*];
+    [aca_abi*];
+    [hisei*];
+
+    %c#4%
+    [big_ope*];
+    [big_con*];
+    [big_ext*];
+    [big_agr*];
+    [big_neu*];
+    [int_edi*];
+    [int_ssi*];
+    [int_abi*];
+    [ext_uti*];
+    [ext_lod*];
+    [ext_soi*];
+    [aca_abi*];
+    [hisei*];
+
+    %c#5%
+    [big_ope*];
+    [big_con*];
+    [big_ext*];
+    [big_agr*];
+    [big_neu*];
+    [int_edi*];
+    [int_ssi*];
+    [int_abi*];
+    [ext_uti*];
+    [ext_lod*];
+    [ext_soi*];
+    [aca_abi*];
+    [hisei*];
+
+    %c#6%
+    [big_ope*];
+    [big_con*];
+    [big_ext*];
+    [big_agr*];
+    [big_neu*];
+    [int_edi*];
+    [int_ssi*];
+    [int_abi*];
+    [ext_uti*];
+    [ext_lod*];
+    [ext_soi*];
+    [aca_abi*];
+    [hisei*];
+
+  output:
+    residual;
+    Tech14;
+    Tech11;
+    sampstat;
+
+  savedata:
+    save =  bchweights;
+    missflag = 9999;
+    file = lca_bch_6class.dat;
+
+
+
+*** WARNING in MODEL command
+  All variables are uncorrelated with all other variables within class.
+  Check that this is what is intended.
+*** WARNING
+  Data set contains cases with missing on all variables.
+  These cases were not included in the analysis.
+  Number of cases with missing on all variables:  3
+   2 WARNING(S) FOUND IN THE INPUT INSTRUCTIONS
+
+
+
+6_class
+
+SUMMARY OF ANALYSIS
+
+Number of groups                                                 1
+Number of observations                                        5772
+
+Number of dependent variables                                   14
+Number of independent variables                                  0
+Number of continuous latent variables                            0
+Number of categorical latent variables                           1
+
+Observed dependent variables
+
+  Continuous
+   BIG_OPE     BIG_CON     BIG_EXT     BIG_AGR     BIG_NEU     INT_EDI
+   INT_SSI     INT_ABI     EXT_UTI     EXT_LOD     EXT_SOI     ACA_ABI
+   HISEI
+
+  Binary and ordered categorical (ordinal)
+   PAR_EDU
+
+Observed auxiliary variables
+   STR_ACA_IN  NOR_ACA_IN  PEE_SOC_IN  FAC_SOC_IN  AGE         GENDER
+   DRO_OUT
+
+Categorical latent variables
+   C
+
+Variables with special functions
+
+  ID variable           ID_T
+
+Estimator                                                      MLR
+Information matrix                                        OBSERVED
+Optimization Specifications for the Quasi-Newton Algorithm for
+Continuous Outcomes
+  Maximum number of iterations                                 100
+  Convergence criterion                                  0.100D-05
+Optimization Specifications for the EM Algorithm
+  Maximum number of iterations                                 500
+  Convergence criteria
+    Loglikelihood change                                 0.100D-06
+    Relative loglikelihood change                        0.100D-06
+    Derivative                                           0.100D-05
+Optimization Specifications for the M step of the EM Algorithm for
+Categorical Latent variables
+  Number of M step iterations                                    1
+  M step convergence criterion                           0.100D-05
+  Basis for M step termination                           ITERATION
+Optimization Specifications for the M step of the EM Algorithm for
+Censored, Binary or Ordered Categorical (Ordinal), Unordered
+Categorical (Nominal) and Count Outcomes
+  Number of M step iterations                                    1
+  M step convergence criterion                           0.100D-05
+  Basis for M step termination                           ITERATION
+  Maximum value for logit thresholds                            15
+  Minimum value for logit thresholds                           -15
+  Minimum expected cell size for chi-square              0.100D-01
+Maximum number of iterations for H1                           2000
+Convergence criterion for H1                             0.100D-03
+Optimization algorithm                                         EMA
+Random Starts Specifications
+  Number of initial stage random starts                        400
+  Number of final stage optimizations                          100
+  Number of initial stage iterations                            10
+  Initial stage convergence criterion                    0.100D+01
+  Random starts scale                                    0.500D+01
+  Random seed for generating random starts                       0
+Link                                                         LOGIT
+
+Input data file(s)
+  S:\Temp\MPlus\data_lca_doomedtofail.csv
+Input data format  FREE
+
+
+SUMMARY OF DATA
+
+     Number of missing data patterns            26
+     Number of y missing data patterns          16
+     Number of u missing data patterns           2
+
+
+COVARIANCE COVERAGE OF DATA
+
+Minimum covariance coverage value   0.100
+
+
+     PROPORTION OF DATA PRESENT
+
+
+           Covariance Coverage
+              PAR_EDU       BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR
+              ________      ________      ________      ________      ________
+ PAR_EDU        0.976
+ BIG_OPE        0.805         0.825
+ BIG_CON        0.805         0.825         0.825
+ BIG_EXT        0.805         0.825         0.825         0.825
+ BIG_AGR        0.805         0.825         0.825         0.825         0.825
+ BIG_NEU        0.805         0.825         0.825         0.825         0.825
+ INT_EDI        0.445         0.442         0.442         0.442         0.442
+ INT_SSI        0.445         0.442         0.442         0.442         0.442
+ INT_ABI        0.445         0.442         0.442         0.442         0.442
+ EXT_UTI        0.445         0.442         0.442         0.442         0.442
+ EXT_LOD        0.445         0.442         0.442         0.442         0.442
+ EXT_SOI        0.445         0.442         0.442         0.442         0.442
+ ACA_ABI        0.937         0.791         0.791         0.791         0.791
+ HISEI          0.597         0.500         0.500         0.500         0.500
+
+
+           Covariance Coverage
+              BIG_NEU       INT_EDI       INT_SSI       INT_ABI       EXT_UTI
+              ________      ________      ________      ________      ________
+ BIG_NEU        0.825
+ INT_EDI        0.442         0.454
+ INT_SSI        0.442         0.454         0.454
+ INT_ABI        0.442         0.454         0.454         0.454
+ EXT_UTI        0.442         0.454         0.454         0.454         0.454
+ EXT_LOD        0.442         0.454         0.454         0.454         0.454
+ EXT_SOI        0.442         0.454         0.454         0.454         0.454
+ ACA_ABI        0.791         0.441         0.441         0.441         0.441
+ HISEI          0.500         0.276         0.276         0.276         0.276
+
+
+           Covariance Coverage
+              EXT_LOD       EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________      ________
+ EXT_LOD        0.454
+ EXT_SOI        0.454         0.454
+ ACA_ABI        0.441         0.441         0.959
+ HISEI          0.276         0.276         0.581         0.602
+
+
+     PROPORTION OF DATA PRESENT FOR U
+
+
+           Covariance Coverage
+              PAR_EDU
+              ________
+ PAR_EDU        0.976
+
+
+     PROPORTION OF DATA PRESENT FOR Y
+
+
+           Covariance Coverage
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+ BIG_OPE        0.825
+ BIG_CON        0.825         0.825
+ BIG_EXT        0.825         0.825         0.825
+ BIG_AGR        0.825         0.825         0.825         0.825
+ BIG_NEU        0.825         0.825         0.825         0.825         0.825
+ INT_EDI        0.442         0.442         0.442         0.442         0.442
+ INT_SSI        0.442         0.442         0.442         0.442         0.442
+ INT_ABI        0.442         0.442         0.442         0.442         0.442
+ EXT_UTI        0.442         0.442         0.442         0.442         0.442
+ EXT_LOD        0.442         0.442         0.442         0.442         0.442
+ EXT_SOI        0.442         0.442         0.442         0.442         0.442
+ ACA_ABI        0.791         0.791         0.791         0.791         0.791
+ HISEI          0.500         0.500         0.500         0.500         0.500
+
+
+           Covariance Coverage
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+ INT_EDI        0.454
+ INT_SSI        0.454         0.454
+ INT_ABI        0.454         0.454         0.454
+ EXT_UTI        0.454         0.454         0.454         0.454
+ EXT_LOD        0.454         0.454         0.454         0.454         0.454
+ EXT_SOI        0.454         0.454         0.454         0.454         0.454
+ ACA_ABI        0.441         0.441         0.441         0.441         0.441
+ HISEI          0.276         0.276         0.276         0.276         0.276
+
+
+           Covariance Coverage
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+ EXT_SOI        0.454
+ ACA_ABI        0.441         0.959
+ HISEI          0.276         0.581         0.602
+
+
+UNIVARIATE PROPORTIONS AND COUNTS FOR CATEGORICAL VARIABLES
+
+    PAR_EDU
+      Category 1    0.583         3284.000
+      Category 2    0.260         1465.000
+      Category 3    0.157          882.000
+
+
+SAMPLE STATISTICS
+
+
+     ESTIMATED SAMPLE STATISTICS
+
+
+           Means
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+               -0.002        -0.007         0.001         0.001        -0.001
+
+
+           Means
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+                0.000        -0.020        -0.015         0.010         0.026
+
+
+           Means
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+               -0.001         0.000        -0.004
+
+
+           Covariances
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+ BIG_OPE        1.000
+ BIG_CON        0.055         1.001
+ BIG_EXT        0.100         0.060         1.000
+ BIG_AGR        0.106         0.103         0.010         1.000
+ BIG_NEU        0.009         0.084        -0.220         0.032         1.000
+ INT_EDI        0.114         0.084         0.113         0.164        -0.022
+ INT_SSI        0.098         0.072         0.033        -0.045        -0.017
+ INT_ABI        0.113         0.106         0.085         0.035        -0.086
+ EXT_UTI       -0.026        -0.043         0.034        -0.020         0.010
+ EXT_LOD       -0.081        -0.172        -0.053        -0.045         0.030
+ EXT_SOI       -0.006        -0.057         0.014        -0.004         0.051
+ ACA_ABI        0.045         0.206        -0.043        -0.024         0.043
+ HISEI          0.077        -0.028         0.047         0.020        -0.034
+
+
+           Covariances
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+ INT_EDI        1.001
+ INT_SSI        0.108         1.003
+ INT_ABI        0.295         0.290         1.002
+ EXT_UTI       -0.001         0.100         0.062         1.000
+ EXT_LOD       -0.134        -0.027        -0.093         0.246         1.004
+ EXT_SOI       -0.019         0.083         0.099         0.310         0.371
+ ACA_ABI       -0.013         0.159         0.115        -0.059        -0.176
+ HISEI          0.035        -0.003         0.002         0.029        -0.006
+
+
+           Covariances
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+ EXT_SOI        1.000
+ ACA_ABI        0.002         1.000
+ HISEI          0.098         0.105         1.000
+
+
+           Correlations
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+ BIG_OPE        1.000
+ BIG_CON        0.055         1.000
+ BIG_EXT        0.100         0.060         1.000
+ BIG_AGR        0.106         0.103         0.010         1.000
+ BIG_NEU        0.009         0.084        -0.220         0.032         1.000
+ INT_EDI        0.114         0.084         0.113         0.164        -0.022
+ INT_SSI        0.098         0.072         0.033        -0.045        -0.017
+ INT_ABI        0.113         0.106         0.085         0.035        -0.086
+ EXT_UTI       -0.026        -0.043         0.034        -0.020         0.010
+ EXT_LOD       -0.081        -0.171        -0.052        -0.045         0.030
+ EXT_SOI       -0.006        -0.057         0.014        -0.004         0.051
+ ACA_ABI        0.045         0.206        -0.043        -0.024         0.043
+ HISEI          0.077        -0.028         0.047         0.020        -0.034
+
+
+           Correlations
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+ INT_EDI        1.000
+ INT_SSI        0.108         1.000
+ INT_ABI        0.294         0.289         1.000
+ EXT_UTI       -0.001         0.100         0.062         1.000
+ EXT_LOD       -0.134        -0.027        -0.093         0.246         1.000
+ EXT_SOI       -0.019         0.083         0.098         0.310         0.371
+ ACA_ABI       -0.013         0.159         0.115        -0.059        -0.176
+ HISEI          0.035        -0.003         0.002         0.029        -0.006
+
+
+           Correlations
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+ EXT_SOI        1.000
+ ACA_ABI        0.002         1.000
+ HISEI          0.098         0.105         1.000
+
+
+     MAXIMUM LOG-LIKELIHOOD VALUE FOR THE UNRESTRICTED (H1) MODEL IS -67628.490
+
+
+UNIVARIATE SAMPLE STATISTICS
+
+
+     UNIVARIATE HIGHER-ORDER MOMENT DESCRIPTIVE STATISTICS
+
+         Variable/         Mean/     Skewness/   Minimum/ % with                Percentiles
+        Sample Size      Variance    Kurtosis    Maximum  Min/Max      20%/60%    40%/80%    Median
+
+     BIG_OPE               0.000      -0.388      -3.070    0.15%      -0.782     -0.209      0.363
+            4763.000       1.000      -0.544       1.507   11.25%       0.363      0.935
+     BIG_CON               0.000      -0.379      -3.752    0.04%      -1.125     -0.468      0.189
+            4763.000       1.000      -0.294       1.502   13.60%       0.189      0.846
+     BIG_EXT               0.000      -0.479      -3.619    0.02%      -1.097      0.164      0.164
+            4763.000       1.000      -0.319       1.425   14.61%       0.164      0.794
+     BIG_AGR               0.000      -0.322      -3.870    0.15%      -0.710     -0.078     -0.078
+            4763.000       1.000       0.267       2.450    0.92%       0.554      0.554
+     BIG_NEU               0.000       0.206      -2.171    2.71%      -0.912     -0.282     -0.282
+            4763.000       1.000      -0.108       2.866    0.82%       0.347      0.977
+     INT_EDI               0.000      -0.873      -4.105    0.34%      -0.633     -0.054     -0.054
+            2623.000       1.000       0.680       1.103   27.41%       0.524      1.103
+     INT_SSI               0.000      -0.561      -3.127    1.03%      -0.579     -0.069     -0.069
+            2623.000       1.000       0.157       1.460   12.73%       0.441      0.950
+     INT_ABI               0.000      -0.423      -4.418    0.08%      -1.117     -0.457      0.203
+            2623.000       1.000       0.058       1.524   12.66%       0.203      0.863
+     EXT_UTI               0.000      -0.456      -2.965    0.69%      -0.760     -0.130      0.185
+            2623.000       1.000      -0.050       1.760    3.96%       0.185      0.815
+     EXT_LOD               0.000       1.355      -0.801   46.59%      -0.801     -0.801     -0.189
+            2623.000       1.000       1.694       4.705    0.19%      -0.189      1.034
+     EXT_SOI               0.000       0.558      -1.284   18.91%      -0.792     -0.300     -0.300
+            2623.000       1.000      -0.231       3.144    0.65%       0.192      0.684
+     ACA_ABI               0.000      -0.044      -2.789    0.02%      -0.878     -0.357     -0.010
+            5533.000       1.000      -0.595       2.248    0.96%       0.338      0.859
+     HISEI                 0.000      -0.119      -1.925    0.23%      -1.156     -0.271      0.054
+            3472.000       1.000      -1.343       1.613    0.17%       0.425      1.049
+
+RANDOM STARTS RESULTS RANKED FROM THE BEST TO THE WORST LOGLIKELIHOOD VALUES
+
+Final stage loglikelihood values at local maxima, seeds, and initial stage start numbers:
+
+          -72065.530  761633           50
+          -72065.530  66276            217
+          -72065.530  136842           58
+          -72065.530  696773           80
+          -72065.530  496710           386
+          -72065.530  765392           382
+          -72065.530  846194           93
+          -72065.530  73576            213
+          -72065.530  23012            352
+          -72065.530  297518           166
+          -72065.530  804660           260
+          -72065.530  507154           387
+          -72065.530  259507           53
+          -72065.530  170118           238
+          -72065.530  107446           12
+          -72065.530  985387           381
+          -72065.530  635245           121
+          -72065.530  195763           358
+          -72065.530  366706           29
+          -72065.530  576596           99
+          -72125.992  783110           72
+          -72125.992  27071            15
+          -72125.992  232226           235
+          -72125.992  195353           225
+          -72125.992  798839           312
+          -72125.992  669634           335
+          -72148.804  741888           138
+          -72148.804  354559           73
+          -72148.804  404426           344
+          -72148.804  915642           40
+          -72149.179  281558           184
+          -72149.179  915107           54
+          -72149.179  34346            330
+          -72149.179  987090           70
+          -72149.179  316165           299
+          -72149.179  836066           372
+          -72149.179  605358           321
+          -72149.179  340112           126
+          -72149.179  836515           341
+          -72149.179  168762           200
+          -72149.179  30098            209
+          -72149.179  80438            246
+          -72157.311  970689           266
+          -72157.311  458181           189
+          -72157.311  150531           154
+
+55 perturbed starting value run(s) did not converge or were rejected in the third stage.
+
+
+
+THE BEST LOGLIKELIHOOD VALUE HAS BEEN REPLICATED.  RERUN WITH AT LEAST TWICE THE
+RANDOM STARTS TO CHECK THAT THE BEST LOGLIKELIHOOD IS STILL OBTAINED AND REPLICATED.
+
+
+THE MODEL ESTIMATION TERMINATED NORMALLY
+
+
+
+MODEL FIT INFORMATION
+
+Number of Free Parameters                      108
+
+Loglikelihood
+
+          H0 Value                      -72065.530
+          H0 Scaling Correction Factor      1.3362
+            for MLR
+
+Information Criteria
+
+          Akaike (AIC)                  144347.059
+          Bayesian (BIC)                145066.423
+          Sample-Size Adjusted BIC      144723.230
+            (n* = (n + 2) / 24)
+
+Chi-Square Test of Model Fit for the Binary and Ordered Categorical
+(Ordinal) Outcomes
+
+          Pearson Chi-Square
+
+          Value                              0.013
+          Degrees of freedom cannot be computed for this model part.
+
+          Likelihood Ratio Chi-Square
+
+          Value                              0.013
+          Degrees of freedom cannot be computed for this model part.
+
+Chi-Square Test for MCAR under the Unrestricted Latent Class Indicator Model
+
+          Pearson Chi-Square
+
+          Value                              0.000
+          Degrees of Freedom                     0
+          P-Value                           1.0000
+
+          Likelihood Ratio Chi-Square
+
+          Value                              0.000
+          Degrees of Freedom                     0
+          P-Value                           1.0000
+
+
+
+FINAL CLASS COUNTS AND PROPORTIONS FOR THE LATENT CLASSES
+BASED ON THE ESTIMATED MODEL
+
+    Latent
+   Classes
+
+       1       1158.61641          0.20073
+       2       1578.59521          0.27349
+       3        838.81189          0.14532
+       4       1217.42707          0.21092
+       5        780.01577          0.13514
+       6        198.53364          0.03440
+
+
+FINAL CLASS COUNTS AND PROPORTIONS FOR THE LATENT CLASSES
+BASED ON ESTIMATED POSTERIOR PROBABILITIES
+
+    Latent
+   Classes
+
+       1       1158.61641          0.20073
+       2       1578.59521          0.27349
+       3        838.81189          0.14532
+       4       1217.42707          0.21092
+       5        780.01577          0.13514
+       6        198.53364          0.03440
+
+
+FINAL CLASS COUNTS AND PROPORTIONS FOR THE LATENT CLASSES
+BASED ON THEIR MOST LIKELY LATENT CLASS MEMBERSHIP
+
+Class Counts and Proportions
+
+    Latent
+   Classes
+
+       1              953          0.16511
+       2             1948          0.33749
+       3              680          0.11781
+       4             1453          0.25173
+       5              634          0.10984
+       6              104          0.01802
+
+
+CLASSIFICATION QUALITY
+
+     Entropy                         0.574
+
+
+Average Latent Class Probabilities for Most Likely Latent Class Membership (Row)
+by Latent Class (Column)
+
+           1        2        3        4        5        6
+
+    1   0.703    0.108    0.069    0.062    0.037    0.021
+    2   0.147    0.662    0.029    0.026    0.131    0.005
+    3   0.074    0.029    0.647    0.126    0.076    0.049
+    4   0.065    0.051    0.150    0.699    0.012    0.023
+    5   0.087    0.144    0.082    0.008    0.656    0.022
+    6   0.021    0.004    0.063    0.018    0.045    0.849
+
+
+Classification Probabilities for the Most Likely Latent Class Membership (Column)
+by Latent Class (Row)
+
+           1        2        3        4        5        6
+
+    1   0.578    0.247    0.044    0.082    0.048    0.002
+    2   0.065    0.817    0.012    0.047    0.058    0.000
+    3   0.078    0.067    0.524    0.260    0.062    0.008
+    4   0.048    0.042    0.070    0.834    0.004    0.002
+    5   0.045    0.328    0.066    0.022    0.533    0.006
+    6   0.103    0.045    0.167    0.170    0.071    0.445
+
+
+Logits for the Classification Probabilities for the Most Likely Latent Class Membership (Column)
+by Latent Class (Row)
+
+              1        2        3        4        5        6
+
+    1      5.738    4.888    3.153    3.780    3.244    0.000
+    2      5.639    8.165    3.968    5.315    5.520    0.000
+    3      2.300    2.149    4.202    3.501    2.073    0.000
+    4      3.430    3.285    3.804    6.276    0.921    0.000
+    5      2.008    4.001    2.399    1.289    4.487    0.000
+    6     -1.467   -2.295   -0.980   -0.960   -1.841    0.000
+
+
+MODEL RESULTS
+
+                                                    Two-Tailed
+                    Estimate       S.E.  Est./S.E.    P-Value
+
+Latent Class 1
+
+ Means
+    BIG_OPE           -0.084      0.072     -1.161      0.246
+    BIG_CON            0.038      0.077      0.497      0.619
+    BIG_EXT           -0.102      0.068     -1.496      0.135
+    BIG_AGR            0.006      0.053      0.119      0.905
+    BIG_NEU            0.079      0.069      1.156      0.248
+    INT_EDI           -0.055      0.128     -0.434      0.665
+    INT_SSI           -0.332      0.182     -1.823      0.068
+    INT_ABI           -0.262      0.167     -1.568      0.117
+    EXT_UTI           -0.247      0.098     -2.512      0.012
+    EXT_LOD           -0.546      0.031    -17.631      0.000
+    EXT_SOI           -0.414      0.078     -5.288      0.000
+    ACA_ABI           -0.068      0.074     -0.913      0.361
+    HISEI              0.163      0.072      2.266      0.023
+
+ Thresholds
+    PAR_EDU$1          1.495      0.210      7.112      0.000
+    PAR_EDU$2          3.820      0.780      4.895      0.000
+
+ Variances
+    BIG_OPE            0.977      0.018     53.705      0.000
+    BIG_CON            0.943      0.021     45.704      0.000
+    BIG_EXT            0.987      0.020     50.202      0.000
+    BIG_AGR            0.993      0.022     46.002      0.000
+    BIG_NEU            0.994      0.020     49.050      0.000
+    INT_EDI            0.973      0.032     30.032      0.000
+    INT_SSI            0.962      0.038     25.143      0.000
+    INT_ABI            0.960      0.035     27.544      0.000
+    EXT_UTI            0.938      0.026     36.568      0.000
+    EXT_LOD            0.204      0.019     10.683      0.000
+    EXT_SOI            0.838      0.025     34.171      0.000
+    ACA_ABI            0.924      0.020     47.049      0.000
+    HISEI              0.172      0.022      7.654      0.000
+
+Latent Class 2
+
+ Means
+    BIG_OPE            0.037      0.048      0.777      0.437
+    BIG_CON            0.237      0.044      5.415      0.000
+    BIG_EXT            0.034      0.049      0.689      0.491
+    BIG_AGR            0.040      0.044      0.920      0.358
+    BIG_NEU            0.015      0.050      0.298      0.766
+    INT_EDI            0.069      0.065      1.064      0.287
+    INT_SSI            0.181      0.073      2.490      0.013
+    INT_ABI            0.157      0.067      2.353      0.019
+    EXT_UTI           -0.122      0.061     -2.019      0.044
+    EXT_LOD           -0.521      0.031    -16.833      0.000
+    EXT_SOI           -0.293      0.051     -5.756      0.000
+    ACA_ABI            0.086      0.047      1.821      0.069
+    HISEI             -1.095      0.044    -24.812      0.000
+
+ Thresholds
+    PAR_EDU$1          1.748      0.112     15.671      0.000
+    PAR_EDU$2          4.052      0.300     13.497      0.000
+
+ Variances
+    BIG_OPE            0.977      0.018     53.705      0.000
+    BIG_CON            0.943      0.021     45.704      0.000
+    BIG_EXT            0.987      0.020     50.202      0.000
+    BIG_AGR            0.993      0.022     46.002      0.000
+    BIG_NEU            0.994      0.020     49.050      0.000
+    INT_EDI            0.973      0.032     30.032      0.000
+    INT_SSI            0.962      0.038     25.143      0.000
+    INT_ABI            0.960      0.035     27.544      0.000
+    EXT_UTI            0.938      0.026     36.568      0.000
+    EXT_LOD            0.204      0.019     10.683      0.000
+    EXT_SOI            0.838      0.025     34.171      0.000
+    ACA_ABI            0.924      0.020     47.049      0.000
+    HISEI              0.172      0.022      7.654      0.000
+
+Latent Class 3
+
+ Means
+    BIG_OPE           -0.087      0.063     -1.382      0.167
+    BIG_CON           -0.210      0.100     -2.092      0.036
+    BIG_EXT            0.022      0.079      0.280      0.779
+    BIG_AGR           -0.035      0.060     -0.587      0.558
+    BIG_NEU           -0.098      0.087     -1.125      0.261
+    INT_EDI           -0.140      0.073     -1.912      0.056
+    INT_SSI           -0.040      0.059     -0.676      0.499
+    INT_ABI           -0.040      0.082     -0.490      0.624
+    EXT_UTI            0.333      0.050      6.671      0.000
+    EXT_LOD            0.834      0.051     16.205      0.000
+    EXT_SOI            0.610      0.063      9.622      0.000
+    ACA_ABI           -0.073      0.089     -0.820      0.412
+    HISEI              0.873      0.056     15.467      0.000
+
+ Thresholds
+    PAR_EDU$1         -0.720      0.285     -2.525      0.012
+    PAR_EDU$2          0.838      0.183      4.589      0.000
+
+ Variances
+    BIG_OPE            0.977      0.018     53.705      0.000
+    BIG_CON            0.943      0.021     45.704      0.000
+    BIG_EXT            0.987      0.020     50.202      0.000
+    BIG_AGR            0.993      0.022     46.002      0.000
+    BIG_NEU            0.994      0.020     49.050      0.000
+    INT_EDI            0.973      0.032     30.032      0.000
+    INT_SSI            0.962      0.038     25.143      0.000
+    INT_ABI            0.960      0.035     27.544      0.000
+    EXT_UTI            0.938      0.026     36.568      0.000
+    EXT_LOD            0.204      0.019     10.683      0.000
+    EXT_SOI            0.838      0.025     34.171      0.000
+    ACA_ABI            0.924      0.020     47.049      0.000
+    HISEI              0.172      0.022      7.654      0.000
+
+Latent Class 4
+
+ Means
+    BIG_OPE            0.244      0.040      6.070      0.000
+    BIG_CON            0.137      0.058      2.358      0.018
+    BIG_EXT            0.144      0.043      3.382      0.001
+    BIG_AGR            0.097      0.039      2.483      0.013
+    BIG_NEU           -0.075      0.045     -1.655      0.098
+    INT_EDI            0.214      0.056      3.814      0.000
+    INT_SSI            0.160      0.066      2.443      0.015
+    INT_ABI            0.224      0.068      3.282      0.001
+    EXT_UTI           -0.131      0.057     -2.283      0.022
+    EXT_LOD           -0.578      0.023    -25.119      0.000
+    EXT_SOI           -0.064      0.051     -1.259      0.208
+    ACA_ABI            0.388      0.055      7.095      0.000
+    HISEI              1.070      0.034     31.454      0.000
+
+ Thresholds
+    PAR_EDU$1         -2.258      0.492     -4.588      0.000
+    PAR_EDU$2          0.301      0.111      2.705      0.007
+
+ Variances
+    BIG_OPE            0.977      0.018     53.705      0.000
+    BIG_CON            0.943      0.021     45.704      0.000
+    BIG_EXT            0.987      0.020     50.202      0.000
+    BIG_AGR            0.993      0.022     46.002      0.000
+    BIG_NEU            0.994      0.020     49.050      0.000
+    INT_EDI            0.973      0.032     30.032      0.000
+    INT_SSI            0.962      0.038     25.143      0.000
+    INT_ABI            0.960      0.035     27.544      0.000
+    EXT_UTI            0.938      0.026     36.568      0.000
+    EXT_LOD            0.204      0.019     10.683      0.000
+    EXT_SOI            0.838      0.025     34.171      0.000
+    ACA_ABI            0.924      0.020     47.049      0.000
+    HISEI              0.172      0.022      7.654      0.000
+
+Latent Class 5
+
+ Means
+    BIG_OPE           -0.238      0.078     -3.054      0.002
+    BIG_CON           -0.392      0.079     -4.934      0.000
+    BIG_EXT           -0.069      0.079     -0.873      0.382
+    BIG_AGR           -0.162      0.080     -2.034      0.042
+    BIG_NEU            0.013      0.086      0.153      0.878
+    INT_EDI           -0.152      0.070     -2.160      0.031
+    INT_SSI           -0.097      0.065     -1.502      0.133
+    INT_ABI           -0.203      0.084     -2.418      0.016
+    EXT_UTI            0.357      0.063      5.624      0.000
+    EXT_LOD            1.310      0.138      9.511      0.000
+    EXT_SOI            0.475      0.094      5.039      0.000
+    ACA_ABI           -0.525      0.073     -7.211      0.000
+    HISEI             -0.940      0.052    -18.190      0.000
+
+ Thresholds
+    PAR_EDU$1          1.430      0.164      8.745      0.000
+    PAR_EDU$2          3.511      0.336     10.437      0.000
+
+ Variances
+    BIG_OPE            0.977      0.018     53.705      0.000
+    BIG_CON            0.943      0.021     45.704      0.000
+    BIG_EXT            0.987      0.020     50.202      0.000
+    BIG_AGR            0.993      0.022     46.002      0.000
+    BIG_NEU            0.994      0.020     49.050      0.000
+    INT_EDI            0.973      0.032     30.032      0.000
+    INT_SSI            0.962      0.038     25.143      0.000
+    INT_ABI            0.960      0.035     27.544      0.000
+    EXT_UTI            0.938      0.026     36.568      0.000
+    EXT_LOD            0.204      0.019     10.683      0.000
+    EXT_SOI            0.838      0.025     34.171      0.000
+    ACA_ABI            0.924      0.020     47.049      0.000
+    HISEI              0.172      0.022      7.654      0.000
+
+Latent Class 6
+
+ Means
+    BIG_OPE           -0.047      0.172     -0.274      0.784
+    BIG_CON           -0.568      0.228     -2.494      0.013
+    BIG_EXT           -0.414      0.218     -1.900      0.057
+    BIG_AGR           -0.186      0.132     -1.411      0.158
+    BIG_NEU            0.258      0.173      1.496      0.135
+    INT_EDI           -0.503      0.153     -3.290      0.001
+    INT_SSI           -0.056      0.127     -0.445      0.657
+    INT_ABI           -0.324      0.159     -2.033      0.042
+    EXT_UTI            0.547      0.110      4.967      0.000
+    EXT_LOD            2.856      0.122     23.418      0.000
+    EXT_SOI            0.778      0.149      5.211      0.000
+    ACA_ABI           -0.328      0.124     -2.649      0.008
+    HISEI              0.675      0.350      1.928      0.054
+
+ Thresholds
+    PAR_EDU$1         -0.826      0.670     -1.232      0.218
+    PAR_EDU$2          0.924      0.413      2.239      0.025
+
+ Variances
+    BIG_OPE            0.977      0.018     53.705      0.000
+    BIG_CON            0.943      0.021     45.704      0.000
+    BIG_EXT            0.987      0.020     50.202      0.000
+    BIG_AGR            0.993      0.022     46.002      0.000
+    BIG_NEU            0.994      0.020     49.050      0.000
+    INT_EDI            0.973      0.032     30.032      0.000
+    INT_SSI            0.962      0.038     25.143      0.000
+    INT_ABI            0.960      0.035     27.544      0.000
+    EXT_UTI            0.938      0.026     36.568      0.000
+    EXT_LOD            0.204      0.019     10.683      0.000
+    EXT_SOI            0.838      0.025     34.171      0.000
+    ACA_ABI            0.924      0.020     47.049      0.000
+    HISEI              0.172      0.022      7.654      0.000
+
+Categorical Latent Variables
+
+ Means
+    C#1                1.764      0.203      8.689      0.000
+    C#2                2.073      0.162     12.769      0.000
+    C#3                1.441      0.179      8.050      0.000
+    C#4                1.814      0.172     10.568      0.000
+    C#5                1.368      0.155      8.805      0.000
+
+
+QUALITY OF NUMERICAL RESULTS
+
+     Condition Number for the Information Matrix              0.242E-04
+       (ratio of smallest to largest eigenvalue)
+
+
+RESULTS IN PROBABILITY SCALE
+
+                                                    Two-Tailed
+                    Estimate       S.E.  Est./S.E.    P-Value
+
+Latent Class 1
+
+ PAR_EDU
+    Category 1         0.817      0.031     25.969      0.000
+    Category 2         0.162      0.025      6.564      0.000
+    Category 3         0.021      0.016      1.310      0.190
+
+Latent Class 2
+
+ PAR_EDU
+    Category 1         0.852      0.014     60.446      0.000
+    Category 2         0.131      0.013      9.760      0.000
+    Category 3         0.017      0.005      3.389      0.001
+
+Latent Class 3
+
+ PAR_EDU
+    Category 1         0.327      0.063      5.210      0.000
+    Category 2         0.371      0.040      9.235      0.000
+    Category 3         0.302      0.038      7.843      0.000
+
+Latent Class 4
+
+ PAR_EDU
+    Category 1         0.095      0.042      2.244      0.025
+    Category 2         0.480      0.029     16.325      0.000
+    Category 3         0.425      0.027     15.626      0.000
+
+Latent Class 5
+
+ PAR_EDU
+    Category 1         0.807      0.025     31.669      0.000
+    Category 2         0.164      0.024      6.934      0.000
+    Category 3         0.029      0.009      3.061      0.002
+
+Latent Class 6
+
+ PAR_EDU
+    Category 1         0.305      0.142      2.146      0.032
+    Category 2         0.411      0.086      4.775      0.000
+    Category 3         0.284      0.084      3.384      0.001
+
+
+LATENT CLASS INDICATOR ODDS RATIOS FOR THE LATENT CLASSES
+
+                                                95% C.I.
+                    Estimate       S.E.  Lower 2.5% Upper 2.5%
+
+Latent Class 1 Compared to Latent Class 2
+
+ PAR_EDU
+    Category > 1       1.288      0.338      0.770      2.154
+    Category > 2       1.261      1.166      0.206      7.726
+
+Latent Class 1 Compared to Latent Class 3
+
+ PAR_EDU
+    Category > 1       0.109      0.043      0.050      0.237
+    Category > 2       0.051      0.044      0.009      0.275
+
+Latent Class 1 Compared to Latent Class 4
+
+ PAR_EDU
+    Category > 1       0.023      0.015      0.007      0.079
+    Category > 2       0.030      0.024      0.006      0.146
+
+Latent Class 1 Compared to Latent Class 5
+
+ PAR_EDU
+    Category > 1       0.937      0.241      0.566      1.552
+    Category > 2       0.735      0.597      0.149      3.613
+
+Latent Class 1 Compared to Latent Class 6
+
+ PAR_EDU
+    Category > 1       0.098      0.058      0.031      0.316
+    Category > 2       0.055      0.037      0.015      0.207
+
+Latent Class 2 Compared to Latent Class 3
+
+ PAR_EDU
+    Category > 1       0.085      0.025      0.048      0.151
+    Category > 2       0.040      0.013      0.021      0.076
+
+Latent Class 2 Compared to Latent Class 4
+
+ PAR_EDU
+    Category > 1       0.018      0.009      0.007      0.048
+    Category > 2       0.023      0.007      0.013      0.044
+
+Latent Class 2 Compared to Latent Class 5
+
+ PAR_EDU
+    Category > 1       0.728      0.164      0.468      1.133
+    Category > 2       0.582      0.296      0.215      1.577
+
+Latent Class 2 Compared to Latent Class 6
+
+ PAR_EDU
+    Category > 1       0.076      0.053      0.020      0.295
+    Category > 2       0.044      0.024      0.015      0.129
+
+Latent Class 3 Compared to Latent Class 4
+
+ PAR_EDU
+    Category > 1       0.215      0.129      0.066      0.695
+    Category > 2       0.584      0.133      0.374      0.912
+
+Latent Class 3 Compared to Latent Class 5
+
+ PAR_EDU
+    Category > 1       8.589      3.244      4.096     18.007
+    Category > 2      14.486      6.092      6.353     33.031
+
+Latent Class 3 Compared to Latent Class 6
+
+ PAR_EDU
+    Category > 1       0.900      0.790      0.161      5.031
+    Category > 2       1.090      0.574      0.388      3.059
+
+Latent Class 4 Compared to Latent Class 5
+
+ PAR_EDU
+    Category > 1      39.972     20.190     14.853    107.573
+    Category > 2      24.785      8.681     12.475     49.243
+
+Latent Class 4 Compared to Latent Class 6
+
+ PAR_EDU
+    Category > 1       4.189      3.644      0.761     23.042
+    Category > 2       1.865      0.818      0.790      4.404
+
+Latent Class 5 Compared to Latent Class 6
+
+ PAR_EDU
+    Category > 1       0.105      0.069      0.029      0.378
+    Category > 2       0.075      0.036      0.029      0.194
+
+
+RESIDUAL OUTPUT
+
+
+     ESTIMATED MODEL AND RESIDUALS (OBSERVED - ESTIMATED) FOR CLASS 1
+
+
+           Model Estimated Means
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+               -0.084         0.038        -0.102         0.006         0.079
+
+
+           Model Estimated Means
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+               -0.055        -0.332        -0.262        -0.247        -0.546
+
+
+           Model Estimated Means
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+               -0.414        -0.068         0.163
+
+
+           Residuals for Means
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+                0.000         0.000         0.000         0.000         0.000
+
+
+           Residuals for Means
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+                0.000         0.000         0.000         0.000         0.000
+
+
+           Residuals for Means
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+                0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+ BIG_OPE        0.977
+ BIG_CON        0.000         0.943
+ BIG_EXT        0.000         0.000         0.987
+ BIG_AGR        0.000         0.000         0.000         0.993
+ BIG_NEU        0.000         0.000         0.000         0.000         0.994
+ INT_EDI        0.000         0.000         0.000         0.000         0.000
+ INT_SSI        0.000         0.000         0.000         0.000         0.000
+ INT_ABI        0.000         0.000         0.000         0.000         0.000
+ EXT_UTI        0.000         0.000         0.000         0.000         0.000
+ EXT_LOD        0.000         0.000         0.000         0.000         0.000
+ EXT_SOI        0.000         0.000         0.000         0.000         0.000
+ ACA_ABI        0.000         0.000         0.000         0.000         0.000
+ HISEI          0.000         0.000         0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+ INT_EDI        0.973
+ INT_SSI        0.000         0.962
+ INT_ABI        0.000         0.000         0.960
+ EXT_UTI        0.000         0.000         0.000         0.938
+ EXT_LOD        0.000         0.000         0.000         0.000         0.204
+ EXT_SOI        0.000         0.000         0.000         0.000         0.000
+ ACA_ABI        0.000         0.000         0.000         0.000         0.000
+ HISEI          0.000         0.000         0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+ EXT_SOI        0.838
+ ACA_ABI        0.000         0.924
+ HISEI          0.000         0.000         0.172
+
+
+           Residuals for Covariances
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+ BIG_OPE        0.053
+ BIG_CON        0.011        -0.009
+ BIG_EXT        0.067         0.043         0.045
+ BIG_AGR        0.080         0.055        -0.032        -0.042
+ BIG_NEU        0.015         0.073        -0.228         0.059         0.067
+ INT_EDI        0.122         0.076        -0.022         0.125         0.051
+ INT_SSI        0.070         0.018        -0.006        -0.101        -0.035
+ INT_ABI        0.083         0.079         0.028        -0.005        -0.073
+ EXT_UTI       -0.027        -0.020         0.064        -0.046        -0.018
+ EXT_LOD        0.000        -0.007         0.025        -0.033        -0.002
+ EXT_SOI       -0.039        -0.025         0.020        -0.020         0.034
+ ACA_ABI        0.012         0.161        -0.008        -0.054         0.009
+ HISEI         -0.002         0.011        -0.002         0.006         0.003
+
+
+           Residuals for Covariances
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+ INT_EDI        0.129
+ INT_SSI        0.123         0.302
+ INT_ABI        0.305         0.337         0.111
+ EXT_UTI       -0.002         0.135         0.019         0.158
+ EXT_LOD       -0.034         0.036        -0.006         0.026        -0.047
+ EXT_SOI        0.016         0.118         0.083         0.185         0.056
+ ACA_ABI       -0.011         0.133         0.064        -0.048        -0.054
+ HISEI          0.014        -0.043         0.002         0.019        -0.002
+
+
+           Residuals for Covariances
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+ EXT_SOI       -0.171
+ ACA_ABI        0.009        -0.027
+ HISEI         -0.005         0.003         0.012
+
+
+     ESTIMATED MODEL AND RESIDUALS (OBSERVED - ESTIMATED) FOR CLASS 2
+
+
+           Model Estimated Means
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+                0.037         0.237         0.034         0.040         0.015
+
+
+           Model Estimated Means
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+                0.069         0.181         0.157        -0.122        -0.521
+
+
+           Model Estimated Means
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+               -0.293         0.086        -1.095
+
+
+           Residuals for Means
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+                0.000         0.000         0.000         0.000         0.000
+
+
+           Residuals for Means
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+                0.000         0.000         0.000         0.000         0.000
+
+
+           Residuals for Means
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+                0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+ BIG_OPE        0.977
+ BIG_CON        0.000         0.943
+ BIG_EXT        0.000         0.000         0.987
+ BIG_AGR        0.000         0.000         0.000         0.993
+ BIG_NEU        0.000         0.000         0.000         0.000         0.994
+ INT_EDI        0.000         0.000         0.000         0.000         0.000
+ INT_SSI        0.000         0.000         0.000         0.000         0.000
+ INT_ABI        0.000         0.000         0.000         0.000         0.000
+ EXT_UTI        0.000         0.000         0.000         0.000         0.000
+ EXT_LOD        0.000         0.000         0.000         0.000         0.000
+ EXT_SOI        0.000         0.000         0.000         0.000         0.000
+ ACA_ABI        0.000         0.000         0.000         0.000         0.000
+ HISEI          0.000         0.000         0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+ INT_EDI        0.973
+ INT_SSI        0.000         0.962
+ INT_ABI        0.000         0.000         0.960
+ EXT_UTI        0.000         0.000         0.000         0.938
+ EXT_LOD        0.000         0.000         0.000         0.000         0.204
+ EXT_SOI        0.000         0.000         0.000         0.000         0.000
+ ACA_ABI        0.000         0.000         0.000         0.000         0.000
+ HISEI          0.000         0.000         0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+ EXT_SOI        0.838
+ ACA_ABI        0.000         0.924
+ HISEI          0.000         0.000         0.172
+
+
+           Residuals for Covariances
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+ BIG_OPE        0.004
+ BIG_CON        0.023        -0.060
+ BIG_EXT        0.100         0.031         0.002
+ BIG_AGR        0.116         0.091         0.035         0.001
+ BIG_NEU        0.025         0.073        -0.203         0.024         0.008
+ INT_EDI        0.105         0.053         0.152         0.136         0.008
+ INT_SSI        0.115         0.058         0.044        -0.070         0.007
+ INT_ABI        0.070         0.094         0.056         0.070        -0.058
+ EXT_UTI       -0.003         0.013         0.051         0.040         0.016
+ EXT_LOD        0.014         0.011         0.036         0.022         0.020
+ EXT_SOI        0.029         0.008         0.052         0.031         0.023
+ ACA_ABI       -0.028         0.119        -0.102        -0.073         0.061
+ HISEI          0.063         0.034         0.042        -0.019         0.001
+
+
+           Residuals for Covariances
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+ INT_EDI        0.000
+ INT_SSI        0.035         0.024
+ INT_ABI        0.234         0.205        -0.072
+ EXT_UTI        0.001         0.083         0.051         0.093
+ EXT_LOD       -0.005        -0.003        -0.014         0.042        -0.029
+ EXT_SOI        0.015         0.098         0.104         0.237         0.062
+ ACA_ABI       -0.061         0.139         0.076        -0.060        -0.078
+ HISEI          0.052         0.090         0.071         0.105        -0.040
+
+
+           Residuals for Covariances
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+ EXT_SOI       -0.053
+ ACA_ABI       -0.014         0.008
+ HISEI          0.074        -0.015        -0.012
+
+
+     ESTIMATED MODEL AND RESIDUALS (OBSERVED - ESTIMATED) FOR CLASS 3
+
+
+           Model Estimated Means
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+               -0.087        -0.210         0.022        -0.035        -0.098
+
+
+           Model Estimated Means
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+               -0.140        -0.040        -0.040         0.333         0.834
+
+
+           Model Estimated Means
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+                0.610        -0.073         0.873
+
+
+           Residuals for Means
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+                0.000         0.000         0.000         0.000         0.000
+
+
+           Residuals for Means
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+                0.000         0.000         0.000         0.000         0.000
+
+
+           Residuals for Means
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+                0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+ BIG_OPE        0.977
+ BIG_CON        0.000         0.943
+ BIG_EXT        0.000         0.000         0.987
+ BIG_AGR        0.000         0.000         0.000         0.993
+ BIG_NEU        0.000         0.000         0.000         0.000         0.994
+ INT_EDI        0.000         0.000         0.000         0.000         0.000
+ INT_SSI        0.000         0.000         0.000         0.000         0.000
+ INT_ABI        0.000         0.000         0.000         0.000         0.000
+ EXT_UTI        0.000         0.000         0.000         0.000         0.000
+ EXT_LOD        0.000         0.000         0.000         0.000         0.000
+ EXT_SOI        0.000         0.000         0.000         0.000         0.000
+ ACA_ABI        0.000         0.000         0.000         0.000         0.000
+ HISEI          0.000         0.000         0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+ INT_EDI        0.973
+ INT_SSI        0.000         0.962
+ INT_ABI        0.000         0.000         0.960
+ EXT_UTI        0.000         0.000         0.000         0.938
+ EXT_LOD        0.000         0.000         0.000         0.000         0.204
+ EXT_SOI        0.000         0.000         0.000         0.000         0.000
+ ACA_ABI        0.000         0.000         0.000         0.000         0.000
+ HISEI          0.000         0.000         0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+ EXT_SOI        0.838
+ ACA_ABI        0.000         0.924
+ HISEI          0.000         0.000         0.172
+
+
+           Residuals for Covariances
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+ BIG_OPE       -0.030
+ BIG_CON        0.016         0.004
+ BIG_EXT        0.054         0.045        -0.040
+ BIG_AGR        0.092         0.054        -0.008        -0.009
+ BIG_NEU        0.014         0.102        -0.216         0.014        -0.065
+ INT_EDI        0.039         0.006         0.132         0.165        -0.089
+ INT_SSI        0.122         0.029         0.036         0.024        -0.008
+ INT_ABI        0.091         0.028         0.104        -0.006        -0.119
+ EXT_UTI       -0.024         0.035         0.058         0.007        -0.014
+ EXT_LOD        0.022        -0.004        -0.051         0.057        -0.011
+ EXT_SOI        0.032         0.005         0.007         0.074         0.036
+ ACA_ABI        0.008         0.149        -0.071        -0.041         0.084
+ HISEI          0.032        -0.017         0.048         0.051        -0.010
+
+
+           Residuals for Covariances
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+ INT_EDI       -0.046
+ INT_SSI        0.117        -0.189
+ INT_ABI        0.354         0.209         0.012
+ EXT_UTI        0.091         0.050         0.152        -0.257
+ EXT_LOD       -0.002        -0.005        -0.010         0.005         0.023
+ EXT_SOI        0.052         0.027         0.113         0.165         0.005
+ ACA_ABI       -0.111         0.081         0.061         0.081         0.093
+ HISEI          0.005         0.019        -0.049        -0.032         0.012
+
+
+           Residuals for Covariances
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+ EXT_SOI        0.012
+ ACA_ABI        0.201         0.029
+ HISEI         -0.020        -0.019         0.005
+
+
+     ESTIMATED MODEL AND RESIDUALS (OBSERVED - ESTIMATED) FOR CLASS 4
+
+
+           Model Estimated Means
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+                0.244         0.137         0.144         0.097        -0.075
+
+
+           Model Estimated Means
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+                0.214         0.160         0.224        -0.131        -0.578
+
+
+           Model Estimated Means
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+               -0.064         0.388         1.070
+
+
+           Residuals for Means
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+                0.000         0.000         0.000         0.000         0.000
+
+
+           Residuals for Means
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+                0.000         0.000         0.000         0.000         0.000
+
+
+           Residuals for Means
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+                0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+ BIG_OPE        0.977
+ BIG_CON        0.000         0.943
+ BIG_EXT        0.000         0.000         0.987
+ BIG_AGR        0.000         0.000         0.000         0.993
+ BIG_NEU        0.000         0.000         0.000         0.000         0.994
+ INT_EDI        0.000         0.000         0.000         0.000         0.000
+ INT_SSI        0.000         0.000         0.000         0.000         0.000
+ INT_ABI        0.000         0.000         0.000         0.000         0.000
+ EXT_UTI        0.000         0.000         0.000         0.000         0.000
+ EXT_LOD        0.000         0.000         0.000         0.000         0.000
+ EXT_SOI        0.000         0.000         0.000         0.000         0.000
+ ACA_ABI        0.000         0.000         0.000         0.000         0.000
+ HISEI          0.000         0.000         0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+ INT_EDI        0.973
+ INT_SSI        0.000         0.962
+ INT_ABI        0.000         0.000         0.960
+ EXT_UTI        0.000         0.000         0.000         0.938
+ EXT_LOD        0.000         0.000         0.000         0.000         0.204
+ EXT_SOI        0.000         0.000         0.000         0.000         0.000
+ ACA_ABI        0.000         0.000         0.000         0.000         0.000
+ HISEI          0.000         0.000         0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+ EXT_SOI        0.838
+ ACA_ABI        0.000         0.924
+ HISEI          0.000         0.000         0.172
+
+
+           Residuals for Covariances
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+ BIG_OPE       -0.092
+ BIG_CON        0.058        -0.043
+ BIG_EXT        0.101         0.031        -0.069
+ BIG_AGR        0.073         0.076         0.016        -0.060
+ BIG_NEU       -0.016         0.086        -0.173         0.014        -0.056
+ INT_EDI        0.100         0.091         0.084         0.164        -0.001
+ INT_SSI        0.024         0.074        -0.039        -0.037         0.012
+ INT_ABI        0.034         0.100         0.059        -0.004        -0.042
+ EXT_UTI       -0.014        -0.007         0.002         0.004         0.037
+ EXT_LOD        0.013         0.008         0.028        -0.017         0.026
+ EXT_SOI       -0.017         0.034         0.052         0.003         0.064
+ ACA_ABI        0.060         0.175        -0.063        -0.010         0.060
+ HISEI         -0.010        -0.029         0.003        -0.014        -0.003
+
+
+           Residuals for Covariances
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+ INT_EDI       -0.103
+ INT_SSI        0.044        -0.059
+ INT_ABI        0.208         0.213        -0.037
+ EXT_UTI       -0.005         0.108         0.062         0.135
+ EXT_LOD        0.001        -0.006         0.003         0.034        -0.072
+ EXT_SOI       -0.016         0.078         0.103         0.257         0.046
+ ACA_ABI        0.042         0.137         0.115        -0.050        -0.064
+ HISEI          0.014         0.039        -0.046        -0.004         0.008
+
+
+           Residuals for Covariances
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+ EXT_SOI        0.063
+ ACA_ABI        0.002         0.004
+ HISEI         -0.051        -0.002        -0.051
+
+
+     ESTIMATED MODEL AND RESIDUALS (OBSERVED - ESTIMATED) FOR CLASS 5
+
+
+           Model Estimated Means
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+               -0.238        -0.392        -0.069        -0.162         0.013
+
+
+           Model Estimated Means
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+               -0.152        -0.097        -0.203         0.357         1.310
+
+
+           Model Estimated Means
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+                0.475        -0.525        -0.940
+
+
+           Residuals for Means
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+                0.000         0.000         0.000         0.000         0.000
+
+
+           Residuals for Means
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+                0.000         0.000         0.000         0.000         0.000
+
+
+           Residuals for Means
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+                0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+ BIG_OPE        0.977
+ BIG_CON        0.000         0.943
+ BIG_EXT        0.000         0.000         0.987
+ BIG_AGR        0.000         0.000         0.000         0.993
+ BIG_NEU        0.000         0.000         0.000         0.000         0.994
+ INT_EDI        0.000         0.000         0.000         0.000         0.000
+ INT_SSI        0.000         0.000         0.000         0.000         0.000
+ INT_ABI        0.000         0.000         0.000         0.000         0.000
+ EXT_UTI        0.000         0.000         0.000         0.000         0.000
+ EXT_LOD        0.000         0.000         0.000         0.000         0.000
+ EXT_SOI        0.000         0.000         0.000         0.000         0.000
+ ACA_ABI        0.000         0.000         0.000         0.000         0.000
+ HISEI          0.000         0.000         0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+ INT_EDI        0.973
+ INT_SSI        0.000         0.962
+ INT_ABI        0.000         0.000         0.960
+ EXT_UTI        0.000         0.000         0.000         0.938
+ EXT_LOD        0.000         0.000         0.000         0.000         0.204
+ EXT_SOI        0.000         0.000         0.000         0.000         0.000
+ ACA_ABI        0.000         0.000         0.000         0.000         0.000
+ HISEI          0.000         0.000         0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+ EXT_SOI        0.838
+ ACA_ABI        0.000         0.924
+ HISEI          0.000         0.000         0.172
+
+
+           Residuals for Covariances
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+ BIG_OPE        0.085
+ BIG_CON        0.034         0.143
+ BIG_EXT        0.081         0.071         0.042
+ BIG_AGR        0.156         0.164        -0.010         0.159
+ BIG_NEU        0.046         0.131        -0.237         0.082         0.038
+ INT_EDI        0.097         0.016         0.155         0.173        -0.076
+ INT_SSI        0.024         0.029         0.066        -0.008        -0.112
+ INT_ABI        0.166         0.023         0.077         0.069        -0.135
+ EXT_UTI        0.080         0.030         0.033        -0.014         0.001
+ EXT_LOD       -0.059         0.137        -0.094         0.116         0.083
+ EXT_SOI        0.102         0.129        -0.020         0.073         0.085
+ ACA_ABI       -0.022         0.157        -0.079        -0.045         0.045
+ HISEI         -0.005        -0.059        -0.007        -0.036        -0.012
+
+
+           Residuals for Covariances
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+ INT_EDI       -0.102
+ INT_SSI        0.125        -0.222
+ INT_ABI        0.200         0.273        -0.005
+ EXT_UTI        0.102         0.084         0.136        -0.337
+ EXT_LOD       -0.010         0.045         0.030         0.056         0.167
+ EXT_SOI        0.055         0.068         0.201         0.200         0.064
+ ACA_ABI       -0.186         0.058        -0.023         0.066         0.247
+ HISEI         -0.052        -0.020        -0.011        -0.033         0.013
+
+
+           Residuals for Covariances
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+ EXT_SOI        0.170
+ ACA_ABI        0.144         0.001
+ HISEI         -0.058        -0.050         0.051
+
+
+     ESTIMATED MODEL AND RESIDUALS (OBSERVED - ESTIMATED) FOR CLASS 6
+
+
+           Model Estimated Means
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+               -0.047        -0.568        -0.414        -0.186         0.258
+
+
+           Model Estimated Means
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+               -0.503        -0.056        -0.324         0.547         2.856
+
+
+           Model Estimated Means
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+                0.778        -0.328         0.675
+
+
+           Residuals for Means
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+                0.000         0.000         0.000         0.000         0.000
+
+
+           Residuals for Means
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+                0.000         0.000         0.000         0.000         0.000
+
+
+           Residuals for Means
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+                0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+ BIG_OPE        0.977
+ BIG_CON        0.000         0.943
+ BIG_EXT        0.000         0.000         0.987
+ BIG_AGR        0.000         0.000         0.000         0.993
+ BIG_NEU        0.000         0.000         0.000         0.000         0.994
+ INT_EDI        0.000         0.000         0.000         0.000         0.000
+ INT_SSI        0.000         0.000         0.000         0.000         0.000
+ INT_ABI        0.000         0.000         0.000         0.000         0.000
+ EXT_UTI        0.000         0.000         0.000         0.000         0.000
+ EXT_LOD        0.000         0.000         0.000         0.000         0.000
+ EXT_SOI        0.000         0.000         0.000         0.000         0.000
+ ACA_ABI        0.000         0.000         0.000         0.000         0.000
+ HISEI          0.000         0.000         0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+ INT_EDI        0.973
+ INT_SSI        0.000         0.962
+ INT_ABI        0.000         0.000         0.960
+ EXT_UTI        0.000         0.000         0.000         0.938
+ EXT_LOD        0.000         0.000         0.000         0.000         0.204
+ EXT_SOI        0.000         0.000         0.000         0.000         0.000
+ ACA_ABI        0.000         0.000         0.000         0.000         0.000
+ HISEI          0.000         0.000         0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+ EXT_SOI        0.838
+ ACA_ABI        0.000         0.924
+ HISEI          0.000         0.000         0.172
+
+
+           Residuals for Covariances
+              BIG_OPE       BIG_CON       BIG_EXT       BIG_AGR       BIG_NEU
+              ________      ________      ________      ________      ________
+ BIG_OPE        0.040
+ BIG_CON        0.062         0.225
+ BIG_EXT        0.194         0.120         0.160
+ BIG_AGR       -0.069         0.080        -0.054         0.033
+ BIG_NEU       -0.037         0.050        -0.329         0.001         0.032
+ INT_EDI       -0.186        -0.009         0.085         0.125        -0.025
+ INT_SSI       -0.040         0.052         0.049        -0.211         0.071
+ INT_ABI        0.058        -0.094         0.150        -0.086        -0.042
+ EXT_UTI       -0.009         0.104         0.118        -0.094         0.142
+ EXT_LOD        0.147         0.449         0.135         0.145        -0.027
+ EXT_SOI        0.162         0.133        -0.166        -0.139         0.372
+ ACA_ABI       -0.020         0.179        -0.026        -0.073         0.076
+ HISEI         -0.034        -0.025         0.077         0.018         0.025
+
+
+           Residuals for Covariances
+              INT_EDI       INT_SSI       INT_ABI       EXT_UTI       EXT_LOD
+              ________      ________      ________      ________      ________
+ INT_EDI        0.508
+ INT_SSI        0.370         0.072
+ INT_ABI        0.549         0.483         0.136
+ EXT_UTI        0.105         0.338         0.240        -0.231
+ EXT_LOD       -0.046         0.090         0.087         0.041         0.296
+ EXT_SOI        0.057         0.110         0.236         0.148         0.090
+ ACA_ABI       -0.100         0.112        -0.069         0.151         0.553
+ HISEI          0.006        -0.161        -0.138        -0.171        -0.241
+
+
+           Residuals for Covariances
+              EXT_SOI       ACA_ABI       HISEI
+              ________      ________      ________
+ EXT_SOI        0.344
+ ACA_ABI        0.219        -0.060
+ HISEI          0.013         0.063         0.142
+
+
+TECHNICAL 11 OUTPUT
+
+     Random Starts Specifications for the k-1 Class Analysis Model
+        Number of initial stage random starts                 400
+        Number of final stage optimizations                   100
+
+
+
+     VUONG-LO-MENDELL-RUBIN LIKELIHOOD RATIO TEST FOR 5 (H0) VERSUS 6 CLASSES
+
+          H0 Loglikelihood Value                       -72269.699
+          2 Times the Loglikelihood Difference            408.339
+          Difference in the Number of Parameters               16
+          Mean                                            193.183
+          Standard Deviation                              279.903
+          P-Value                                          0.2210
+
+     LO-MENDELL-RUBIN ADJUSTED LRT TEST
+
+          Value                                           405.414
+          P-Value                                          0.2242
+
+
+TECHNICAL 14 OUTPUT
+
+     Random Starts Specifications for the k-1 Class Analysis Model
+        Number of initial stage random starts                 400
+        Number of final stage optimizations                   100
+
+     Random Starts Specification for the k-1 Class Model for Generated Data
+        Number of initial stage random starts                   0
+        Number of final stage optimizations for the
+           initial stage random starts                          0
+     Random Starts Specification for the k Class Model for Generated Data
+        Number of initial stage random starts                  40
+        Number of final stage optimizations                     8
+     Number of bootstrap draws requested                   Varies
+
+
+     PARAMETRIC BOOTSTRAPPED LIKELIHOOD RATIO TEST FOR 5 (H0) VERSUS 6 CLASSES
+
+          H0 Loglikelihood Value                       -72269.699
+          2 Times the Loglikelihood Difference            408.339
+          Difference in the Number of Parameters               16
+          Approximate P-Value                              0.0000
+          Successful Bootstrap Draws                            5
+
+     WARNING:  OF THE 5 BOOTSTRAP DRAWS, 4 DRAWS HAD BOTH A SMALLER LRT VALUE THAN THE
+     OBSERVED LRT VALUE AND NOT A REPLICATED BEST LOGLIKELIHOOD VALUE FOR THE 6-CLASS MODEL.
+     THIS MEANS THAT THE P-VALUE MAY NOT BE TRUSTWORTHY DUE TO LOCAL MAXIMA.
+     INCREASE THE NUMBER OF RANDOM STARTS USING THE LRTSTARTS OPTION.
+
+
+
+SAVEDATA INFORMATION
+
+
+  Save file
+    lca_bch_6class.dat
+
+  Order and format of variables
+
+    PAR_EDU        F10.3
+    BIG_OPE        F10.3
+    BIG_CON        F10.3
+    BIG_EXT        F10.3
+    BIG_AGR        F10.3
+    BIG_NEU        F10.3
+    INT_EDI        F10.3
+    INT_SSI        F10.3
+    INT_ABI        F10.3
+    EXT_UTI        F10.3
+    EXT_LOD        F10.3
+    EXT_SOI        F10.3
+    ACA_ABI        F10.3
+    HISEI          F10.3
+    STR_ACA_       F10.3
+    NOR_ACA_       F10.3
+    PEE_SOC_       F10.3
+    FAC_SOC_       F10.3
+    AGE            F10.3
+    GENDER         F10.3
+    DRO_OUT        F10.3
+    BCHW1          F10.3
+    BCHW2          F10.3
+    BCHW3          F10.3
+    BCHW4          F10.3
+    BCHW5          F10.3
+    BCHW6          F10.3
+    ID_T           I8
+
+  Save file format
+    27F10.3 I8
+
+  Save file record length    10000
+
+  Save missing symbol        9999
+
+
+DIAGRAM INFORMATION
+
+  Mplus diagrams are currently not available for Mixture analysis.
+  No diagram output was produced.
+
+
+     Beginning Time:  10:38:16
+        Ending Time:  10:44:03
+       Elapsed Time:  00:05:47
+
+
+
+MUTHEN & MUTHEN
+3463 Stoner Ave.
+Los Angeles, CA  90066
+
+Tel: (310) 391-9971
+Fax: (310) 391-8971
+Web: www.StatModel.com
+Support: Support@StatModel.com
+
+Copyright (c) 1998-2023 Muthen & Muthen
