@@ -61,7 +61,7 @@ plot_data$measure <- recode(plot_data$measure,
                             ext_uti = "Utility",
                             ext_lod = "Low Difficulty",
                             ext_soi = "Social Influences",
-                            aca_abi = "Academic Ability",
+                            aca_abi = "School Leaving Grade",
                             par_edu = "Parental Education",
                             hisei = "HISEI")
 
@@ -77,7 +77,7 @@ plot_data$var_type <- ifelse(plot_data$measure == "Parental Education", "categor
                                plot_data$measure == "Utility" |
                                plot_data$measure == "Low Difficulty" |
                                plot_data$measure == "Social Influences" |
-                               plot_data$measure == "Academic Ability" |
+                               plot_data$measure == "School Leaving Grade" |
                                plot_data$measure == "HISEI", "continuous", NA))
 
 plot_data_continuous <- plot_data %>%
@@ -143,7 +143,7 @@ plot_both <- ggplot(df_plot_both, aes(x = measure, y = value,
                                        "Utility",
                                        "Low Difficulty",
                                        "Social Influences",
-                                       "Academic Ability",
+                                       "School Leaving Grade",
                                        "HISEI",
                                        "Parental Education")) +
   
@@ -151,7 +151,7 @@ plot_both <- ggplot(df_plot_both, aes(x = measure, y = value,
              scale_y_continuous(
                name = "Class mean (z-standardized) \n",
                sec.axis = sec_axis(trans = ~ . *1,
-                                   name = "Conditional Probabilities of  \n being a First-Generation Student\n",
+                                   name = "Conditional Probabilities of  \n being a First-Generation-Student\n",
                                    breaks = seq(0, 1, by = 0.25),)) +
              geom_hline(yintercept = 0, linetype = "dashed", 
              color = "grey", size = 0.5) +
