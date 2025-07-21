@@ -127,11 +127,13 @@ df_plot_both <- bind_rows(df_plot_both1, df_plot_both2)
 
 plot_both <- ggplot(df_plot_both, aes(x = measure, y = value, 
                                       color  = class, group = class)) +
+             geom_hline(yintercept = 0, linetype = "longdash", 
+             color = "gray59", size = 0.5) +
              stat_summary(geom = "point", fun = mean, size = 3) +
              stat_summary(fun = mean, geom = "line", linewidth = 1) +
             # stat_summary(geom = "errorbar", fun.data = mean_se, width = 0.2) +
-             guides(x =  guide_axis(angle = 45)) +
              
+             guides(x =  guide_axis(angle = 45)) +
              scale_x_discrete(limits=c("Openness",
                                        "Conscientiousness",
                                        "Extraversion",
@@ -153,8 +155,6 @@ plot_both <- ggplot(df_plot_both, aes(x = measure, y = value,
                sec.axis = sec_axis(trans = ~ . *1,
                                    name = "Conditional Probabilities of  \n being a First-Generation-Student\n",
                                    breaks = seq(0, 1, by = 0.25),)) +
-             geom_hline(yintercept = 0, linetype = "dashed", 
-             color = "grey", size = 0.5) +
              xlab("")
 
 # change theme and appearance
@@ -178,8 +178,8 @@ plot_both <- plot_both +
 
 # dotted lines and labels between  conceptual block
 plot_both <- plot_both +
-  geom_vline(xintercept = c(5.5, 8.5, 11.5, 12.5), linetype = "dotted", color = "gray59", size = 0.8) +
-  annotate("text", x = 3, y = 2, label = "Big 5", size = 4, family = "Arial") +
+  geom_vline(xintercept = c(5.5, 8.5, 11.5, 12.5), linetype = "dotted", color = "black", size = 0.8) +
+  annotate("text", x = 3, y = 2, label = "Big Five", size = 4, family = "Arial") +
   annotate("text", x = 7, y = 2, label = "Intrinsic Motives", size = 4, family = "Arial") +
   annotate("text", x = 10, y = 2, label = "Extrinsic Motives", size = 4, family = "Arial") +
   annotate("text", x = 12, y = 2, label = "Academic \n Ability", size = 4, family = "Arial") +
