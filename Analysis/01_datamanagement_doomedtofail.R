@@ -10,6 +10,7 @@
 #        SC5_StudyStates_D_18-0-0.dta
 #        SC5_Basics_D_18-0-0.sav
 # Output: data_lca_doomedtofail.csv
+#         data_doomedtofail.Rda
 #
 # Contents: (1) Load Packages
 #           (2) Read Data and Data Management
@@ -127,11 +128,10 @@ cawi_w8_wtg <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav")
                              tg61053 = tg61153)
 
 cawi_sp1 <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
-            dplyr::select(ID_t, wave, tg53232, tg53234, tg53236,  # aca int
-                                      tg53231, tg53233, tg53235,
+            dplyr::select(ID_t, wave, tg53231, tg53233, tg53235,  # aca int
                                       tg53211, tg53212, tg53213,
-                                      tg53111, tg53112, tg53113, 
-                                      tg53114, tg53121, tg53122,  # soc int
+                                      tg53111, tg53112, tg53113,  # soc int
+                                      tg53114, tg53121, tg53122,  
                                       tg53123) %>%
             dplyr::filter(wave == 2)
            
@@ -492,25 +492,28 @@ data4 <- data4 %>%
 
 ## current study situation
 
-# social and academic integration
+# social and academic integration (as in Franz & Paetsch, 2023)
 # recode inverse items integration:
-data4$tg53234 <- 6 - data4$tg53234
 data4$tg53231 <- 6 - data4$tg53231
 
 data5 <- data4 %>% 
-  dplyr::mutate(aca_int = rowMeans(subset(data4, select = c(tg53232, tg53234, 
-                                                            tg53236, tg53231, 
-                                                            tg53233, tg53235,
-                                                            tg53211, tg53212, 
-                                                            tg53213)),
-                                   na.rm = TRUE),
-                soc_int = rowMeans(subset(data4, select = c(tg53111, tg53112, 
-                                                            tg53113, tg53114, 
-                                                            tg53121, tg53122,
-                                                            tg53123)),
-                                   na.rm = TRUE)) %>% 
-  dplyr::mutate(aca_int = if_else(still_teaedu != 1, as.numeric(NA), aca_int),
-                soc_int = if_else(still_teaedu != 1, as.numeric(NA), soc_int))  
+  dplyr::mutate(str_aca_int = rowMeans(subset(data4, select = c(tg53211, tg53212, 
+                                                                tg53213)),
+                                       na.rm = TRUE),
+                nor_aca_int = rowMeans(subset(data4, select = c(tg53231, tg53233, 
+                                                                tg53235)),
+                                       na.rm = TRUE),
+                pee_soc_int = rowMeans(subset(data4, select = c(tg53121, tg53122, 
+                                                                tg53123)),
+                                       na.rm = TRUE),
+                fac_soc_int = rowMeans(subset(data4, select = c(tg53111, tg53112, 
+                                                                tg53113, tg53114)),
+                                       na.rm = TRUE)) %>% 
+  
+  dplyr::mutate(str_aca_int = if_else(still_teaedu != 1, as.numeric(NA), str_aca_int),
+                nor_aca_int = if_else(still_teaedu != 1, as.numeric(NA), nor_aca_int),
+                pee_soc_int = if_else(still_teaedu != 1, as.numeric(NA), pee_soc_int),
+                fac_soc_int = if_else(still_teaedu != 1, as.numeric(NA), fac_soc_int))  
 # NA if not enrolled in a teacher education program at wave 2
 
 
@@ -520,7 +523,9 @@ data5 <- data4 %>%
 
 #dropout intention
 data6 <- data5 %>%
-  dplyr::mutate(dro_int = tg53221)
+  dplyr::mutate(dro_int = tg53221) %>%
+  dplyr::mutate(as.numeric(dro_int))
+  
 
 data6 <- data6 %>% 
   dplyr::mutate(across(everything(), ~ ifelse(is.nan(.x), NA, .x)))
@@ -530,11 +535,10 @@ data6 <- data6 %>%
 #### ----------------------------- (5) Output ----------------------------- ####
 
 data7 <- data6 %>%
-  dplyr::mutate(dro_out = as.numeric(dro_out)) %>%
   dplyr::select(ID_t, big_ope, big_con, big_ext, big_agr, big_neu,
                 int_edi, int_ssi, int_abi, ext_uti, ext_lod, ext_soi,
                 aca_abi, par_edu, hisei, 
-                aca_int, soc_int, 
+                str_aca_int, nor_aca_int, pee_soc_int, fac_soc_int, 
                 age, gender, dro_out)
 
 # for MPlus import
