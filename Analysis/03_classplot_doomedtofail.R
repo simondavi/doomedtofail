@@ -182,7 +182,7 @@ plot_both <- plot_both +
   annotate("text", x = 3, y = 2, label = "Big 5", size = 4, family = "Arial") +
   annotate("text", x = 7, y = 2, label = "Intrinsic Motives", size = 4, family = "Arial") +
   annotate("text", x = 10, y = 2, label = "Extrinsic Motives", size = 4, family = "Arial") +
-  annotate("text", x = 12, y = 2, label = "Ability", size = 4, family = "Arial") +
+  annotate("text", x = 12, y = 2, label = "Academic \n Ability", size = 4, family = "Arial") +
   annotate("text", x = 13.5, y = 2, label = "Background", size = 4, family = "Arial") +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
