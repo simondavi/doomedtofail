@@ -4,7 +4,7 @@
 #
 # Input: lca_cprob_3class.dat
 #        data_doomedtofail.Rda
-# Output: LCA_Plot.png
+# Output: lca_plot_3class.png
 #
 # Contents: (1) Load Packages
 #           (2) Read MPlus Results
@@ -35,10 +35,10 @@ data_lca <- read.table(paste0("Data_Gen/LCA_Results/lca_cprob_3class.dat"), na.s
 # full dataset import (data_doomedtofail)
 load(file = "Data_Gen/data_doomedtofail.Rdata")
 
+data <- merge(data_lca, data_doomedtofail, by = c("ID_t"), all.x = FALSE) 
+
 
 ####  --------------------------- (3) Plot Data --------------------------- ####
-
-data <- merge(data_lca, data_doomedtofail, by = c("ID_t"), all.x = FALSE) 
 
 plot_data <- data %>% 
              pivot_longer(c(big_ope, big_con, big_ext, big_agr, big_neu,
@@ -193,4 +193,4 @@ plot_both <- plot_both +
 
 ####  ----------------------------- (4) Output ----------------------------- ####
 
-ggsave("Data_Gen/LCA_Results/LCA_Plot.png", plot = plot_both, width = 10, height = 6, dpi = 300)
+ggsave("Data_Gen/LCA_Results/lca_plot_3class.png", plot = plot_both, width = 10, height = 6, dpi = 300)
