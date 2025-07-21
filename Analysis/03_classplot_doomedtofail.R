@@ -193,4 +193,4 @@ plot_both <- plot_both +
 
 ####  ----------------------------- (4) Output ----------------------------- ####
 
-ggsave("Data_Gen/LCA_Results/lca_plot_3class.png", plot = plot_both, width = 10, height = 6, dpi = 300)
+ggsave("Analysis/LCA/lca_plot_3class.png", plot = plot_both, width = 10, height = 6, dpi = 300)
