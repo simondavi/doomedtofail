@@ -55,29 +55,29 @@ plot_data$measure <- recode(plot_data$measure,
                             big_ext = "Extraversion",
                             big_agr = "Agreeableness",
                             big_neu = "Neuroticism",
-                            int_edi = "Educational Interest",
-                            int_ssi = "Subject Specific Interest",
-                            int_abi = "Ability Beliefs",
+                            int_edi = "Educational interest",
+                            int_ssi = "Subject specific interest",
+                            int_abi = "Ability beliefs",
                             ext_uti = "Utility",
-                            ext_lod = "Low Difficulty",
-                            ext_soi = "Social Influences",
-                            aca_abi = "School Leaving Grade",
-                            par_edu = "Parental Education",
+                            ext_lod = "Low difficulty",
+                            ext_soi = "Social influences",
+                            aca_abi = "School leaving grade",
+                            par_edu = "Parental education",
                             hisei = "HISEI")
 
-plot_data$var_type <- ifelse(plot_data$measure == "Parental Education", "categorical",
+plot_data$var_type <- ifelse(plot_data$measure == "Parental education", "categorical",
                       ifelse(plot_data$measure == "Openness" | 
                                plot_data$measure == "Conscientiousness"|
                                plot_data$measure == "Extraversion" | 
                                plot_data$measure == "Agreeableness" | 
                                plot_data$measure == "Neuroticism" |
-                               plot_data$measure == "Educational Interest" |
-                               plot_data$measure == "Subject Specific Interest" |
-                               plot_data$measure == "Ability Beliefs" |
+                               plot_data$measure == "Educational interest" |
+                               plot_data$measure == "Subject specific interest" |
+                               plot_data$measure == "Ability beliefs" |
                                plot_data$measure == "Utility" |
-                               plot_data$measure == "Low Difficulty" |
-                               plot_data$measure == "Social Influences" |
-                               plot_data$measure == "School Leaving Grade" |
+                               plot_data$measure == "Low difficulty" |
+                               plot_data$measure == "Social influences" |
+                               plot_data$measure == "School leaving grade" |
                                plot_data$measure == "HISEI", "continuous", NA))
 
 plot_data_continuous <- plot_data %>%
@@ -124,7 +124,7 @@ df_plot_both2 <- df_prob_categorical %>%
 
 df_plot_both1$class <- as.factor(df_plot_both1$class)
 df_plot_both <- bind_rows(df_plot_both1, df_plot_both2)
-
+http://127.0.0.1:19077/graphics/plot_zoom_png?width=909&height=863
 plot_both <- ggplot(df_plot_both, aes(x = measure, y = value, 
                                       color  = class, group = class)) +
              geom_hline(yintercept = 0, linetype = "longdash", 
@@ -139,21 +139,21 @@ plot_both <- ggplot(df_plot_both, aes(x = measure, y = value,
                                        "Extraversion",
                                        "Agreeableness",
                                        "Neuroticism",
-                                       "Educational Interest",
-                                       "Subject Specific Interest",
-                                       "Ability Beliefs",
+                                       "Educational interest",
+                                       "Subject specific interest",
+                                       "Ability beliefs",
                                        "Utility",
-                                       "Low Difficulty",
-                                       "Social Influences",
-                                       "School Leaving Grade",
+                                       "Low difficulty",
+                                       "Social influences",
+                                       "School leaving grade",
                                        "HISEI",
-                                       "Parental Education")) +
+                                       "Parental education")) +
   
              expand_limits(y = c(-1, 1)) +
              scale_y_continuous(
                name = "Class mean (z-standardized) \n",
                sec.axis = sec_axis(trans = ~ . *1,
-                                   name = "Conditional Probabilitie of  \n being a First-Generation-Student\n",
+                                   name = "Conditional probabilitie of  \n being a First-generation student\n",
                                    breaks = seq(0, 1, by = 0.25),)) +
              xlab("")
 
@@ -180,9 +180,9 @@ plot_both <- plot_both +
 plot_both <- plot_both +
   geom_vline(xintercept = c(5.5, 8.5, 11.5, 12.5), linetype = "dotted", color = "gray50", size = 0.8) +
   annotate("text", x = 3, y = 2, label = "Big Five", size = 4, family = "Arial") +
-  annotate("text", x = 7, y = 2, label = "Intrinsic Motives", size = 4, family = "Arial") +
-  annotate("text", x = 10, y = 2, label = "Extrinsic Motives", size = 4, family = "Arial") +
-  annotate("text", x = 12, y = 2, label = "Academic \n Ability", size = 4, family = "Arial") +
+  annotate("text", x = 7, y = 2, label = "Intrinsic motives", size = 4, family = "Arial") +
+  annotate("text", x = 10, y = 2, label = "Extrinsic motives", size = 4, family = "Arial") +
+  annotate("text", x = 12, y = 2, label = "Academic \n ability", size = 4, family = "Arial") +
   annotate("text", x = 13.5, y = 2, label = "Background", size = 4, family = "Arial") +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
