@@ -3,7 +3,7 @@
 # Comment: 
 #
 # Input: lca_cprob_3class.dat
-#        data_doomedtofail.Rda
+#        data_doomedtofail.Rdata
 # Output: lca_plot_3class.png
 #
 # Contents: (1) Load Packages
@@ -145,7 +145,7 @@ plot_both <- ggplot(df_plot_both, aes(x = measure, y = value,
                                        "Utility",
                                        "Low Difficulty",
                                        "Social Influences",
-                                       "School Leaving Grade*",
+                                       "School Leaving Grade",
                                        "HISEI",
                                        "Parental Education")) +
   

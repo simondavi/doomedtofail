@@ -549,6 +549,8 @@ write.table(data7,
             quote = FALSE,
             na = "-99")
 
-# save data6
-data_doomedtofail <- data6
+# save data6 (whole data set)
+data_doomedtofail <- data6 %>%
+  dplyr::mutate(dro_out = as.numeric(dro_out))
+
 save(data_doomedtofail, file = "Data_Gen/data_doomedtofail.Rdata")
