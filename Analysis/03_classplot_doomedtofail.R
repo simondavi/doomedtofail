@@ -124,7 +124,7 @@ df_plot_both2 <- df_prob_categorical %>%
 
 df_plot_both1$class <- as.factor(df_plot_both1$class)
 df_plot_both <- bind_rows(df_plot_both1, df_plot_both2)
-http://127.0.0.1:19077/graphics/plot_zoom_png?width=909&height=863
+
 plot_both <- ggplot(df_plot_both, aes(x = measure, y = value, 
                                       color  = class, group = class)) +
              geom_hline(yintercept = 0, linetype = "longdash", 
