@@ -153,7 +153,7 @@ plot_both <- ggplot(df_plot_both, aes(x = measure, y = value,
              scale_y_continuous(
                name = "Class mean (z-standardized) \n",
                sec.axis = sec_axis(trans = ~ . *1,
-                                   name = "Conditional Probabilities of  \n being a First-Generation-Student\n",
+                                   name = "Conditional Probabilitie of  \n being a First-Generation-Student\n",
                                    breaks = seq(0, 1, by = 0.25),)) +
              xlab("")
 
