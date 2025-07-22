@@ -1,0 +1,108 @@
+Title: 4_class
+
+data: 
+  file is "S:\Temp\MPlus\data_lca_doomedtofail.csv";
+   
+variable: 
+  names = ID_t 
+          big_ope big_con big_ext big_agr big_neu
+          int_edi int_ssi int_abi ext_uti ext_lod ext_soi
+          aca_abi 
+          par_edu hisei 
+          str_aca_int nor_aca_int pee_soc_int fac_soc_int
+          age gender dro_out;
+  missing = all(-99);
+  idvariable = ID_t;
+    
+  usevariables = big_ope big_con big_ext big_agr big_neu
+                 int_edi int_ssi int_abi ext_uti ext_lod ext_soi
+                 aca_abi 
+                 par_edu hisei;
+  auxiliary = str_aca_int nor_aca_int pee_soc_int fac_soc_int 
+              age gender dro_out;
+    
+  classes = C (4);
+  categorical = par_edu;
+
+define:
+  standardize big_ope big_con big_ext big_agr big_neu
+              int_edi int_ssi int_abi ext_uti ext_lod ext_soi
+              aca_abi hisei;
+  
+analysis: 
+  type = mixture;
+  estimator = mlr;
+  starts 400 100;
+  process = 4;
+
+model:
+  %c#1%
+  [big_ope*];
+  [big_con*]; 
+  [big_ext*]; 
+  [big_agr*]; 
+  [big_neu*]; 
+  [int_edi*]; 
+  [int_ssi*]; 
+  [int_abi*]; 
+  [ext_uti*];
+  [ext_lod*]; 
+  [ext_soi*];
+  [aca_abi*];
+  [hisei*];
+  
+  %c#2%
+  [big_ope*];
+  [big_con*]; 
+  [big_ext*]; 
+  [big_agr*]; 
+  [big_neu*]; 
+  [int_edi*]; 
+  [int_ssi*]; 
+  [int_abi*]; 
+  [ext_uti*];
+  [ext_lod*]; 
+  [ext_soi*];
+  [aca_abi*];
+  [hisei*];
+  
+  %c#3%
+  [big_ope*];
+  [big_con*]; 
+  [big_ext*]; 
+  [big_agr*]; 
+  [big_neu*]; 
+  [int_edi*]; 
+  [int_ssi*]; 
+  [int_abi*]; 
+  [ext_uti*];
+  [ext_lod*]; 
+  [ext_soi*];
+  [aca_abi*];
+  [hisei*];
+  
+  %c#4%
+  [big_ope*];
+  [big_con*]; 
+  [big_ext*]; 
+  [big_agr*]; 
+  [big_neu*]; 
+  [int_edi*]; 
+  [int_ssi*]; 
+  [int_abi*]; 
+  [ext_uti*];
+  [ext_lod*]; 
+  [ext_soi*];
+  [aca_abi*];
+  [hisei*];
+
+output:
+  residual;
+  Tech14;
+  Tech11;
+  sampstat;
+
+savedata:
+  save =  bchweights;
+  missflag = 9999;
+  file = lca_bch_4class.dat;
