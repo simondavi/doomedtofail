@@ -119,7 +119,7 @@ df_plot_both1 <- df_plot_both1 %>%
 
 df_plot_both2 <- df_prob_categorical %>%
                  filter(par_edu == 1) %>%
-                 dplyr::mutate(measure = "Parental Education") %>%
+                 dplyr::mutate(measure = "Parental education") %>%
                  dplyr::select(measure, class, value = probability)
 
 df_plot_both1$class <- as.factor(df_plot_both1$class)
