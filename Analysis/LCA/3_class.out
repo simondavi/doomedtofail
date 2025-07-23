@@ -1,6 +1,6 @@
 Mplus VERSION 8.10
 MUTHEN & MUTHEN
-07/21/2025  10:57 AM
+07/23/2025   2:11 PM
 
 INPUT INSTRUCTIONS
 
@@ -16,7 +16,7 @@ INPUT INSTRUCTIONS
             aca_abi
             par_edu hisei
             str_aca_int nor_aca_int pee_soc_int fac_soc_int
-            age gender dro_out;
+            dro_int dro_out;
     missing = all(-99);
     idvariable = ID_t;
 
@@ -25,7 +25,7 @@ INPUT INSTRUCTIONS
                    aca_abi
                    par_edu hisei;
     auxiliary = str_aca_int nor_aca_int pee_soc_int fac_soc_int
-                age gender dro_out;
+                dro_int dro_out;
 
     classes = C (3);
     categorical = par_edu;
@@ -93,12 +93,10 @@ INPUT INSTRUCTIONS
     Tech11;
     sampstat;
 
-
   savedata:
     save =  cprob;
-   missflag = 9999;
-     file = lca_cprob_3class.dat;
-
+    missflag = 9999;
+    file = lca_cprob_3class.dat;
 
 
 
@@ -136,8 +134,7 @@ Observed dependent variables
    PAR_EDU
 
 Observed auxiliary variables
-   STR_ACA_IN  NOR_ACA_IN  PEE_SOC_IN  FAC_SOC_IN  AGE         GENDER
-   DRO_OUT
+   STR_ACA_IN  NOR_ACA_IN  PEE_SOC_IN  FAC_SOC_IN  DRO_INT     DRO_OUT
 
 Categorical latent variables
    C
@@ -454,7 +451,6 @@ Final stage loglikelihood values at local maxima, seeds, and initial stage start
           -72780.130  61587            400
           -72780.130  488125           368
           -72780.130  264081           186
-          -72780.130  930872           277
           -72780.130  629320           222
           -72780.130  360419           356
           -72780.130  813779           92
@@ -494,7 +490,7 @@ Final stage loglikelihood values at local maxima, seeds, and initial stage start
           -72780.130  794236           127
           -72780.130  512836           289
 
-56 perturbed starting value run(s) did not converge or were rejected in the third stage.
+57 perturbed starting value run(s) did not converge or were rejected in the third stage.
 
 
 
@@ -1227,8 +1223,7 @@ SAVEDATA INFORMATION
     NOR_ACA_       F10.3
     PEE_SOC_       F10.3
     FAC_SOC_       F10.3
-    AGE            F10.3
-    GENDER         F10.3
+    DRO_INT        F10.3
     DRO_OUT        F10.3
     CPROB1         F10.3
     CPROB2         F10.3
@@ -1237,7 +1232,7 @@ SAVEDATA INFORMATION
     ID_T           I8
 
   Save file format
-    25F10.3 I8
+    24F10.3 I8
 
   Save file record length    10000
 
@@ -1250,9 +1245,9 @@ DIAGRAM INFORMATION
   No diagram output was produced.
 
 
-     Beginning Time:  10:57:03
-        Ending Time:  10:59:30
-       Elapsed Time:  00:02:27
+     Beginning Time:  14:11:51
+        Ending Time:  14:14:07
+       Elapsed Time:  00:02:16
 
 
 

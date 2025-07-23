@@ -24,9 +24,10 @@ nclass <- 3
 data_lca <- read.table(paste0("Data_Gen/LCA_Results/lca_cprob_3class.dat"), na.strings = "9999.000", sep = "", header = FALSE,
                        col.names = c("big_ope", "big_con", "big_ext", "big_agr", "big_neu",
                                      "int_edi", "int_ssi", "int_abi", "ext_uti", "ext_lod", "ext_soi",
-                                     "aca_abi", "par_edu", "hisei",
+                                     "aca_abi", 
+                                     "par_edu", "hisei",
                                      "str_aca_int", "nor_aca_int", "pee_soc_int", "fac_soc_int", 
-                                     "age", "gender", "dro_out",
+                                     "dro_int", "dro_out",
                                      paste0("cprob", 1:nclass),
                                      "class",
                                      "ID_t")) %>%
@@ -153,7 +154,7 @@ plot_both <- ggplot(df_plot_both, aes(x = measure, y = value,
              scale_y_continuous(
                name = "Class mean (z-standardized) \n",
                sec.axis = sec_axis(trans = ~ . *1,
-                                   name = "Conditional probabilitie of  \n being a First-generation student\n",
+                                   name = "Conditional probabilitie of  \n being a first-generation student\n",
                                    breaks = seq(0, 1, by = 0.25),)) +
              xlab("")
 
@@ -182,7 +183,7 @@ plot_both <- plot_both +
   annotate("text", x = 3, y = 2, label = "Big Five", size = 4, family = "Arial") +
   annotate("text", x = 7, y = 2, label = "Intrinsic motives", size = 4, family = "Arial") +
   annotate("text", x = 10, y = 2, label = "Extrinsic motives", size = 4, family = "Arial") +
-  annotate("text", x = 12, y = 2, label = "Academic \n ability", size = 4, family = "Arial") +
+  annotate("text", x = 12, y = 2, label = "Academic \n aptitude", size = 4, family = "Arial") +
   annotate("text", x = 13.5, y = 2, label = "Background", size = 4, family = "Arial") +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),

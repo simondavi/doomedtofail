@@ -1,6 +1,6 @@
 Mplus VERSION 8.10
 MUTHEN & MUTHEN
-07/21/2025  10:38 AM
+07/23/2025   2:40 PM
 
 INPUT INSTRUCTIONS
 
@@ -16,7 +16,7 @@ INPUT INSTRUCTIONS
             aca_abi
             par_edu hisei
             str_aca_int nor_aca_int pee_soc_int fac_soc_int
-            age gender dro_out;
+            dro_int dro_out;
     missing = all(-99);
     idvariable = ID_t;
 
@@ -25,7 +25,7 @@ INPUT INSTRUCTIONS
                    aca_abi
                    par_edu hisei;
     auxiliary = str_aca_int nor_aca_int pee_soc_int fac_soc_int
-                age gender dro_out;
+                dro_int dro_out;
 
     classes = C (6);
     categorical = par_edu;
@@ -179,8 +179,7 @@ Observed dependent variables
    PAR_EDU
 
 Observed auxiliary variables
-   STR_ACA_IN  NOR_ACA_IN  PEE_SOC_IN  FAC_SOC_IN  AGE         GENDER
-   DRO_OUT
+   STR_ACA_IN  NOR_ACA_IN  PEE_SOC_IN  FAC_SOC_IN  DRO_INT     DRO_OUT
 
 Categorical latent variables
    C
@@ -494,6 +493,7 @@ Final stage loglikelihood values at local maxima, seeds, and initial stage start
 
           -72065.530  761633           50
           -72065.530  66276            217
+          -72065.530  900268           327
           -72065.530  136842           58
           -72065.530  696773           80
           -72065.530  496710           386
@@ -538,7 +538,7 @@ Final stage loglikelihood values at local maxima, seeds, and initial stage start
           -72157.311  458181           189
           -72157.311  150531           154
 
-55 perturbed starting value run(s) did not converge or were rejected in the third stage.
+54 perturbed starting value run(s) did not converge or were rejected in the third stage.
 
 
 
@@ -1850,8 +1850,7 @@ SAVEDATA INFORMATION
     NOR_ACA_       F10.3
     PEE_SOC_       F10.3
     FAC_SOC_       F10.3
-    AGE            F10.3
-    GENDER         F10.3
+    DRO_INT        F10.3
     DRO_OUT        F10.3
     BCHW1          F10.3
     BCHW2          F10.3
@@ -1862,7 +1861,7 @@ SAVEDATA INFORMATION
     ID_T           I8
 
   Save file format
-    27F10.3 I8
+    26F10.3 I8
 
   Save file record length    10000
 
@@ -1875,9 +1874,9 @@ DIAGRAM INFORMATION
   No diagram output was produced.
 
 
-     Beginning Time:  10:38:16
-        Ending Time:  10:44:03
-       Elapsed Time:  00:05:47
+     Beginning Time:  14:40:38
+        Ending Time:  14:46:35
+       Elapsed Time:  00:05:57
 
 
 

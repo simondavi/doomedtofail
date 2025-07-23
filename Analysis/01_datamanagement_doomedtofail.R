@@ -536,9 +536,10 @@ data7 <- data6 %>%
   dplyr::mutate(dro_out = as.numeric(dro_out)) %>%
   dplyr::select(ID_t, big_ope, big_con, big_ext, big_agr, big_neu,
                 int_edi, int_ssi, int_abi, ext_uti, ext_lod, ext_soi,
-                aca_abi, par_edu, hisei, 
+                aca_abi, 
+                par_edu, hisei, 
                 str_aca_int, nor_aca_int, pee_soc_int, fac_soc_int, 
-                age, gender, dro_out)
+                dro_int, dro_out)
 
 # for MPlus import
 write.table(data7,

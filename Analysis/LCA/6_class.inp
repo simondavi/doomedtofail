@@ -10,7 +10,7 @@ variable:
           aca_abi 
           par_edu hisei 
           str_aca_int nor_aca_int pee_soc_int fac_soc_int
-          age gender dro_out;
+          dro_int dro_out;
   missing = all(-99);
   idvariable = ID_t;
     
@@ -19,7 +19,7 @@ variable:
                  aca_abi 
                  par_edu hisei;
   auxiliary = str_aca_int nor_aca_int pee_soc_int fac_soc_int 
-              age gender dro_out;
+              dro_int dro_out;
     
   classes = C (6);
   categorical = par_edu;
