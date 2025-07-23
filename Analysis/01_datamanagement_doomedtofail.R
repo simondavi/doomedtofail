@@ -29,6 +29,7 @@ library(rqdatatable)
 library(fauxnaif)       # for defining missing values 
                           # (remotes::install_github("rossellhayes/fauxnaif")
 library(psych)          # for scale construction
+library(semTools)       # for testing reliability
 
 # renv::clean()
 # renv::snapshot()
@@ -423,7 +424,7 @@ data4 <- data3 %>%
 # femola
 # evaluate factor structure
 
-# motivation fpr choosing teacher education (intrinsic, extrinsic)
+# motivation for choosing teacher education
 # specify the model
 cfa_model_femola <- ' f_int_edi =~ tg61031 + tg61032 + tg61033
                       f_int_ssi =~ tg61061 + tg61062 + tg61063
@@ -465,9 +466,12 @@ summary(fit_cfa_femola2, standardized = TRUE)
 # evaluate the model fit
 fit_mea_femola2 <- lavaan::fitMeasures(fit_cfa_femola2, c("chisq", "df", "pvalue", "cfi", "srmr", "rmsea"))
 
+# reliability
+rel_femola <- round(semTools::reliability(fit_cfa_femola2), 2)
+
 # add scales to data set
 
-data4 <- data4 %>% 
+data5 <- data4 %>% 
   dplyr::mutate(int_edi = rowMeans(subset(data4, select = c(tg61031, tg61032,   # educational interest
                                                             tg61033)),
                                    na.rm = TRUE),
@@ -494,19 +498,19 @@ data4 <- data4 %>%
 
 # social and academic integration (as in Franz & Paetsch, 2023)
 # recode inverse items integration:
-data4$tg53231 <- 6 - data4$tg53231
+data5$tg53231 <- 6 - data5$tg53231
 
-data5 <- data4 %>% 
-  dplyr::mutate(str_aca_int = rowMeans(subset(data4, select = c(tg53211, tg53212, 
+data6 <- data5 %>% 
+  dplyr::mutate(str_aca_int = rowMeans(subset(data5, select = c(tg53211, tg53212, 
                                                                 tg53213)),
                                        na.rm = TRUE),
-                nor_aca_int = rowMeans(subset(data4, select = c(tg53231, tg53233, 
+                nor_aca_int = rowMeans(subset(data5, select = c(tg53231, tg53233, 
                                                                 tg53235)),
                                        na.rm = TRUE),
-                pee_soc_int = rowMeans(subset(data4, select = c(tg53121, tg53122, 
+                pee_soc_int = rowMeans(subset(data5, select = c(tg53121, tg53122, 
                                                                 tg53123)),
                                        na.rm = TRUE),
-                fac_soc_int = rowMeans(subset(data4, select = c(tg53111, tg53112, 
+                fac_soc_int = rowMeans(subset(data5, select = c(tg53111, tg53112, 
                                                                 tg53113, tg53114)),
                                        na.rm = TRUE)) %>% 
   
@@ -522,17 +526,17 @@ data5 <- data4 %>%
 # drop out (using study states, defined above)
 
 #dropout intention
-data6 <- data5 %>%
+data7 <- data6 %>%
   dplyr::mutate(dro_int = tg53221) 
   
-data6 <- data6 %>% 
+data7 <- data7 %>% 
   dplyr::mutate(across(everything(), ~ ifelse(is.nan(.x), NA, .x)))
 # replace NaN with NA
 
 
 #### ----------------------------- (5) Output ----------------------------- ####
 
-data7 <- data6 %>%
+data8 <- data7 %>%
   dplyr::mutate(dro_out = as.numeric(dro_out)) %>%
   dplyr::select(ID_t, big_ope, big_con, big_ext, big_agr, big_neu,
                 int_edi, int_ssi, int_abi, ext_uti, ext_lod, ext_soi,
@@ -542,7 +546,7 @@ data7 <- data6 %>%
                 dro_int, dro_out)
 
 # for MPlus import
-write.table(data7,
+write.table(data8,
             file = "Data_Gen/data_lca_doomedtofail.csv",
             sep = " ",
             row.names = FALSE,
@@ -550,8 +554,8 @@ write.table(data7,
             quote = FALSE,
             na = "-99")
 
-# save data6 (whole data set)
-data_doomedtofail <- data6 %>%
+# save data7 (whole data set)
+data_doomedtofail <- data7 %>%
   dplyr::mutate(dro_out = as.numeric(dro_out))
 
 save(data_doomedtofail, file = "Data_Gen/data_doomedtofail.Rdata")
