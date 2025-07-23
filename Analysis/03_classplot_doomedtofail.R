@@ -31,7 +31,7 @@ data_lca <- read.table(paste0("Data_Gen/LCA_Results/lca_cprob_3class.dat"), na.s
                                      paste0("cprob", 1:nclass),
                                      "class",
                                      "ID_t")) %>%
-            dplyr::select(ID_t, class) 
+            dplyr::select(ID_t, class) # only keep class-assignment
 
 # full dataset import (data_doomedtofail)
 load(file = "Data_Gen/data_doomedtofail.Rdata")
