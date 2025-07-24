@@ -202,7 +202,7 @@ ststa_tmp <- haven::read_dta("Data_SC5_D_18-0-0/SC5_StudyStates_D_18-0-0.dta") %
                                        tx15318,      # Successful completion
                                        tx15317,      # Vocational qualification
                                        tx15322) %>%  # Intended qualification
-              dplyr::filter(wave >= 2 & wave <= 15) %>%  # period of observation wave 2 to 15
+              dplyr::filter(wave >= 2 & wave <= 18) %>%  # period of observation wave 2 to 18
  
               dplyr::filter(!tx24100 %in% c(-20)) %>%  # delete missing episodes
 
@@ -218,7 +218,7 @@ las_sta_df <- ststa_tmp %>%
               dplyr::summarise(las_sta = last(tx24100))                         # 1 = episodes ongoing, 2 = some ongoing
 
 ststa <- merge(any_com_df, las_sta_df, by = c("ID_t"), all.x = FALSE) %>%        
-         dplyr::mutate(dro_out = (any_com == 0 & las_sta == 0))               # create drop out variable
+         dplyr::mutate(drop_out = (any_com == 0 & las_sta == 0))               # create drop out variable
 
 # add CAWI data                                                                 
 cawi_do <- haven::read_sav("Data_SC5_D_18-0-0/SC5_pTargetCAWI_D_18-0-0.sav") %>%
@@ -236,10 +236,10 @@ tg51000_df <- cawi_do %>%
 ststa <- merge(ststa, tg51004_df, by = c("ID_t"), all.x = FALSE)
 ststa <- merge(ststa, tg51000_df, by = c("ID_t"), all.x = FALSE)
 
-# Do people even have participated in the last survey (here wave 15)?
+# Do people even have participated in the last survey (here wave 18)?
 part_stat <- haven::read_sav("Data_SC5_D_18-0-0/SC5_CohortProfile_D_18-0-0.sav") %>%
              dplyr::select(ID_t, wave, tx80220)  %>%  # participation/drop-out status
-             dplyr::filter(wave == 15) 
+             dplyr::filter(wave == 18) 
 
 # Which wave was their last state?
 las_wav_df <- ststa_tmp %>%   
@@ -257,17 +257,17 @@ ststa <- ststa %>%
     
 # people are considered dropout if dropout is true or conditions on tg51004 or 
 # tg51000 are met
-  dro_out == TRUE | tg51004_one == 3 | tg51000_one == 2 ~ 1,                    # dropout = 1
+  drop_out == TRUE | tg51004_one == 3 | tg51000_one == 2 ~ 1,                    # dropout = 1
   
 # people are considered as graduated if they completed any state in regards to 
 # the prior defined range of intended vocational qualifications
   any_com ==  1 ~ 0,                                                            # graduate = 0
 
 # people are considered still studying if they participated in the latest wave 
-# (here: wave 15) and this wave equals there last state and at least some study 
+# (here: wave 18) and this wave equals there last state and at least some study 
 # episodes are ongoing
-  las_sta != 0 & tx80220 == 1 & las_wav == 15 ~ 2,                              # studying = 2
-  TRUE ~ as.numeric(NA)                                                         # Notiz: Anpassen, wenn last wave != 15
+  las_sta != 0 & tx80220 == 1 & las_wav == 18 ~ 2,                              # studying = 2
+  TRUE ~ as.numeric(NA)                                                         # note: adjust, if last wave != 18
   ))                                                                            
 
 # ~ 280 (nach (3) Merge Data), wirkt erstmal zu niedrig (ca. 5%)
@@ -408,6 +408,30 @@ data3$t66800c <- 6 - data3$t66800c
 data3$t66800d <- 6 - data3$t66800d
 data3$t66800e <- 6 - data3$t66800e
 
+# specify the model
+cfa_model_big5 <- ' f_big_ext =~ t66800a + t66800f
+                    f_big_agr =~ t66800b + t66800g + t66800k
+                    f_big_con =~ t66800c + t66800h
+                    f_big_neu =~ t66800d + t66800i
+                    f_big_ope =~ t66800e + t66800j '
+
+# fit the model
+fit_cfa_big5 <- lavaan::cfa(cfa_model_big5, data = data3)
+
+# evaluate the model
+summary(fit_cfa_big5, standardized = TRUE)
+
+# evaluate the model fit
+fit_mea_big5 <- lavaan::fitMeasures(fit_cfa_big5, c("chisq", "df", "pvalue", "cfi", "srmr", "rmsea"))
+
+# evaluate factor loadings
+inspect_fit_cfa_big5 <- lavaan::inspect(fit_cfa_big5, what = "std")
+inspect_fit_cfa_big5$lambda
+
+# reliability
+rel_big5 <- round(semTools::reliability(fit_cfa_big5), 2)
+
+# add scales to data set
 data4 <- data3 %>% 
   dplyr::mutate(big_ext = rowMeans(subset(data3, select = c(t66800a, t66800f)),
                                    na.rm = TRUE),
@@ -470,7 +494,6 @@ fit_mea_femola2 <- lavaan::fitMeasures(fit_cfa_femola2, c("chisq", "df", "pvalue
 rel_femola <- round(semTools::reliability(fit_cfa_femola2), 2)
 
 # add scales to data set
-
 data5 <- data4 %>% 
   dplyr::mutate(int_edi = rowMeans(subset(data4, select = c(tg61031, tg61032,   # educational interest
                                                             tg61033)),
@@ -500,6 +523,29 @@ data5 <- data4 %>%
 # recode inverse items integration:
 data5$tg53231 <- 6 - data5$tg53231
 
+# specify the model
+cfa_model_int <- ' f_str_aca_int =~ tg53211 + tg53212 + tg53213
+                   f_nor_aca_int =~ tg53231 + tg53233 + tg53235
+                   f_pee_soc_int =~ tg53121 + tg53122 + tg53123
+                   f_fac_soc_int =~ tg53111 + tg53112 + tg53113 + tg53114 '
+
+# fit the model
+fit_cfa_int <- lavaan::cfa(cfa_model_int, data = data5)
+
+# evaluate the model
+summary(fit_cfa_int, standardized = TRUE)
+
+# evaluate the model fit
+fit_mea_int <- lavaan::fitMeasures(fit_cfa_int, c("chisq", "df", "pvalue", "cfi", "srmr", "rmsea"))
+
+# evaluate factor loadings
+inspect_fit_cfa_int <- lavaan::inspect(fit_cfa_int, what = "std")
+inspect_fit_cfa_int$lambda
+
+# reliability
+rel_int <- round(semTools::reliability(fit_cfa_int), 2)
+
+# add scales to data set
 data6 <- data5 %>% 
   dplyr::mutate(str_aca_int = rowMeans(subset(data5, select = c(tg53211, tg53212, 
                                                                 tg53213)),
@@ -523,11 +569,12 @@ data6 <- data5 %>%
 
 ## decision
 
-# drop out (using study states, defined above)
+# drop out (using study states, defined above(dro_fin = 1))
 
-#dropout intention
+#dropout and dropout intention
 data7 <- data6 %>%
-  dplyr::mutate(dro_int = tg53221) 
+  dplyr::mutate(dro_out = if_else(dro_fin == 1, 1, 0),
+                dro_int = tg53221) 
   
 data7 <- data7 %>% 
   dplyr::mutate(across(everything(), ~ ifelse(is.nan(.x), NA, .x)))
@@ -537,7 +584,6 @@ data7 <- data7 %>%
 #### ----------------------------- (5) Output ----------------------------- ####
 
 data8 <- data7 %>%
-  dplyr::mutate(dro_out = as.numeric(dro_out)) %>%
   dplyr::select(ID_t, big_ope, big_con, big_ext, big_agr, big_neu,
                 int_edi, int_ssi, int_abi, ext_uti, ext_lod, ext_soi,
                 aca_abi, 
@@ -555,7 +601,6 @@ write.table(data8,
             na = "-99")
 
 # save data7 (whole data set)
-data_doomedtofail <- data7 %>%
-  dplyr::mutate(dro_out = as.numeric(dro_out))
+data_doomedtofail <- data7
 
 save(data_doomedtofail, file = "Data_Gen/data_doomedtofail.Rdata")

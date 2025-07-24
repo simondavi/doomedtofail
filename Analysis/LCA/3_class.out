@@ -1,6 +1,6 @@
 Mplus VERSION 8.10
 MUTHEN & MUTHEN
-07/23/2025   2:11 PM
+07/24/2025  10:32 AM
 
 INPUT INSTRUCTIONS
 
@@ -97,6 +97,7 @@ INPUT INSTRUCTIONS
     save =  cprob;
     missflag = 9999;
     file = lca_cprob_3class.dat;
+
 
 
 
@@ -1245,9 +1246,9 @@ DIAGRAM INFORMATION
   No diagram output was produced.
 
 
-     Beginning Time:  14:11:51
-        Ending Time:  14:14:07
-       Elapsed Time:  00:02:16
+     Beginning Time:  10:32:55
+        Ending Time:  10:35:16
+       Elapsed Time:  00:02:21
 
 
 
