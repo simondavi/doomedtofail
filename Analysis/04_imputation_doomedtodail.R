@@ -35,13 +35,13 @@ data_imp <- data_imp %>%
 
 # predictor matrix
 predictormatrix <- mice::quickpred(data_imp, 
-                                   include = c("dro_int"),
-                                   exclude = c("bchw1", "bchw2", "bchw3", "dro_out", "ID_t"),
+                                   include = c("dro_int", "dro_out"),
+                                   exclude = c("bchw1", "bchw2", "bchw3", "ID_t"),
                                    mincor = 0.1) # default = 0.1
 # imputation
 imp_gen <- mice(data = data_imp,
                 predictorMatrix = predictormatrix,
-                m = 10,
+                m = 20,
                 maxit = 5,            
                 diagnostics = TRUE)
 
