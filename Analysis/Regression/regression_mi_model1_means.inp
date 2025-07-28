@@ -1,4 +1,4 @@
-Title: regression_mi_model2
+Title: regression_mi_model1
 
 data: 
   file is "S:\Temp\MPlus\Imp_Data_3class\Imp_Data_3class__IMP_LIST.txt";
@@ -15,8 +15,7 @@ variable:
           bchw1 bchw2 bchw3 
           ID_t ;
   
-  usevariables = str_aca_int nor_aca_int pee_soc_int fac_soc_int 
-                 dro_out 
+  usevariables = dro_out 
                  bchw1 bchw2 bchw3;
                  
   missing = .;
@@ -24,9 +23,6 @@ variable:
 
   classes = c (3);
   training = bchw1-bchw3 (bch);
-  
-define:
-  standardize str_aca_int nor_aca_int pee_soc_int fac_soc_int;
 
 analysis: 
   type = mixture;
@@ -34,32 +30,16 @@ analysis:
 
 model:
 
-  %overall%
-  dro_out on str_aca_int nor_aca_int pee_soc_int fac_soc_int;
-
   %c#1%
-  [str_aca_int];
-  [nor_aca_int];
-  [pee_soc_int];
-  [fac_soc_int];
-  dro_out on str_aca_int nor_aca_int pee_soc_int fac_soc_int;
+  [dro_out];
 
   %c#2%
-  [str_aca_int];
-  [nor_aca_int];
-  [pee_soc_int];
-  [fac_soc_int];
-  dro_out on str_aca_int nor_aca_int pee_soc_int fac_soc_int;
+  [dro_out];
 
   %c#3%
-  [str_aca_int];
-  [nor_aca_int];
-  [pee_soc_int];
-  [fac_soc_int];
-  dro_out on str_aca_int nor_aca_int pee_soc_int fac_soc_int;
+  [dro_out];
 
 output:
-  tech7;
   residual;
   sampstat;
   stdyx;

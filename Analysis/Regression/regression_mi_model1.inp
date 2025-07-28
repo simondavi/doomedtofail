@@ -23,6 +23,9 @@ variable:
 
   classes = c (3);
   training = bchw1-bchw3 (bch);
+  
+define:
+  standardize str_aca_int nor_aca_int pee_soc_int fac_soc_int;
 
 analysis: 
   type = mixture;
