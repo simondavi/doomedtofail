@@ -15,7 +15,8 @@
 ####  ------------------------- (1) Load Packages -------------------------  ####
 library(tidyverse)
 library(corrtable)
-library(finalfit) 
+library(mardia)
+library(finalfit)
 
 
 ####  ----------------------- (2) Read MPlus Results ----------------------- ####
