@@ -1,6 +1,6 @@
 Mplus VERSION 8.10
 MUTHEN & MUTHEN
-07/29/2025   8:48 AM
+07/29/2025   9:53 AM
 
 INPUT INSTRUCTIONS
 
@@ -65,7 +65,6 @@ INPUT INSTRUCTIONS
     dro_out on str_aca_int nor_aca_int pee_soc_int fac_soc_int;
 
   output:
-    tech7;
     residual;
     sampstat;
     stdyx;
@@ -76,10 +75,7 @@ INPUT INSTRUCTIONS
 *** WARNING in VARIABLE command
   Note that only the first 8 characters of variable names are used in the output.
   Shorten variable names to avoid any confusion.
-*** WARNING in OUTPUT command
-  TECH7 option is not available with multiple imputation.
-  Request for TECH7 is ignored.
-   2 WARNING(S) FOUND IN THE INPUT INSTRUCTIONS
+   1 WARNING(S) FOUND IN THE INPUT INSTRUCTIONS
 
 
 
@@ -1412,9 +1408,9 @@ DIAGRAM INFORMATION
   No diagram output was produced.
 
 
-     Beginning Time:  08:48:11
-        Ending Time:  08:48:17
-       Elapsed Time:  00:00:06
+     Beginning Time:  09:53:05
+        Ending Time:  09:53:12
+       Elapsed Time:  00:00:07
 
 
 

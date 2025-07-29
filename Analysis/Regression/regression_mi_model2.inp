@@ -59,7 +59,6 @@ model:
   dro_out on str_aca_int nor_aca_int pee_soc_int fac_soc_int;
 
 output:
-  tech7;
   residual;
   sampstat;
   stdyx;
