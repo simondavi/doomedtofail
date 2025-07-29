@@ -189,8 +189,8 @@ ststa_help <- haven::read_dta("Data_SC5_D_18-0-0/SC5_StudyStates_D_18-0-0.dta") 
 #     if none of the study episodes has been successfully completed and no 
 #     study episode is confirmed ongoing
 #
-# 2 = studying = study episode confirmed to be ongoing in wave 15 and 
-#     participation in wave 15 and none successfully completed before
+# 2 = studying = study episode confirmed to be ongoing in wave 18 and 
+#     participation in wave 18 and none successfully completed before
 #
 # Source: https://forum.lifbi.de/t/sc5-studienabbruch-syntax-vorschlag/3963
 # and: https://forum.lifbi.de/t/sc5-studienabbruch/3956
