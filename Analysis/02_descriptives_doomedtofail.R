@@ -15,7 +15,7 @@
 ####  ------------------------- (1) Load Packages -------------------------  ####
 library(tidyverse)
 library(corrtable)
-library(mardia)
+library(psych)
 library(finalfit)
 
 
