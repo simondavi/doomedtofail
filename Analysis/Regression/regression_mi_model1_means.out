@@ -1,0 +1,749 @@
+Mplus VERSION 8.10
+MUTHEN & MUTHEN
+07/29/2025   8:47 AM
+
+INPUT INSTRUCTIONS
+
+  Title: regression_mi_model1
+
+  data:
+    file is "S:\Temp\MPlus\Imp_Data_3class\Imp_Data_3class__IMP_LIST.txt";
+    type = imputation;
+
+  variable:
+    names = par_edu
+            big_ope big_con big_ext big_agr big_neu
+            int_edi int_ssi int_abi ext_uti ext_lod ext_soi
+            aca_abi
+            hisei
+            str_aca_int nor_aca_int pee_soc_int fac_soc_int
+            dro_int dro_out
+            bchw1 bchw2 bchw3
+            ID_t ;
+
+    usevariables = dro_out
+                   bchw1 bchw2 bchw3;
+
+    missing = .;
+    idvariable = ID_t;
+
+    classes = c (3);
+    training = bchw1-bchw3 (bch);
+
+  analysis:
+    type = mixture;
+    estimator = mlr;
+
+  model:
+
+    %c#1%
+    [dro_out];
+
+    %c#2%
+    [dro_out];
+
+    %c#3%
+    [dro_out];
+
+  output:
+    residual;
+    sampstat;
+    stdyx;
+    cinterval;
+
+
+
+*** WARNING in MODEL command
+  All variables are uncorrelated with all other variables within class.
+  Check that this is what is intended.
+   1 WARNING(S) FOUND IN THE INPUT INSTRUCTIONS
+
+
+
+regression_mi_model1
+
+SUMMARY OF ANALYSIS
+
+Number of groups                                                 1
+Average number of observations                                5772
+
+Number of replications
+    Requested                                                   20
+    Completed                                                   20
+
+Number of dependent variables                                    1
+Number of independent variables                                  0
+Number of continuous latent variables                            0
+Number of categorical latent variables                           1
+
+Observed dependent variables
+
+  Continuous
+   DRO_OUT
+
+Categorical latent variables
+   C
+
+Variables with special functions
+
+  ID variable           ID_T
+
+  Training variables (BCH)
+   BCHW1       BCHW2       BCHW3
+
+
+Estimator                                                      MLR
+Information matrix                                        OBSERVED
+Optimization Specifications for the Quasi-Newton Algorithm for
+Continuous Outcomes
+  Maximum number of iterations                                 100
+  Convergence criterion                                  0.100D-05
+Optimization Specifications for the EM Algorithm
+  Maximum number of iterations                                 500
+  Convergence criteria
+    Loglikelihood change                                 0.100D-06
+    Relative loglikelihood change                        0.100D-06
+    Derivative                                           0.100D-05
+Optimization Specifications for the M step of the EM Algorithm for
+Categorical Latent variables
+  Number of M step iterations                                    1
+  M step convergence criterion                           0.100D-05
+  Basis for M step termination                           ITERATION
+Optimization Specifications for the M step of the EM Algorithm for
+Censored, Binary or Ordered Categorical (Ordinal), Unordered
+Categorical (Nominal) and Count Outcomes
+  Number of M step iterations                                    1
+  M step convergence criterion                           0.100D-05
+  Basis for M step termination                           ITERATION
+  Maximum value for logit thresholds                            15
+  Minimum value for logit thresholds                           -15
+  Minimum expected cell size for chi-square              0.100D-01
+Maximum number of iterations for H1                           2000
+Convergence criterion for H1                             0.100D-03
+Optimization algorithm                                         EMA
+Random Starts Specifications
+  Number of initial stage random starts                         20
+  Number of final stage optimizations                            4
+  Number of initial stage iterations                            10
+  Initial stage convergence criterion                    0.100D+01
+  Random starts scale                                    0.500D+01
+  Random seed for generating random starts                       0
+
+Input data file(s)
+  Multiple data files from
+    S:\Temp\MPlus\Imp_Data_3class\Imp_Data_3class__IMP_LIST.txt
+Input data format  FREE
+
+
+SUMMARY OF DATA FOR THE FIRST DATA SET
+
+     Number of missing data patterns             1
+     Number of y missing data patterns           1
+     Number of u missing data patterns           0
+
+
+SUMMARY OF MISSING DATA PATTERNS FOR THE FIRST DATA SET
+
+
+     MISSING DATA PATTERNS FOR Y (x = not missing)
+
+           1
+ DRO_OUT   x
+
+
+     MISSING DATA PATTERN FREQUENCIES FOR Y
+
+    Pattern   Frequency
+          1        5772
+
+
+COVARIANCE COVERAGE OF DATA FOR THE FIRST DATA SET
+
+Minimum covariance coverage value   0.100
+
+
+     PROPORTION OF DATA PRESENT FOR Y
+
+
+           Covariance Coverage
+              DRO_OUT
+              ________
+ DRO_OUT        1.000
+
+
+SAMPLE STATISTICS
+
+NOTE:  These are average results over 20 data sets.
+
+
+     ESTIMATED SAMPLE STATISTICS
+
+
+           Means
+              DRO_OUT
+              ________
+                0.107
+
+
+           Covariances
+              DRO_OUT
+              ________
+ DRO_OUT        0.096
+
+
+           Correlations
+              DRO_OUT
+              ________
+ DRO_OUT        1.000
+
+
+
+RANDOM STARTS RESULTS FOR FIRST IMPUTATION DATA SET
+
+RANDOM STARTS RESULTS RANKED FROM THE BEST TO THE WORST LOGLIKELIHOOD VALUES
+
+Final stage loglikelihood values at local maxima, seeds, and initial stage start numbers:
+
+           -7217.766  851945           18
+           -7217.766  93468            3
+           -7217.766  533738           11
+           -7217.766  unperturbed      0
+
+THE BEST LOGLIKELIHOOD VALUE HAS BEEN REPLICATED.  RERUN WITH AT LEAST TWICE THE
+RANDOM STARTS TO CHECK THAT THE BEST LOGLIKELIHOOD IS STILL OBTAINED AND REPLICATED.
+
+
+
+MODEL FIT INFORMATION
+
+Number of Free Parameters                        6
+
+Loglikelihood
+
+    H0 Value
+
+        Mean                             -7305.800
+        Std Dev                             98.487
+        Number of successful computations       20
+
+             Proportions                   Percentiles
+        Expected    Observed         Expected       Observed
+           0.990       1.000        -7534.911      -7508.733
+           0.980       0.950        -7508.063      -7508.733
+           0.950       0.950        -7467.802      -7508.733
+           0.900       0.900        -7432.021      -7508.733
+           0.800       0.800        -7388.687      -7413.720
+           0.700       0.750        -7357.447      -7356.771
+           0.500       0.450        -7305.800      -7315.342
+           0.300       0.250        -7254.154      -7274.424
+           0.200       0.250        -7222.914      -7217.766
+           0.100       0.200        -7179.579      -7175.714
+           0.050       0.050        -7143.799      -7174.712
+           0.020       0.000        -7103.538      -7174.712
+           0.010       0.000        -7076.690      -7174.712
+
+Information Criteria
+
+    Akaike (AIC)
+
+        Mean                             14623.601
+        Std Dev                            196.974
+        Number of successful computations       20
+
+             Proportions                   Percentiles
+        Expected    Observed         Expected       Observed
+           0.990       1.000        14165.380      14229.418
+           0.980       1.000        14219.075      14229.418
+           0.950       0.950        14299.598      14229.418
+           0.900       0.800        14371.159      14229.418
+           0.800       0.750        14457.827      14363.428
+           0.700       0.750        14520.308      14534.415
+           0.500       0.550        14623.601      14641.620
+           0.300       0.250        14726.894      14695.662
+           0.200       0.200        14789.374      14782.254
+           0.100       0.100        14876.043      14839.440
+           0.050       0.050        14947.604      14917.880
+           0.020       0.050        15028.127      14917.880
+           0.010       0.000        15081.822      14917.880
+
+    Bayesian (BIC)
+
+        Mean                             14663.565
+        Std Dev                            196.974
+        Number of successful computations       20
+
+             Proportions                   Percentiles
+        Expected    Observed         Expected       Observed
+           0.990       1.000        14205.345      14269.382
+           0.980       1.000        14259.040      14269.382
+           0.950       0.950        14339.563      14269.382
+           0.900       0.800        14411.123      14269.382
+           0.800       0.750        14497.792      14403.392
+           0.700       0.750        14560.272      14574.380
+           0.500       0.550        14663.565      14681.585
+           0.300       0.250        14766.859      14735.626
+           0.200       0.200        14829.339      14822.219
+           0.100       0.100        14916.008      14879.405
+           0.050       0.050        14987.568      14957.844
+           0.020       0.050        15068.091      14957.844
+           0.010       0.000        15121.786      14957.844
+
+    Sample-Size Adjusted BIC (n* = (n + 2) / 24)
+
+        Mean                             14644.499
+        Std Dev                            196.974
+        Number of successful computations       20
+
+             Proportions                   Percentiles
+        Expected    Observed         Expected       Observed
+           0.990       1.000        14186.278      14250.316
+           0.980       1.000        14239.973      14250.316
+           0.950       0.950        14320.496      14250.316
+           0.900       0.800        14392.057      14250.316
+           0.800       0.750        14478.726      14384.326
+           0.700       0.750        14541.206      14555.313
+           0.500       0.550        14644.499      14662.519
+           0.300       0.250        14747.792      14716.560
+           0.200       0.200        14810.273      14803.153
+           0.100       0.100        14896.941      14860.339
+           0.050       0.050        14968.502      14938.778
+           0.020       0.050        15049.025      14938.778
+           0.010       0.000        15102.720      14938.778
+
+
+
+FINAL CLASS COUNTS AND PROPORTIONS FOR THE LATENT CLASSES
+BASED ON THE ESTIMATED MODEL
+
+    Latent
+   Classes
+
+       1        994.53367          0.17230
+       2       2548.89153          0.44160
+       3       2228.57481          0.38610
+
+
+FINAL CLASS COUNTS AND PROPORTIONS FOR THE LATENT CLASSES
+BASED ON ESTIMATED POSTERIOR PROBABILITIES
+
+    Latent
+   Classes
+
+       1        994.53367          0.17230
+       2       2548.89153          0.44160
+       3       2228.57481          0.38610
+
+
+FINAL CLASS COUNTS AND PROPORTIONS FOR THE LATENT CLASSES
+BASED ON THEIR MOST LIKELY LATENT CLASS MEMBERSHIP
+
+Class Counts and Proportions
+
+    Latent
+   Classes
+
+       1              774          0.13410
+       2             2801          0.48527
+       3             2197          0.38063
+
+
+Average Latent Class Probabilities for Most Likely Latent Class Membership (Row)
+by Latent Class (Column)
+
+           1        2        3
+
+    1   1.764    -.416    -.348
+    2   -.068    1.149    -.081
+    3   -.082    -.158    1.240
+
+
+Classification Probabilities for the Most Likely Latent Class Membership (Column)
+by Latent Class (Row)
+
+           1        2        3
+
+    1   1.373    -.192    -.181
+    2   -.126    1.263    -.136
+    3   -.121    -.102    1.223
+
+
+Logits for the Classification Probabilities for the Most Likely Latent Class Membership (Column)
+by Latent Class (Row)
+
+              1        2        3
+
+    1     14.132    0.000    0.000
+    2      0.000   14.049    0.000
+    3    -14.017  -14.017    0.000
+
+
+MODEL RESULTS
+
+                                                    Two-Tailed   Rate of
+                    Estimate       S.E.  Est./S.E.    P-Value    Missing
+
+Latent Class 1
+
+ Means
+    DRO_OUT            0.187      0.024      7.836      0.000      0.423
+
+ Variances
+    DRO_OUT            0.094      0.005     20.382      0.000      0.548
+
+Latent Class 2
+
+ Means
+    DRO_OUT            0.111      0.010     11.114      0.000      0.400
+
+ Variances
+    DRO_OUT            0.094      0.005     20.382      0.000      0.548
+
+Latent Class 3
+
+ Means
+    DRO_OUT            0.067      0.009      7.461      0.000      0.346
+
+ Variances
+    DRO_OUT            0.094      0.005     20.382      0.000      0.548
+
+Categorical Latent Variables
+
+ Means
+    C#1               -0.807      0.062    -13.119      0.000      0.000
+    C#2                0.134      0.039      3.461      0.001      0.000
+
+
+QUALITY OF NUMERICAL RESULTS
+
+     Average Condition Number for the Information Matrix      0.223E-15
+       (ratio of smallest to largest eigenvalue)
+
+
+STANDARDIZED MODEL RESULTS
+
+
+STDYX Standardization
+
+                                                    Two-Tailed   Rate of
+                    Estimate       S.E.  Est./S.E.    P-Value    Missing
+
+Latent Class 1
+
+ Means
+    DRO_OUT            0.612      0.075      8.107      0.000      0.401
+
+ Variances
+    DRO_OUT            1.000      0.000  *********      0.000      0.000
+
+Latent Class 2
+
+ Means
+    DRO_OUT            0.361      0.028     13.070      0.000      0.348
+
+ Variances
+    DRO_OUT            1.000      0.000  *********      0.000      0.000
+
+Latent Class 3
+
+ Means
+    DRO_OUT            0.219      0.027      8.189      0.000      0.310
+
+ Variances
+    DRO_OUT            1.000      0.000  *********      0.000      0.000
+
+
+R-SQUARE
+
+Class 1
+
+Class 2
+
+Class 3
+
+
+CONFIDENCE INTERVALS OF MODEL RESULTS
+
+                  Lower .5%  Lower 2.5%    Lower 5%    Estimate    Upper 5%  Upper 2.5%   Upper .5%
+
+Latent Class 1
+
+ Means
+    DRO_OUT          0.126       0.140       0.148       0.187       0.227       0.234       0.249
+
+ Variances
+    DRO_OUT          0.082       0.085       0.086       0.094       0.101       0.103       0.106
+
+Latent Class 2
+
+ Means
+    DRO_OUT          0.085       0.091       0.094       0.111       0.127       0.130       0.136
+
+ Variances
+    DRO_OUT          0.082       0.085       0.086       0.094       0.101       0.103       0.106
+
+Latent Class 3
+
+ Means
+    DRO_OUT          0.044       0.049       0.052       0.067       0.082       0.085       0.090
+
+ Variances
+    DRO_OUT          0.082       0.085       0.086       0.094       0.101       0.103       0.106
+
+Categorical Latent Variables
+
+ Means
+    C#1             -0.965      -0.927      -0.908      -0.807      -0.706      -0.686      -0.648
+    C#2              0.034       0.058       0.070       0.134       0.198       0.210       0.234
+
+
+CONFIDENCE INTERVALS OF STANDARDIZED MODEL RESULTS
+
+
+STDYX Standardization
+
+                  Lower .5%  Lower 2.5%    Lower 5%    Estimate    Upper 5%  Upper 2.5%   Upper .5%
+
+Latent Class 1
+
+ Means
+    DRO_OUT          0.417       0.464       0.487       0.612       0.736       0.759       0.806
+
+ Variances
+    DRO_OUT          1.000       1.000       1.000       1.000       1.000       1.000       1.000
+
+Latent Class 2
+
+ Means
+    DRO_OUT          0.290       0.307       0.316       0.361       0.407       0.415       0.432
+
+ Variances
+    DRO_OUT          1.000       1.000       1.000       1.000       1.000       1.000       1.000
+
+Latent Class 3
+
+ Means
+    DRO_OUT          0.150       0.167       0.175       0.219       0.263       0.271       0.288
+
+ Variances
+    DRO_OUT          1.000       1.000       1.000       1.000       1.000       1.000       1.000
+
+
+RESIDUAL OUTPUT
+
+NOTE:  These are average results over 20 data sets.
+
+
+     ESTIMATED MODEL AND RESIDUALS (OBSERVED - ESTIMATED) FOR LATENT CLASS 1
+
+
+           Model Estimated Means
+              DRO_OUT
+              ________
+                0.187
+
+
+           Residuals for Means
+              DRO_OUT
+              ________
+                0.000
+
+
+           Model Estimated Covariances
+              DRO_OUT
+              ________
+ DRO_OUT        0.094
+
+
+           Residuals for Covariances
+              DRO_OUT
+              ________
+ DRO_OUT        0.058
+
+
+     ESTIMATED MODEL AND RESIDUALS (OBSERVED - ESTIMATED) FOR LATENT CLASS 2
+
+
+           Model Estimated Means
+              DRO_OUT
+              ________
+                0.111
+
+
+           Residuals for Means
+              DRO_OUT
+              ________
+                0.000
+
+
+           Model Estimated Covariances
+              DRO_OUT
+              ________
+ DRO_OUT        0.094
+
+
+           Residuals for Covariances
+              DRO_OUT
+              ________
+ DRO_OUT        0.005
+
+
+     ESTIMATED MODEL AND RESIDUALS (OBSERVED - ESTIMATED) FOR LATENT CLASS 3
+
+
+           Model Estimated Means
+              DRO_OUT
+              ________
+                0.067
+
+
+           Residuals for Means
+              DRO_OUT
+              ________
+                0.000
+
+
+           Model Estimated Covariances
+              DRO_OUT
+              ________
+ DRO_OUT        0.094
+
+
+           Residuals for Covariances
+              DRO_OUT
+              ________
+ DRO_OUT       -0.031
+
+
+TECHNICAL 1 OUTPUT
+
+
+     PARAMETER SPECIFICATION FOR LATENT CLASS 1
+
+
+           NU
+              DRO_OUT
+              ________
+                    1
+
+
+           THETA
+              DRO_OUT
+              ________
+ DRO_OUT            2
+
+
+     PARAMETER SPECIFICATION FOR LATENT CLASS 2
+
+
+           NU
+              DRO_OUT
+              ________
+                    3
+
+
+           THETA
+              DRO_OUT
+              ________
+ DRO_OUT            2
+
+
+     PARAMETER SPECIFICATION FOR LATENT CLASS 3
+
+
+           NU
+              DRO_OUT
+              ________
+                    4
+
+
+           THETA
+              DRO_OUT
+              ________
+ DRO_OUT            2
+
+
+     PARAMETER SPECIFICATION FOR LATENT CLASS REGRESSION MODEL PART
+
+
+           ALPHA(C)
+              C#1           C#2           C#3
+              ________      ________      ________
+                    5             6             0
+
+
+     STARTING VALUES FOR LATENT CLASS 1
+
+
+           NU
+              DRO_OUT
+              ________
+               -0.201
+
+
+           THETA
+              DRO_OUT
+              ________
+ DRO_OUT        0.046
+
+
+     STARTING VALUES FOR LATENT CLASS 2
+
+
+           NU
+              DRO_OUT
+              ________
+                0.103
+
+
+           THETA
+              DRO_OUT
+              ________
+ DRO_OUT        0.046
+
+
+     STARTING VALUES FOR LATENT CLASS 3
+
+
+           NU
+              DRO_OUT
+              ________
+                0.408
+
+
+           THETA
+              DRO_OUT
+              ________
+ DRO_OUT        0.046
+
+
+     STARTING VALUES FOR LATENT CLASS REGRESSION MODEL PART
+
+
+           ALPHA(C)
+              C#1           C#2           C#3
+              ________      ________      ________
+                0.000         0.000         0.000
+
+
+DIAGRAM INFORMATION
+
+  Mplus diagrams are currently not available for Mixture analysis.
+  No diagram output was produced.
+
+
+     Beginning Time:  08:47:27
+        Ending Time:  08:47:32
+       Elapsed Time:  00:00:05
+
+
+
+MUTHEN & MUTHEN
+3463 Stoner Ave.
+Los Angeles, CA  90066
+
+Tel: (310) 391-9971
+Fax: (310) 391-8971
+Web: www.StatModel.com
+Support: Support@StatModel.com
+
+Copyright (c) 1998-2023 Muthen & Muthen
