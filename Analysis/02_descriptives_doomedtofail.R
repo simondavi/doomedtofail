@@ -3,7 +3,7 @@
 # Comment: 
 #
 # Input: lca_cprob_3class.dat
-#        data_doomedtofail.Rda
+#        data_doomedtofail.Rdata
 # Output:
 #
 # Contents: (1) Load Packages
