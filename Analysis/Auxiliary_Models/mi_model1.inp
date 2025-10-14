@@ -1,4 +1,4 @@
-Title: regression_mi_model1
+Title: mi_model1
 
 data: 
   file is "S:\Temp\MPlus\Imp_Data_3class\Imp_Data_3class__IMP_LIST.txt";
@@ -13,7 +13,7 @@ variable:
           str_aca_int nor_aca_int pee_soc_int fac_soc_int 
           dro_int dro_out 
           bchw1 bchw2 bchw3 
-          ID_t ;
+          ID_t;
   
   usevariables = dro_out 
                  bchw1 bchw2 bchw3;
@@ -23,27 +23,17 @@ variable:
 
   classes = c (3);
   training = bchw1-bchw3 (bch);
-  
-define:
-  standardize dro_out;
+  categorical = dro_out;
 
 analysis: 
   type = mixture;
   estimator = mlr;
+  starts = 0;
 
 model:
-
-  %c#1%
-  [dro_out];
-
-  %c#2%
-  [dro_out];
-
-  %c#3%
-  [dro_out];
+  %overall%
 
 output:
   residual;
   sampstat;
-  stdyx;
   cinterval;

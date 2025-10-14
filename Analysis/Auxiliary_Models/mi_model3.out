@@ -1,0 +1,1135 @@
+Mplus VERSION 8.10
+MUTHEN & MUTHEN
+10/14/2025   3:22 PM
+
+INPUT INSTRUCTIONS
+
+  Title: mi_model3
+
+  data:
+    file is "S:\Temp\MPlus\Imp_Data_3class\Imp_Data_3class__IMP_LIST.txt";
+    type = imputation;
+
+  variable:
+    names = par_edu
+            big_ope big_con big_ext big_agr big_neu
+            int_edi int_ssi int_abi ext_uti ext_lod ext_soi
+            aca_abi
+            hisei
+            str_aca_int nor_aca_int pee_soc_int fac_soc_int
+            dro_int dro_out
+            bchw1 bchw2 bchw3
+            ID_t;
+
+    usevariables = str_aca_int nor_aca_int pee_soc_int fac_soc_int
+                   dro_out
+                   bchw1 bchw2 bchw3;
+
+    missing = .;
+    idvariable = ID_t;
+
+    classes = c (3);
+    training = bchw1-bchw3 (bch);
+    categorical = dro_out;
+
+  define:
+    standardize str_aca_int nor_aca_int pee_soc_int fac_soc_int;
+
+  analysis:
+    type = mixture;
+    estimator = mlr;
+    starts = 0;
+
+  model:
+    %overall%
+    dro_out on str_aca_int nor_aca_int pee_soc_int fac_soc_int;
+
+    %c#1%
+    dro_out on str_aca_int nor_aca_int pee_soc_int fac_soc_int;
+
+    %c#2%
+    dro_out on str_aca_int nor_aca_int pee_soc_int fac_soc_int;
+
+    %c#3%
+    dro_out on str_aca_int nor_aca_int pee_soc_int fac_soc_int;
+
+  output:
+    residual;
+    sampstat;
+    cinterval;
+
+
+
+*** WARNING in VARIABLE command
+  Note that only the first 8 characters of variable names are used in the output.
+  Shorten variable names to avoid any confusion.
+   1 WARNING(S) FOUND IN THE INPUT INSTRUCTIONS
+
+
+
+mi_model3
+
+SUMMARY OF ANALYSIS
+
+Number of groups                                                 1
+Average number of observations                                5772
+
+Number of replications
+    Requested                                                   20
+    Completed                                                   20
+
+Number of dependent variables                                    1
+Number of independent variables                                  4
+Number of continuous latent variables                            0
+Number of categorical latent variables                           1
+
+Observed dependent variables
+
+  Binary and ordered categorical (ordinal)
+   DRO_OUT
+
+Observed independent variables
+   STR_ACA_    NOR_ACA_    PEE_SOC_    FAC_SOC_
+
+Categorical latent variables
+   C
+
+Variables with special functions
+
+  ID variable           ID_T
+
+  Training variables (BCH)
+   BCHW1       BCHW2       BCHW3
+
+
+Estimator                                                      MLR
+Information matrix                                        OBSERVED
+Optimization Specifications for the Quasi-Newton Algorithm for
+Continuous Outcomes
+  Maximum number of iterations                                 100
+  Convergence criterion                                  0.100D-05
+Optimization Specifications for the EM Algorithm
+  Maximum number of iterations                                 500
+  Convergence criteria
+    Loglikelihood change                                 0.100D-06
+    Relative loglikelihood change                        0.100D-06
+    Derivative                                           0.100D-05
+Optimization Specifications for the M step of the EM Algorithm for
+Categorical Latent variables
+  Number of M step iterations                                    1
+  M step convergence criterion                           0.100D-05
+  Basis for M step termination                           ITERATION
+Optimization Specifications for the M step of the EM Algorithm for
+Censored, Binary or Ordered Categorical (Ordinal), Unordered
+Categorical (Nominal) and Count Outcomes
+  Number of M step iterations                                    1
+  M step convergence criterion                           0.100D-05
+  Basis for M step termination                           ITERATION
+  Maximum value for logit thresholds                            15
+  Minimum value for logit thresholds                           -15
+  Minimum expected cell size for chi-square              0.100D-01
+Maximum number of iterations for H1                           2000
+Convergence criterion for H1                             0.100D-03
+Optimization algorithm                                         EMA
+Link                                                         LOGIT
+
+Input data file(s)
+  Multiple data files from
+    S:\Temp\MPlus\Imp_Data_3class\Imp_Data_3class__IMP_LIST.txt
+Input data format  FREE
+
+
+SUMMARY OF DATA FOR THE FIRST DATA SET
+
+     Number of missing data patterns             1
+     Number of y missing data patterns           0
+     Number of u missing data patterns           1
+
+
+SUMMARY OF MISSING DATA PATTERNS FOR THE FIRST DATA SET
+
+
+COVARIANCE COVERAGE OF DATA FOR THE FIRST DATA SET
+
+Minimum covariance coverage value   0.100
+
+
+UNIVARIATE PROPORTIONS FOR CATEGORICAL VARIABLES
+
+NOTE:  These are average results over 20 data sets.
+
+    DRO_OUT
+      Category 1    0.893
+      Category 2    0.107
+
+
+SAMPLE STATISTICS
+
+NOTE:  These are average results over 20 data sets.
+
+
+     ESTIMATED SAMPLE STATISTICS
+
+
+           Means
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+                0.000         0.000         0.000         0.000
+
+
+           Covariances
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_       1.000
+ NOR_ACA_       0.150         1.000
+ PEE_SOC_       0.177         0.141         1.000
+ FAC_SOC_       0.333         0.107         0.232         1.000
+
+
+           Correlations
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_       1.000
+ NOR_ACA_       0.150         1.000
+ PEE_SOC_       0.177         0.141         1.000
+ FAC_SOC_       0.333         0.107         0.232         1.000
+
+
+
+
+MODEL FIT INFORMATION
+
+Number of Free Parameters                       17
+
+Loglikelihood
+
+    H0 Value
+
+        Mean                             -7681.256
+        Std Dev                             46.778
+        Number of successful computations       20
+
+             Proportions                   Percentiles
+        Expected    Observed         Expected       Observed
+           0.990       0.950        -7790.075      -7795.025
+           0.980       0.950        -7777.323      -7795.025
+           0.950       0.900        -7758.201      -7795.025
+           0.900       0.850        -7741.206      -7795.025
+           0.800       0.850        -7720.624      -7741.285
+           0.700       0.850        -7705.786      -7690.694
+           0.500       0.550        -7681.256      -7676.927
+           0.300       0.200        -7656.726      -7667.023
+           0.200       0.100        -7641.888      -7661.918
+           0.100       0.100        -7621.306      -7642.172
+           0.050       0.050        -7604.312      -7605.717
+           0.020       0.000        -7585.189      -7605.717
+           0.010       0.000        -7572.438      -7605.717
+
+Information Criteria
+
+    Akaike (AIC)
+
+        Mean                             15396.513
+        Std Dev                             93.555
+        Number of successful computations       20
+
+             Proportions                   Percentiles
+        Expected    Observed         Expected       Observed
+           0.990       1.000        15178.875      15206.004
+           0.980       1.000        15204.378      15206.004
+           0.950       0.950        15242.624      15206.004
+           0.900       0.900        15276.612      15206.004
+           0.800       0.900        15317.777      15318.343
+           0.700       0.800        15347.452      15362.636
+           0.500       0.450        15396.513      15384.182
+           0.300       0.150        15445.573      15413.865
+           0.200       0.150        15475.249      15417.446
+           0.100       0.150        15516.413      15516.569
+           0.050       0.100        15550.402      15573.403
+           0.020       0.050        15588.647      15573.403
+           0.010       0.050        15614.150      15573.403
+
+    Bayesian (BIC)
+
+        Mean                             15509.746
+        Std Dev                             93.555
+        Number of successful computations       20
+
+             Proportions                   Percentiles
+        Expected    Observed         Expected       Observed
+           0.990       1.000        15292.108      15319.238
+           0.980       1.000        15317.611      15319.238
+           0.950       0.950        15355.857      15319.238
+           0.900       0.900        15389.845      15319.238
+           0.800       0.900        15431.010      15431.577
+           0.700       0.800        15460.685      15475.869
+           0.500       0.450        15509.746      15497.415
+           0.300       0.150        15558.806      15527.099
+           0.200       0.150        15588.482      15530.680
+           0.100       0.150        15629.646      15629.802
+           0.050       0.100        15663.635      15686.636
+           0.020       0.050        15701.880      15686.636
+           0.010       0.050        15727.383      15686.636
+
+    Sample-Size Adjusted BIC (n* = (n + 2) / 24)
+
+        Mean                             15455.725
+        Std Dev                             93.555
+        Number of successful computations       20
+
+             Proportions                   Percentiles
+        Expected    Observed         Expected       Observed
+           0.990       1.000        15238.087      15265.217
+           0.980       1.000        15263.590      15265.217
+           0.950       0.950        15301.836      15265.217
+           0.900       0.900        15335.824      15265.217
+           0.800       0.900        15376.989      15377.556
+           0.700       0.800        15406.664      15421.848
+           0.500       0.450        15455.725      15443.394
+           0.300       0.150        15504.785      15473.078
+           0.200       0.150        15534.461      15476.659
+           0.100       0.150        15575.625      15575.781
+           0.050       0.100        15609.614      15632.615
+           0.020       0.050        15647.859      15632.615
+           0.010       0.050        15673.362      15632.615
+
+
+
+FINAL CLASS COUNTS AND PROPORTIONS FOR THE LATENT CLASSES
+BASED ON THE ESTIMATED MODEL
+
+    Latent
+   Classes
+
+       1        994.53367          0.17230
+       2       2548.89153          0.44160
+       3       2228.57481          0.38610
+
+
+FINAL CLASS COUNTS AND PROPORTIONS FOR THE LATENT CLASSES
+BASED ON ESTIMATED POSTERIOR PROBABILITIES
+
+    Latent
+   Classes
+
+       1        994.53367          0.17230
+       2       2548.89153          0.44160
+       3       2228.57481          0.38610
+
+
+FINAL CLASS COUNTS AND PROPORTIONS FOR THE LATENT CLASSES
+BASED ON THEIR MOST LIKELY LATENT CLASS MEMBERSHIP
+
+Class Counts and Proportions
+
+    Latent
+   Classes
+
+       1              774          0.13410
+       2             2801          0.48527
+       3             2197          0.38063
+
+
+Average Latent Class Probabilities for Most Likely Latent Class Membership (Row)
+by Latent Class (Column)
+
+           1        2        3
+
+    1   1.764    -.416    -.348
+    2   -.068    1.149    -.081
+    3   -.082    -.158    1.240
+
+
+Classification Probabilities for the Most Likely Latent Class Membership (Column)
+by Latent Class (Row)
+
+           1        2        3
+
+    1   1.373    -.192    -.181
+    2   -.126    1.263    -.136
+    3   -.121    -.102    1.223
+
+
+Logits for the Classification Probabilities for the Most Likely Latent Class Membership (Column)
+by Latent Class (Row)
+
+              1        2        3
+
+    1     14.132    0.000    0.000
+    2      0.000   14.049    0.000
+    3    -14.017  -14.017    0.000
+
+
+MODEL RESULTS
+
+                                                    Two-Tailed   Rate of
+                    Estimate       S.E.  Est./S.E.    P-Value    Missing
+
+Latent Class 1
+
+ DRO_OUT    ON
+    STR_ACA_IN        -0.612      0.216     -2.840      0.005      0.495
+    NOR_ACA_IN        -0.426      0.227     -1.875      0.061      0.581
+    PEE_SOC_IN        -0.262      0.155     -1.696      0.090      0.392
+    FAC_SOC_IN        -0.037      0.178     -0.208      0.835      0.497
+
+ Thresholds
+    DRO_OUT$1          2.170      0.299      7.251      0.000      0.508
+
+Latent Class 2
+
+ DRO_OUT    ON
+    STR_ACA_IN        -0.581      0.119     -4.874      0.000      0.485
+    NOR_ACA_IN        -0.346      0.125     -2.773      0.006      0.539
+    PEE_SOC_IN        -0.304      0.143     -2.129      0.033      0.665
+    FAC_SOC_IN         0.037      0.128      0.289      0.773      0.517
+
+ Thresholds
+    DRO_OUT$1          2.281      0.113     20.100      0.000      0.354
+
+Latent Class 3
+
+ DRO_OUT    ON
+    STR_ACA_IN        -0.633      0.155     -4.096      0.000      0.357
+    NOR_ACA_IN        -0.385      0.161     -2.383      0.017      0.496
+    PEE_SOC_IN        -0.175      0.194     -0.899      0.369      0.579
+    FAC_SOC_IN         0.013      0.170      0.073      0.942      0.345
+
+ Thresholds
+    DRO_OUT$1          2.823      0.173     16.314      0.000      0.390
+
+Categorical Latent Variables
+
+ Means
+    C#1               -0.807      0.062    -13.119      0.000      0.000
+    C#2                0.134      0.039      3.461      0.001      0.000
+
+
+QUALITY OF NUMERICAL RESULTS
+
+     Average Condition Number for the Information Matrix      0.193E-01
+       (ratio of smallest to largest eigenvalue)
+
+
+RESULTS IN PROBABILITY SCALE
+
+                    Estimate
+
+Latent Class 1
+
+ DRO_OUT
+    Category 1         0.979
+    Category 2         0.021
+
+Latent Class 2
+
+ DRO_OUT
+    Category 1         0.988
+    Category 2         0.012
+
+Latent Class 3
+
+ DRO_OUT
+    Category 1         0.993
+    Category 2         0.007
+
+
+CONFIDENCE INTERVALS OF MODEL RESULTS
+
+                  Lower .5%  Lower 2.5%    Lower 5%    Estimate    Upper 5%  Upper 2.5%   Upper .5%
+
+Latent Class 1
+
+ DRO_OUT  ON
+    STR_ACA_IN      -1.167      -1.034      -0.967      -0.612      -0.258      -0.190      -0.057
+    NOR_ACA_IN      -1.012      -0.872      -0.800      -0.426      -0.052       0.019       0.159
+    PEE_SOC_IN      -0.660      -0.565      -0.517      -0.262      -0.008       0.041       0.136
+    FAC_SOC_IN      -0.496      -0.386      -0.330      -0.037       0.256       0.312       0.421
+
+ Thresholds
+    DRO_OUT$1        1.399       1.583       1.677       2.170       2.662       2.756       2.940
+
+Latent Class 2
+
+ DRO_OUT  ON
+    STR_ACA_IN      -0.888      -0.815      -0.777      -0.581      -0.385      -0.347      -0.274
+    NOR_ACA_IN      -0.666      -0.590      -0.550      -0.346      -0.141      -0.101      -0.025
+    PEE_SOC_IN      -0.673      -0.585      -0.540      -0.304      -0.069      -0.024       0.064
+    FAC_SOC_IN      -0.293      -0.214      -0.174       0.037       0.248       0.288       0.367
+
+ Thresholds
+    DRO_OUT$1        1.989       2.059       2.094       2.281       2.468       2.504       2.574
+
+Latent Class 3
+
+ DRO_OUT  ON
+    STR_ACA_IN      -1.031      -0.936      -0.887      -0.633      -0.379      -0.330      -0.235
+    NOR_ACA_IN      -0.800      -0.701      -0.650      -0.385      -0.119      -0.068       0.031
+    PEE_SOC_IN      -0.675      -0.556      -0.494      -0.175       0.145       0.206       0.326
+    FAC_SOC_IN      -0.426      -0.321      -0.268       0.013       0.293       0.346       0.451
+
+ Thresholds
+    DRO_OUT$1        2.378       2.484       2.539       2.823       3.108       3.163       3.269
+
+Categorical Latent Variables
+
+ Means
+    C#1             -0.965      -0.927      -0.908      -0.807      -0.706      -0.686      -0.648
+    C#2              0.034       0.058       0.070       0.134       0.198       0.210       0.234
+
+
+CONFIDENCE INTERVALS FOR THE LOGISTIC REGRESSION ODDS RATIO RESULTS
+
+Latent Class 1
+
+ DRO_OUT  ON
+    STR_ACA_IN       0.311       0.355       0.380       0.542       0.773       0.827       0.945
+    NOR_ACA_IN       0.364       0.418       0.449       0.653       0.949       1.020       1.173
+    PEE_SOC_IN       0.517       0.568       0.597       0.769       0.992       1.042       1.146
+    FAC_SOC_IN       0.609       0.680       0.719       0.964       1.291       1.366       1.524
+
+Latent Class 2
+
+ DRO_OUT  ON
+    STR_ACA_IN       0.412       0.443       0.460       0.559       0.681       0.707       0.760
+    NOR_ACA_IN       0.514       0.554       0.577       0.708       0.869       0.904       0.976
+    PEE_SOC_IN       0.510       0.557       0.583       0.738       0.933       0.976       1.066
+    FAC_SOC_IN       0.746       0.807       0.841       1.038       1.281       1.334       1.443
+
+Latent Class 3
+
+ DRO_OUT  ON
+    STR_ACA_IN       0.357       0.392       0.412       0.531       0.685       0.719       0.791
+    NOR_ACA_IN       0.449       0.496       0.522       0.681       0.888       0.934       1.032
+    PEE_SOC_IN       0.509       0.574       0.610       0.840       1.156       1.229       1.385
+    FAC_SOC_IN       0.653       0.725       0.765       1.013       1.340       1.414       1.570
+
+
+RESIDUAL OUTPUT
+
+NOTE:  These are average results over 20 data sets.
+
+
+     ESTIMATED MODEL AND RESIDUALS (OBSERVED - ESTIMATED) FOR LATENT CLASS 1
+
+
+           Model Estimated Means
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+               -0.200        -0.614        -0.329        -0.185
+
+
+           Residuals for Means
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+                0.000         0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_       0.885
+ NOR_ACA_       0.137         0.833
+ PEE_SOC_       0.208         0.079         1.126
+ FAC_SOC_       0.254         0.012         0.252         1.012
+
+
+           Residuals for Covariances
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_       0.000
+ NOR_ACA_       0.000         0.000
+ PEE_SOC_       0.000         0.000         0.000
+ FAC_SOC_       0.000         0.000         0.000         0.000
+
+
+     ESTIMATED MODEL AND RESIDUALS (OBSERVED - ESTIMATED) FOR LATENT CLASS 2
+
+
+           Model Estimated Means
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+                0.025         0.131         0.006        -0.012
+
+
+           Residuals for Means
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+                0.000         0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_       1.030
+ NOR_ACA_       0.128         0.929
+ PEE_SOC_       0.167         0.120         0.952
+ FAC_SOC_       0.335         0.106         0.204         0.978
+
+
+           Residuals for Covariances
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_       0.000
+ NOR_ACA_       0.000         0.000
+ PEE_SOC_       0.000         0.000         0.000
+ FAC_SOC_       0.000         0.000         0.000         0.000
+
+
+     ESTIMATED MODEL AND RESIDUALS (OBSERVED - ESTIMATED) FOR LATENT CLASS 3
+
+
+           Model Estimated Means
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+                0.060         0.124         0.140         0.097
+
+
+           Residuals for Means
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+                0.000         0.000         0.000         0.000
+
+
+           Model Estimated Covariances
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_       0.994
+ NOR_ACA_       0.116         0.951
+ PEE_SOC_       0.136         0.083         0.929
+ FAC_SOC_       0.343         0.094         0.213         0.994
+
+
+           Residuals for Covariances
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_       0.000
+ NOR_ACA_       0.000         0.000
+ PEE_SOC_       0.000         0.000         0.000
+ FAC_SOC_       0.000         0.000         0.000         0.000
+
+
+TECHNICAL 1 OUTPUT
+
+
+     PARAMETER SPECIFICATION FOR LATENT CLASS 1
+
+
+           NU
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+                    0             0             0             0
+
+
+           LAMBDA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_           0             0             0             0
+ NOR_ACA_           0             0             0             0
+ PEE_SOC_           0             0             0             0
+ FAC_SOC_           0             0             0             0
+
+
+           THETA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_           0
+ NOR_ACA_           0             0
+ PEE_SOC_           0             0             0
+ FAC_SOC_           0             0             0             0
+
+
+           ALPHA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+                    0             0             0             0
+
+
+           BETA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_           0             0             0             0
+ NOR_ACA_           0             0             0             0
+ PEE_SOC_           0             0             0             0
+ FAC_SOC_           0             0             0             0
+
+
+           PSI
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_           0
+ NOR_ACA_           0             0
+ PEE_SOC_           0             0             0
+ FAC_SOC_           0             0             0             0
+
+
+     PARAMETER SPECIFICATION FOR LATENT CLASS 2
+
+
+           NU
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+                    0             0             0             0
+
+
+           LAMBDA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_           0             0             0             0
+ NOR_ACA_           0             0             0             0
+ PEE_SOC_           0             0             0             0
+ FAC_SOC_           0             0             0             0
+
+
+           THETA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_           0
+ NOR_ACA_           0             0
+ PEE_SOC_           0             0             0
+ FAC_SOC_           0             0             0             0
+
+
+           ALPHA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+                    0             0             0             0
+
+
+           BETA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_           0             0             0             0
+ NOR_ACA_           0             0             0             0
+ PEE_SOC_           0             0             0             0
+ FAC_SOC_           0             0             0             0
+
+
+           PSI
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_           0
+ NOR_ACA_           0             0
+ PEE_SOC_           0             0             0
+ FAC_SOC_           0             0             0             0
+
+
+     PARAMETER SPECIFICATION FOR LATENT CLASS 3
+
+
+           NU
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+                    0             0             0             0
+
+
+           LAMBDA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_           0             0             0             0
+ NOR_ACA_           0             0             0             0
+ PEE_SOC_           0             0             0             0
+ FAC_SOC_           0             0             0             0
+
+
+           THETA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_           0
+ NOR_ACA_           0             0
+ PEE_SOC_           0             0             0
+ FAC_SOC_           0             0             0             0
+
+
+           ALPHA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+                    0             0             0             0
+
+
+           BETA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_           0             0             0             0
+ NOR_ACA_           0             0             0             0
+ PEE_SOC_           0             0             0             0
+ FAC_SOC_           0             0             0             0
+
+
+           PSI
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_           0
+ NOR_ACA_           0             0
+ PEE_SOC_           0             0             0
+ FAC_SOC_           0             0             0             0
+
+
+     PARAMETER SPECIFICATION FOR LATENT CLASS INDICATOR MODEL PART
+
+
+           TAU(U) FOR LATENT CLASS 1
+              DRO_OUT$
+              ________
+                    1
+
+
+           TAU(U) FOR LATENT CLASS 2
+              DRO_OUT$
+              ________
+                    6
+
+
+           TAU(U) FOR LATENT CLASS 3
+              DRO_OUT$
+              ________
+                   11
+
+
+     PARAMETER SPECIFICATION FOR LATENT CLASS REGRESSION MODEL PART
+
+
+           ALPHA(C)
+              C#1           C#2           C#3
+              ________      ________      ________
+                   16            17             0
+
+
+           GAMMA(C)
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ C#1                0             0             0             0
+ C#2                0             0             0             0
+ C#3                0             0             0             0
+
+
+     PARAMETER SPECIFICATION FOR LATENT CLASS INDICATOR GROWTH MODEL PART
+
+
+           LAMBDA(F) FOR LATENT CLASS 1
+              DRO_OUT
+              ________
+ DRO_OUT            0
+
+
+           ALPHA(F) FOR LATENT CLASS 1
+              DRO_OUT
+              ________
+                    0
+
+
+           GAMMA(F) FOR LATENT CLASS 1
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ DRO_OUT            2             3             4             5
+
+
+           LAMBDA(F) FOR LATENT CLASS 2
+              DRO_OUT
+              ________
+ DRO_OUT            0
+
+
+           ALPHA(F) FOR LATENT CLASS 2
+              DRO_OUT
+              ________
+                    0
+
+
+           GAMMA(F) FOR LATENT CLASS 2
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ DRO_OUT            7             8             9            10
+
+
+           LAMBDA(F) FOR LATENT CLASS 3
+              DRO_OUT
+              ________
+ DRO_OUT            0
+
+
+           ALPHA(F) FOR LATENT CLASS 3
+              DRO_OUT
+              ________
+                    0
+
+
+           GAMMA(F) FOR LATENT CLASS 3
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ DRO_OUT           12            13            14            15
+
+
+     STARTING VALUES FOR LATENT CLASS 1
+
+
+           NU
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+                0.000         0.000         0.000         0.000
+
+
+           LAMBDA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_       1.000         0.000         0.000         0.000
+ NOR_ACA_       0.000         1.000         0.000         0.000
+ PEE_SOC_       0.000         0.000         1.000         0.000
+ FAC_SOC_       0.000         0.000         0.000         1.000
+
+
+           THETA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_       0.000
+ NOR_ACA_       0.000         0.000
+ PEE_SOC_       0.000         0.000         0.000
+ FAC_SOC_       0.000         0.000         0.000         0.000
+
+
+           ALPHA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+                0.000         0.000         0.000         0.000
+
+
+           BETA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_       0.000         0.000         0.000         0.000
+ NOR_ACA_       0.000         0.000         0.000         0.000
+ PEE_SOC_       0.000         0.000         0.000         0.000
+ FAC_SOC_       0.000         0.000         0.000         0.000
+
+
+           PSI
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_       0.500
+ NOR_ACA_       0.000         0.500
+ PEE_SOC_       0.000         0.000         0.500
+ FAC_SOC_       0.000         0.000         0.000         0.500
+
+
+     STARTING VALUES FOR LATENT CLASS 2
+
+
+           NU
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+                0.000         0.000         0.000         0.000
+
+
+           LAMBDA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_       1.000         0.000         0.000         0.000
+ NOR_ACA_       0.000         1.000         0.000         0.000
+ PEE_SOC_       0.000         0.000         1.000         0.000
+ FAC_SOC_       0.000         0.000         0.000         1.000
+
+
+           THETA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_       0.000
+ NOR_ACA_       0.000         0.000
+ PEE_SOC_       0.000         0.000         0.000
+ FAC_SOC_       0.000         0.000         0.000         0.000
+
+
+           ALPHA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+                0.000         0.000         0.000         0.000
+
+
+           BETA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_       0.000         0.000         0.000         0.000
+ NOR_ACA_       0.000         0.000         0.000         0.000
+ PEE_SOC_       0.000         0.000         0.000         0.000
+ FAC_SOC_       0.000         0.000         0.000         0.000
+
+
+           PSI
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_       0.500
+ NOR_ACA_       0.000         0.500
+ PEE_SOC_       0.000         0.000         0.500
+ FAC_SOC_       0.000         0.000         0.000         0.500
+
+
+     STARTING VALUES FOR LATENT CLASS 3
+
+
+           NU
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+                0.000         0.000         0.000         0.000
+
+
+           LAMBDA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_       1.000         0.000         0.000         0.000
+ NOR_ACA_       0.000         1.000         0.000         0.000
+ PEE_SOC_       0.000         0.000         1.000         0.000
+ FAC_SOC_       0.000         0.000         0.000         1.000
+
+
+           THETA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_       0.000
+ NOR_ACA_       0.000         0.000
+ PEE_SOC_       0.000         0.000         0.000
+ FAC_SOC_       0.000         0.000         0.000         0.000
+
+
+           ALPHA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+                0.000         0.000         0.000         0.000
+
+
+           BETA
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_       0.000         0.000         0.000         0.000
+ NOR_ACA_       0.000         0.000         0.000         0.000
+ PEE_SOC_       0.000         0.000         0.000         0.000
+ FAC_SOC_       0.000         0.000         0.000         0.000
+
+
+           PSI
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ STR_ACA_       0.500
+ NOR_ACA_       0.000         0.500
+ PEE_SOC_       0.000         0.000         0.500
+ FAC_SOC_       0.000         0.000         0.000         0.500
+
+
+     STARTING VALUES FOR LATENT CLASS INDICATOR MODEL PART
+
+
+           TAU(U) FOR LATENT CLASS 1
+              DRO_OUT$
+              ________
+                1.162
+
+
+           TAU(U) FOR LATENT CLASS 2
+              DRO_OUT$
+              ________
+                2.162
+
+
+           TAU(U) FOR LATENT CLASS 3
+              DRO_OUT$
+              ________
+                3.162
+
+
+     STARTING VALUES FOR LATENT CLASS REGRESSION MODEL PART
+
+
+           ALPHA(C)
+              C#1           C#2           C#3
+              ________      ________      ________
+                0.000         0.000         0.000
+
+
+           GAMMA(C)
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ C#1            0.000         0.000         0.000         0.000
+ C#2            0.000         0.000         0.000         0.000
+ C#3            0.000         0.000         0.000         0.000
+
+
+     STARTING VALUES FOR LATENT CLASS INDICATOR GROWTH MODEL PART
+
+
+           LAMBDA(F) FOR CLASS LATENT CLASS 1
+              DRO_OUT
+              ________
+ DRO_OUT        1.000
+
+
+           ALPHA(F) FOR LATENT CLASS 1
+              DRO_OUT
+              ________
+                0.000
+
+
+           GAMMA(F) FOR LATENT CLASS 1
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ DRO_OUT        0.000         0.000         0.000         0.000
+
+
+           LAMBDA(F) FOR CLASS LATENT CLASS 2
+              DRO_OUT
+              ________
+ DRO_OUT        1.000
+
+
+           ALPHA(F) FOR LATENT CLASS 2
+              DRO_OUT
+              ________
+                0.000
+
+
+           GAMMA(F) FOR LATENT CLASS 2
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ DRO_OUT        0.000         0.000         0.000         0.000
+
+
+           LAMBDA(F) FOR CLASS LATENT CLASS 3
+              DRO_OUT
+              ________
+ DRO_OUT        1.000
+
+
+           ALPHA(F) FOR LATENT CLASS 3
+              DRO_OUT
+              ________
+                0.000
+
+
+           GAMMA(F) FOR LATENT CLASS 3
+              STR_ACA_      NOR_ACA_      PEE_SOC_      FAC_SOC_
+              ________      ________      ________      ________
+ DRO_OUT        0.000         0.000         0.000         0.000
+
+Available post-processing tools
+
+  Latent class indicator odds ratios
+
+DIAGRAM INFORMATION
+
+  Mplus diagrams are currently not available for Mixture analysis.
+  No diagram output was produced.
+
+
+     Beginning Time:  15:22:37
+        Ending Time:  15:22:44
+       Elapsed Time:  00:00:07
+
+
+
+MUTHEN & MUTHEN
+3463 Stoner Ave.
+Los Angeles, CA  90066
+
+Tel: (310) 391-9971
+Fax: (310) 391-8971
+Web: www.StatModel.com
+Support: Support@StatModel.com
+
+Copyright (c) 1998-2023 Muthen & Muthen

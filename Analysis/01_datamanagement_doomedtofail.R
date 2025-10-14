@@ -176,7 +176,7 @@ ststa_help <- haven::read_dta("Data_SC5_D_18-0-0/SC5_StudyStates_D_18-0-0.dta") 
 
 # purpose: define people who are not enrolled in a teacher education program at 
 # measurement of integration and may therefore have changed their intended degree
-# they will be assigned NA on integration (see bewlow).
+# they will be assigned NA on integration (see below).
 
 
 # filter measures from StudyStates = definition of dropout:                     
@@ -270,10 +270,6 @@ ststa <- ststa %>%
   TRUE ~ as.numeric(NA)                                                         # note: adjust, if last wave != 18
   ))                                                                            
 
-# ~ 280 (nach (3) Merge Data), wirkt erstmal zu niedrig (ca. 5%)
-# bei anderen Autoren: 8 % observed (ganzes sample (imputiert))
-# vielleicht passt es aber schon (Anzunehmen wären ca. 15%)
-
 
 # filter measures from Basics:
 basic <- haven::read_sav("Data_SC5_D_18-0-0/SC5_Basics_D_18-0-0.sav") %>%       
@@ -343,8 +339,6 @@ data <- rquery::natural_join(data, basic,
                              by = "ID_t",
                              jointype = "LEFT") %>%
   
-                             # dplyr::filter(tx80121 == 1) %>%
-                             # oversample of tea edu
                              dplyr::filter(tg02001_ha <= 7) %>%
                              #intended degree = teacher education (wave 1)
                              dplyr::filter(tg24150_g1 != 3) %>%

@@ -1,4 +1,4 @@
-Title: regression_mi_model2
+Title: mi_model3
 
 data: 
   file is "S:\Temp\MPlus\Imp_Data_3class\Imp_Data_3class__IMP_LIST.txt";
@@ -13,7 +13,7 @@ variable:
           str_aca_int nor_aca_int pee_soc_int fac_soc_int 
           dro_int dro_out 
           bchw1 bchw2 bchw3 
-          ID_t ;
+          ID_t;
   
   usevariables = str_aca_int nor_aca_int pee_soc_int fac_soc_int 
                  dro_out 
@@ -24,42 +24,30 @@ variable:
 
   classes = c (3);
   training = bchw1-bchw3 (bch);
+  categorical = dro_out;
   
 define:
-  standardize str_aca_int nor_aca_int pee_soc_int fac_soc_int dro_out;
+  standardize str_aca_int nor_aca_int pee_soc_int fac_soc_int;
 
 analysis: 
   type = mixture;
   estimator = mlr;
+  starts = 0;
 
 model:
-
   %overall%
   dro_out on str_aca_int nor_aca_int pee_soc_int fac_soc_int;
 
   %c#1%
-  [str_aca_int];
-  [nor_aca_int];
-  [pee_soc_int];
-  [fac_soc_int];
   dro_out on str_aca_int nor_aca_int pee_soc_int fac_soc_int;
 
   %c#2%
-  [str_aca_int];
-  [nor_aca_int];
-  [pee_soc_int];
-  [fac_soc_int];
   dro_out on str_aca_int nor_aca_int pee_soc_int fac_soc_int;
 
   %c#3%
-  [str_aca_int];
-  [nor_aca_int];
-  [pee_soc_int];
-  [fac_soc_int];
   dro_out on str_aca_int nor_aca_int pee_soc_int fac_soc_int;
 
 output:
   residual;
   sampstat;
-  stdyx;
   cinterval;
