@@ -38,7 +38,7 @@ plot_data_con <- out$parameters$unstandardized %>%
 
 plot_data_cat <- out$parameters$probability.scale %>%
   dplyr::filter(category == 1) %>%
-  dplyr::mutate(est = plot_data_cat$est - out$sampstat$proportions.counts[1,3]) %>%
+  dplyr::mutate(est = est - out$sampstat$proportions.counts[1,3]) %>%
   dplyr::select(param, LatentClass, est)
 
 plot_data <- dplyr::bind_rows(plot_data_con, plot_data_cat)
