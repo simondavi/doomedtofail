@@ -119,7 +119,7 @@ plot_lca <- plot_lca +
     axis.ticks = element_line(color = "black")
   )
 
-# dotted lines and labels between  conceptual block
+# dotted lines and labels between conceptual blocks
 plot_lca <- plot_lca +
   geom_vline(xintercept = c(5.5, 11.3, 12.6), linetype = "dotted", color = "gray50", size = 0.8) +
   annotate("text", x = 3, y = 2, label = "Big Five", size = 4, family = "Arial") +
