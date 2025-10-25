@@ -11,13 +11,13 @@
 #           (4) Output
 
 ####  ------------------------- (1) Load Packages -------------------------  ####
-library(dplyr)
+library(tidyverse)
+library(RColorBrewer)
 library(MplusAutomation)
-library(ggplot2)
 
 
 ####  ----------------------- (2) Read MPlus Output ----------------------- ####
-out <- readModels("Analysis/Auxiliary_Models/mi_model2.out")
+out <- MplusAutomation::readModels("Analysis/Auxiliary_Models/mi_model2.out")
 
 means <- out$parameters$unstandardized %>%
   dplyr::filter(paramHeader == "Means",
@@ -43,12 +43,6 @@ means_ci <- means %>%
                                      FAC_SOC_IN = "Faculty social"),
                 Class = paste("Class", LatentClass))
 
-means_ci$param_label <- factor(means_ci$param_label,
-                               levels = c("Structural academic",
-                                          "Normative academic",
-                                          "Peer social",
-                                          "Faculty social"))
-
 means_ci$Class <- factor(means_ci$Class,
                          labels = c("1", "2", "3"))
 
@@ -70,10 +64,15 @@ plot_int <- ggplot(means_ci,
                 position = position_dodge(width = 0.4)) +
   geom_point(size = 4, 
              position = position_dodge(width = 0.4)) +
-  labs(x = "Integration", y = "Means (z-standardized)") + 
+  labs(x = "\n Integration", y = "Means (z-standardized) \n") + 
   scale_y_continuous(
-    limits = c(-0.75, 0.5)) 
-  
+    limits = c(-0.75, 0.5)) +
+  scale_x_discrete(limits=c("Structural academic",
+                            "Normative academic",
+                            "Peer social",
+                            "Faculty social"))
+
+# change theme and appearance  
 plot_int <- plot_int + 
   scale_color_brewer(palette = "Set2") +
   theme_minimal(base_size = 11, base_family = "Arial") +
@@ -99,4 +98,4 @@ plot_int <- plot_int +
 ####  ----------------------------- (4) Output ----------------------------- ####
 
 ggsave("Analysis/Auxiliary_Models/int_plot_3class.png", plot = plot_int, 
-       width = 10, height = 6, dpi = 300)
+       width = 8, height = 5, dpi = 600)
