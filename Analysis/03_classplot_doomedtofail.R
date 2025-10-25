@@ -122,7 +122,7 @@ plot_lca <- plot_lca +
 # dotted lines and labels between conceptual blocks
 plot_lca <- plot_lca +
   geom_vline(xintercept = c(5.5, 11.3, 12.6), linetype = "dotted", color = "gray50", size = 0.8) +
-  annotate("text", x = 3, y = 2, label = "Big Five", size = 4, family = "Arial") +
+  annotate("text", x = 3, y = 2, label = "Personality", size = 4, family = "Arial") +
   annotate("text", x = 8.5, y = 2, label = "Motivations for choosing \n teacher education", size = 4, family = "Arial") +
   annotate("text", x = 12, y = 2, label = "Academic \n aptitude", size = 4, family = "Arial") +
   annotate("text", x = 13.5, y = 2, label = "Background", size = 4, family = "Arial")
