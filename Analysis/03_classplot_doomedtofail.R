@@ -2,197 +2,131 @@
 #
 # Comment: 
 #
-# Input: lca_cprob_3class.dat
-#        data_doomedtofail.Rdata
+# Input: 3_class.out
 # Output: lca_plot_3class.png
 #
 # Contents: (1) Load Packages
-#           (2) Read MPlus Results
+#           (2) Read MPlus Output
 #           (3) Plot Data
 #           (4) Output
 
 ####  ------------------------- (1) Load Packages -------------------------  ####
 library(tidyverse)
 library(RColorBrewer)
-library(ggplot2)
+library(MplusAutomation)
 
 
-####  ----------------------- (2) Read MPlus Results ----------------------- ####
+####  ----------------------- (2) Read MPlus Output ----------------------- ####
+out <- MplusAutomation::readModels("Analysis/LCA/3_class.out")
 
-# MPlus import
-nclass <- 3
-data_lca <- read.table(paste0("Data_Gen/LCA_Results/lca_cprob_3class.dat"), na.strings = "9999.000", sep = "", header = FALSE,
-                       col.names = c("par_edu",
-                                     "big_ope", "big_con", "big_ext", "big_agr", "big_neu",
-                                     "int_edi", "int_ssi", "int_abi", "ext_uti", "ext_lod", "ext_soi",
-                                     "aca_abi",
-                                     "hisei",
-                                     "str_aca_int", "nor_aca_int", "pee_soc_int", "fac_soc_int", 
-                                     "dro_int", "dro_out",
-                                     paste0("cprob", 1:nclass),
-                                     "class",
-                                     "ID_t")) %>%
-            dplyr::select(ID_t, class) # only keep class-assignment
+plot_data_con <- out$parameters$unstandardized %>%
+  dplyr::filter(paramHeader == "Means",
+                param %in% c("BIG_OPE",
+                             "BIG_CON",
+                             "BIG_EXT",
+                             "BIG_AGR",
+                             "BIG_NEU",
+                             "INT_EDI",
+                             "INT_SSI",
+                             "INT_ABI",
+                             "EXT_UTI",
+                             "EXT_LOD",
+                             "EXT_SOI",
+                             "ACA_ABI",
+                             "HISEI" ))%>%
+  dplyr::select(param, LatentClass, est)
 
-# full dataset import (data_doomedtofail)
-load(file = "Data_Gen/data_doomedtofail.Rdata")
+plot_data_cat <- out$parameters$probability.scale %>%
+  dplyr::filter(category == 1) %>%
+  dplyr::mutate(est = plot_data_cat$est - out$sampstat$proportions.counts[1,3]) %>%
+  dplyr::select(param, LatentClass, est)
 
-data <- merge(data_lca, data_doomedtofail, by = c("ID_t"), all.x = FALSE) 
+plot_data <- dplyr::bind_rows(plot_data_con, plot_data_cat)
+
+plot_data <- plot_data %>%
+  dplyr::mutate(param_label = recode(param,
+                                     BIG_OPE = "Openness",
+                                     BIG_CON = "Conscientiousness",
+                                     BIG_EXT = "Extraversion",
+                                     BIG_AGR = "Agreeableness",
+                                     BIG_NEU = "Neuroticism",
+                                     INT_EDI = "Educational interest",
+                                     INT_SSI = "Subject specific interest",
+                                     INT_ABI = "Ability beliefs",
+                                     EXT_UTI = "Utility",
+                                     EXT_LOD = "Low difficulty",
+                                     EXT_SOI = "Social influences",
+                                     ACA_ABI = "School leaving grade",
+                                     PAR_EDU = "Parental education",
+                                     HISEI = "HISEI"),
+                Class = paste("Class", LatentClass))
+
+plot_data$Class <- factor(plot_data$Class,
+                         labels = c("1", "2", "3"))
 
 
 ####  --------------------------- (3) Plot Data --------------------------- ####
-
-plot_data <- data %>% 
-             pivot_longer(c(big_ope, big_con, big_ext, big_agr, big_neu,
-                            int_edi, int_ssi, int_abi, ext_uti, ext_lod, ext_soi,
-                            aca_abi, par_edu, hisei),
-                          names_to = "measure", 
-                          values_to = "value",
-                          values_transform = as.numeric)
-
-plot_data$measure <- as.factor(plot_data$measure)
-plot_data$measure <- recode(plot_data$measure,
-                            big_ope = "Openness",
-                            big_con = "Conscientiousness",
-                            big_ext = "Extraversion",
-                            big_agr = "Agreeableness",
-                            big_neu = "Neuroticism",
-                            int_edi = "Educational interest",
-                            int_ssi = "Subject specific interest",
-                            int_abi = "Ability beliefs",
-                            ext_uti = "Utility",
-                            ext_lod = "Low difficulty",
-                            ext_soi = "Social influences",
-                            aca_abi = "School leaving grade",
-                            par_edu = "Parental education",
-                            hisei = "HISEI")
-
-plot_data$var_type <- ifelse(plot_data$measure == "Parental education", "categorical",
-                      ifelse(plot_data$measure == "Openness" | 
-                               plot_data$measure == "Conscientiousness"|
-                               plot_data$measure == "Extraversion" | 
-                               plot_data$measure == "Agreeableness" | 
-                               plot_data$measure == "Neuroticism" |
-                               plot_data$measure == "Educational interest" |
-                               plot_data$measure == "Subject specific interest" |
-                               plot_data$measure == "Ability beliefs" |
-                               plot_data$measure == "Utility" |
-                               plot_data$measure == "Low difficulty" |
-                               plot_data$measure == "Social influences" |
-                               plot_data$measure == "School leaving grade" |
-                               plot_data$measure == "HISEI", "continuous", NA))
-
-plot_data_continuous <- plot_data %>%
-                        filter(var_type == "continuous") %>%
-                        group_by(measure) %>%
-                        mutate(z = scale(value)) %>%
-                        ungroup()
-
-plot_continuous <- ggplot(plot_data_continuous, aes(x = measure, y = z, 
-                                                    color = class,
-                                                    group = class)) +
-                   stat_summary(geom = "point", fun = mean, size = 3) +
-                   stat_summary(geom = "errorbar", fun.data = mean_se, width = 0.2) +
-                   stat_summary(fun = mean, geom = "line", linewidth  = 0.5) +
-                   guides(x =  guide_axis(angle = 45))
-
-prob_categorical <- par_edu_probs_mplus <- tribble(   # 1 = no parent tertiary education
-  ~class, ~par_edu, ~probability,
-  1,      1,      0.60,
-  2,      1,      0.89,
-  3,      1,      0.15,
-)
-
-df_prob_categorical <- as.data.frame(prob_categorical)
-
-df_prob_categorical$class <- as.factor(df_prob_categorical$class)
-levels(df_prob_categorical$class) <- c(1, 2, 3)
-
-plot_categorical <- ggplot(df_prob_categorical, aes(x = class, y = probability, 
-                                                    color = class, group = class)) +
-                    stat_summary(geom = "point", fun = mean, size = 3) +
-                    stat_summary(fun = mean) +
-                    guides(x =  guide_axis(angle = 45))
-
-df_plot_both1 <- as.data.frame(plot_data_continuous)
-df_plot_both1 <- df_plot_both1 %>% 
-                 dplyr::select(measure, class, z) %>% 
-                 dplyr::rename(value = z)
-
-df_plot_both2 <- df_prob_categorical %>%
-                 filter(par_edu == 1) %>%
-                 dplyr::mutate(measure = "Parental education") %>%
-                 dplyr::select(measure, class, value = probability)
-
-df_plot_both1$class <- as.factor(df_plot_both1$class)
-df_plot_both <- bind_rows(df_plot_both1, df_plot_both2)
-
-plot_both <- ggplot(df_plot_both, aes(x = measure, y = value, 
-                                      color  = class, group = class)) +
-             geom_hline(yintercept = 0, linetype = "longdash", 
-             color = "gray70", size = 0.5) +
-             stat_summary(geom = "point", fun = mean, size = 3) +
-             stat_summary(fun = mean, geom = "line", linewidth = 1) +
-            # stat_summary(geom = "errorbar", fun.data = mean_se, width = 0.2) +
-             
-             guides(x =  guide_axis(angle = 45)) +
-             scale_x_discrete(limits=c("Openness",
-                                       "Conscientiousness",
-                                       "Extraversion",
-                                       "Agreeableness",
-                                       "Neuroticism",
-                                       "Educational interest",
-                                       "Subject specific interest",
-                                       "Ability beliefs",
-                                       "Utility",
-                                       "Low difficulty",
-                                       "Social influences",
-                                       "School leaving grade",
-                                       "HISEI",
-                                       "Parental education")) +
-  
-             expand_limits(y = c(-1, 1)) +
-             scale_y_continuous(
-               name = "Class mean (z-standardized) \n",
-               sec.axis = sec_axis(trans = ~ . *1,
-                                   name = "Proportion of  \n first-generation students\n",
-                                   breaks = seq(0, 1, by = 0.25),)) +
-             xlab("")
+plot_lca <- ggplot(plot_data,
+                   aes(x = param_label, y = est,
+                       color = Class,
+                       group = Class)) +
+  geom_hline(yintercept = 0, linetype = "solid", 
+             color = "gray80", size = 0.4) +
+  geom_line(linewidth = 0.5) +
+  geom_point(size = 4) +
+  scale_y_continuous(limits = c(-1, 2),
+                     name = "Class mean (z-standardized) \n",
+                     sec.axis = sec_axis(transform = ~ . * 1,
+                                         name = "Deviation from total sample proportion \n of first-generation students \n",
+                                         breaks = seq(-0.5, 0.5, by = 0.25),
+                                         labels = scales::percent_format(accuracy = 1))) +
+  xlab("") +
+  guides(x =  guide_axis(angle = 45)) +
+  scale_x_discrete(limits=c("Openness",
+                            "Conscientiousness",
+                            "Extraversion",
+                            "Agreeableness",
+                            "Neuroticism",
+                            "Educational interest",
+                            "Subject specific interest",
+                            "Ability beliefs",
+                            "Utility",
+                            "Low difficulty",
+                            "Social influences",
+                            "School leaving grade",
+                            "HISEI",
+                            "Parental education"))
 
 # change theme and appearance
-
-plot_both <- plot_both + 
+plot_lca <- plot_lca + 
   scale_color_brewer(palette = "Set2") +
-  labs(color = "Class") +
   theme_minimal(base_size = 11, base_family = "Arial") +
   theme(
     legend.position = "top",
     legend.title = element_text(face = "bold", size = 11, family = "Arial"),
     legend.text = element_text(size = 11, family = "Arial"),
-    axis.title.y.left = element_text(margin = margin(r = 10), size = 11, family = "Arial"),
-    axis.title.y.right = element_text(margin = margin(l = 10), size = 11, family = "Arial"),
-    axis.text.x = element_text(angle = 45, hjust = 1, size = 11, family = "Arial"),
-    axis.text.y = element_text(size = 11, family = "Arial"),
-    panel.grid.major = element_line(color = "gray80"),
-    panel.grid.minor = element_blank()
+    axis.title.y = element_text(size = 11, family = "Arial", 
+                                margin = margin(r = 10)),
+    axis.text.y = element_text(size = 11, family = "Arial", colour = "black"),
+    axis.title.x = element_text(size = 11, family = "Arial", 
+                                margin = margin(b = 10)),
+    axis.text.x = element_text(size = 11, family = "Arial", colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "black", 
+                             linewidth = 0.7, 
+                             linetype = "solid"),
+    axis.ticks = element_line(color = "black")
   )
 
-
 # dotted lines and labels between  conceptual block
-plot_both <- plot_both +
-  geom_vline(xintercept = c(5.5, 8.5, 11.5, 12.5), linetype = "dotted", color = "gray50", size = 0.8) +
+plot_lca <- plot_lca +
+  geom_vline(xintercept = c(5.5, 11.3, 12.6), linetype = "dotted", color = "gray50", size = 0.8) +
   annotate("text", x = 3, y = 2, label = "Big Five", size = 4, family = "Arial") +
-  annotate("text", x = 7, y = 2, label = "Intrinsic motives", size = 4, family = "Arial") +
-  annotate("text", x = 10, y = 2, label = "Extrinsic motives", size = 4, family = "Arial") +
+  annotate("text", x = 8.5, y = 2, label = "Motivations for choosing \n teacher education", size = 4, family = "Arial") +
   annotate("text", x = 12, y = 2, label = "Academic \n aptitude", size = 4, family = "Arial") +
-  annotate("text", x = 13.5, y = 2, label = "Background", size = 4, family = "Arial") +
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        axis.line = element_line(colour = "black", 
-                                 linewidth = 0.7, 
-                                 linetype = "solid"),
-        axis.ticks = element_line(color = "black"))
+  annotate("text", x = 13.5, y = 2, label = "Background", size = 4, family = "Arial")
 
 ####  ----------------------------- (4) Output ----------------------------- ####
 
-ggsave("Analysis/LCA/lca_plot_3class.png", plot = plot_both, width = 10, height = 6, dpi = 300)
+ggsave("Analysis/LCA/lca_plot_3class.png", plot = plot_lca, width = 10, height = 6, dpi = 600)
