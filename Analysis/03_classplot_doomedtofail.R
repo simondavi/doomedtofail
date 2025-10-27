@@ -57,7 +57,7 @@ plot_data <- plot_data %>%
                                      EXT_LOD = "Low difficulty",
                                      EXT_SOI = "Social influences",
                                      ACA_ABI = "School leaving grade",
-                                     PAR_EDU = "Parental education",
+                                     PAR_EDU = "Parental education*",
                                      HISEI = "HISEI"),
                 Class = paste("Class", LatentClass))
 
@@ -69,15 +69,26 @@ plot_data$Class <- factor(plot_data$Class,
 plot_lca <- ggplot(plot_data,
                    aes(x = param_label, y = est,
                        color = Class,
-                       group = Class)) +
+                       group = Class))
+
+# dotted lines and labels between conceptual blocks
+plot_lca <- plot_lca +
+  geom_vline(xintercept = c(5.5, 11.3, 12.6), linetype = "dotted", color = "gray50", size = 0.8) +
+  annotate("text", x = 3, y = 2, label = "Personality", size = 4, family = "Arial") +
+  annotate("text", x = 8.5, y = 2, label = "Motivations for choosing\nteacher education", size = 4, family = "Arial") +
+  annotate("text", x = 12, y = 2, label = "Academic \naptitude ", size = 4, family = "Arial") +
+  annotate("text", x = 13.5, y = 2, label = "Background", size = 4, family = "Arial")
+  
+# actual plot
+plot_lca <- plot_lca +
   geom_hline(yintercept = 0, linetype = "solid", 
              color = "gray80", size = 0.4) +
   geom_line(linewidth = 0.5) +
   geom_point(size = 4) +
   scale_y_continuous(limits = c(-1, 2),
-                     name = "Class mean (z-standardized) \n",
+                     name = "Class mean (z-standardized)\n",
                      sec.axis = sec_axis(transform = ~ . * 1,
-                                         name = "Deviation from total sample proportion \n of first-generation students \n",
+                                         name = "Deviation from total sample proportion\nof first-generation students\n",
                                          breaks = seq(-0.5, 0.5, by = 0.25),
                                          labels = scales::percent_format(accuracy = 1))) +
   xlab("") +
@@ -95,7 +106,7 @@ plot_lca <- ggplot(plot_data,
                             "Social influences",
                             "School leaving grade",
                             "HISEI",
-                            "Parental education"))
+                            "Parental education*"))
 
 # change theme and appearance
 plot_lca <- plot_lca + 
@@ -119,13 +130,6 @@ plot_lca <- plot_lca +
     axis.ticks = element_line(color = "black")
   )
 
-# dotted lines and labels between conceptual blocks
-plot_lca <- plot_lca +
-  geom_vline(xintercept = c(5.5, 11.3, 12.6), linetype = "dotted", color = "gray50", size = 0.8) +
-  annotate("text", x = 3, y = 2, label = "Personality", size = 4, family = "Arial") +
-  annotate("text", x = 8.5, y = 2, label = "Motivations for choosing \n teacher education", size = 4, family = "Arial") +
-  annotate("text", x = 12, y = 2, label = "Academic \n aptitude", size = 4, family = "Arial") +
-  annotate("text", x = 13.5, y = 2, label = "Background", size = 4, family = "Arial")
 
 ####  ----------------------------- (4) Output ----------------------------- ####
 
