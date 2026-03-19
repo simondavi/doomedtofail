@@ -11,6 +11,7 @@
 ####  ------------------------- (1) Load Packages -------------------------  ####
 library(mice)
 library(miceadds)
+library(tidyverse)
 
 ####  --------------------------- (2) Imputation --------------------------- ####
 set.seed(123)
@@ -31,7 +32,8 @@ data_imp <- read.table(paste0("Data_Gen/LCA_Results/lca_bch_3class.dat"), na.str
 str(data_imp)
 
 data_imp <- data_imp %>%
-  dplyr::mutate(dro_out = as.factor(dro_out))
+  dplyr::mutate(dro_out = as.factor(dro_out)) %>%
+  dplyr::mutate(par_edu = as.factor(par_edu))
 
 # predictor matrix
 predictormatrix <- mice::quickpred(data_imp, 
@@ -45,21 +47,26 @@ imp_gen <- mice(data = data_imp,
                 maxit = 5,            
                 diagnostics = TRUE)
 
+# check methods
+imp_gen$method
+
+# check imputation
+plot(imp_gen)
+
+# dropout: original data set
+prop.table(table(data_imp$dro_out, useNA = "no"))
+# dropout: imputed data set
+prop.table(table(complete(imp_gen, 1)$dro_out))
+
+# relationship par_edu - dro_out: original data set
+table(data_imp$par_edu, data_imp$dro_out)
+# relationship par_edu - dro_out: imputed data set
+table(
+  complete(imp_gen, 1)$par_edu, 
+  complete(imp_gen, 1)$dro_out)
+
 # save imputed data
 miceadds::write.datlist(
   datlist = imp_gen,
   name = "Imp_Data_3class",
   Mplus = TRUE)
-
-
-# evaluate dropout extend in imputed data
-
-# extract the imputed datasets into a list of data frames
-imp_dat_eval <- list() 
-for (i in 1:imp_gen$m) imp_dat_eval[[i]] <- complete(imp_gen, action = i) 
-
-# bring your imputed data in long format for estimating dropout
-imp_dat_eval_long <- mice::complete(imp_gen, "long", inc = FALSE) 
-do_imp <- (100/nrow(imp_dat_eval_long))*(as.data.frame(table(imp_dat_eval_long$dro_out))[2,2])
-
-# ~11%
