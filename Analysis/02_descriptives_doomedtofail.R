@@ -23,6 +23,8 @@ library(finalfit)
 # full dataset import (data_doomedtofail)
 load(file = "Data_Gen/data_doomedtofail.Rdata")
 
+data <- data_doomedtofail
+
 #### ------------------------- (3) Normality test  ------------------------- ####
 # Normality test 
 # Mardia test (skewness and kurtosis) for multivariate normality 
@@ -85,3 +87,9 @@ data_des <- data_cor %>%
     dro_out = as.factor(dro_out))
 
 finalfit::ff_glimpse(data_des, digits = 2)
+
+# without NA as category
+data_omitna <- data_des %>%
+  filter(!is.na(par_edu), !is.na(dro_out))
+
+finalfit::ff_glimpse(data_omitna, digits = 2)
