@@ -1,6 +1,6 @@
 Mplus VERSION 8.10
 MUTHEN & MUTHEN
-07/24/2025  10:32 AM
+07/18/2026   3:49 PM
 
 INPUT INSTRUCTIONS
 
@@ -94,10 +94,9 @@ INPUT INSTRUCTIONS
     sampstat;
 
   savedata:
-    save =  cprob;
+    save =  bchweights;
     missflag = 9999;
-    file = lca_cprob_3class.dat;
-
+    file = lca_bch_3class.dat;
 
 
 
@@ -452,6 +451,8 @@ Final stage loglikelihood values at local maxima, seeds, and initial stage start
           -72780.130  61587            400
           -72780.130  488125           368
           -72780.130  264081           186
+          -72780.130  930872           277
+          -72780.130  741888           138
           -72780.130  629320           222
           -72780.130  360419           356
           -72780.130  813779           92
@@ -491,7 +492,7 @@ Final stage loglikelihood values at local maxima, seeds, and initial stage start
           -72780.130  794236           127
           -72780.130  512836           289
 
-57 perturbed starting value run(s) did not converge or were rejected in the third stage.
+55 perturbed starting value run(s) did not converge or were rejected in the third stage.
 
 
 
@@ -1202,7 +1203,7 @@ SAVEDATA INFORMATION
 
 
   Save file
-    lca_cprob_3class.dat
+    lca_bch_3class.dat
 
   Order and format of variables
 
@@ -1226,14 +1227,13 @@ SAVEDATA INFORMATION
     FAC_SOC_       F10.3
     DRO_INT        F10.3
     DRO_OUT        F10.3
-    CPROB1         F10.3
-    CPROB2         F10.3
-    CPROB3         F10.3
-    C              F10.3
+    BCHW1          F10.3
+    BCHW2          F10.3
+    BCHW3          F10.3
     ID_T           I8
 
   Save file format
-    24F10.3 I8
+    23F10.3 I8
 
   Save file record length    10000
 
@@ -1246,9 +1246,9 @@ DIAGRAM INFORMATION
   No diagram output was produced.
 
 
-     Beginning Time:  10:32:55
-        Ending Time:  10:35:16
-       Elapsed Time:  00:02:21
+     Beginning Time:  15:49:46
+        Ending Time:  15:53:11
+       Elapsed Time:  00:03:25
 
 
 

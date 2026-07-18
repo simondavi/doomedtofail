@@ -38,7 +38,7 @@ plot_data_con <- out$parameters$unstandardized %>%
 
 plot_data_cat <- out$parameters$probability.scale %>%
   dplyr::filter(category == 1) %>%
-  dplyr::mutate(est = est - out$sampstat$proportions.counts[1,3]) %>%
+  dplyr::mutate(est = -(est - out$sampstat$proportions.counts[1,3])) %>%
   dplyr::select(param, LatentClass, est)
 
 plot_data <- dplyr::bind_rows(plot_data_con, plot_data_cat)
@@ -88,7 +88,7 @@ plot_lca <- plot_lca +
   scale_y_continuous(limits = c(-1, 2),
                      name = "Class mean (z-standardized)\n",
                      sec.axis = sec_axis(transform = ~ . * 1,
-                                         name = "Deviation from total sample proportion\nof first-generation students\n",
+                                         name = "",
                                          breaks = seq(-0.5, 0.5, by = 0.25),
                                          labels = scales::percent_format(accuracy = 1))) +
   xlab("") +

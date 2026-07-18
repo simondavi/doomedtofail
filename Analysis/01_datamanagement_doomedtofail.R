@@ -10,7 +10,7 @@
 #        SC5_StudyStates_D_18-0-0.dta
 #        SC5_Basics_D_18-0-0.sav
 # Output: data_lca_doomedtofail.csv
-#         data_doomedtofail.Rda
+#         data_doomedtofail.Rdata
 #
 # Contents: (1) Load Packages
 #           (2) Read Data and Data Management
