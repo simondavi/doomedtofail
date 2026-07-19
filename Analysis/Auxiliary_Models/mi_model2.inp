@@ -40,18 +40,30 @@ model:
   [nor_aca_int] (nor1);
   [pee_soc_int] (pee1);
   [fac_soc_int] (fac1);
+  
+  str_aca_int WITH nor_aca_int pee_soc_int fac_soc_int;
+  nor_aca_int WITH pee_soc_int fac_soc_int;
+  pee_soc_int WITH fac_soc_int;
 
   %c#2%
   [str_aca_int] (str2);
   [nor_aca_int] (nor2);
   [pee_soc_int] (pee2);
   [fac_soc_int] (fac2);
+  
+  str_aca_int WITH nor_aca_int pee_soc_int fac_soc_int;
+  nor_aca_int WITH pee_soc_int fac_soc_int;
+  pee_soc_int WITH fac_soc_int;
 
   %c#3%
   [str_aca_int] (str3);
   [nor_aca_int] (nor3);
   [pee_soc_int] (pee3);
   [fac_soc_int] (fac3);
+  
+  str_aca_int WITH nor_aca_int pee_soc_int fac_soc_int;
+  nor_aca_int WITH pee_soc_int fac_soc_int;
+  pee_soc_int WITH fac_soc_int;
   
 model constraint:
   new (
