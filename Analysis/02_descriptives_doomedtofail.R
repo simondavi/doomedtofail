@@ -8,8 +8,8 @@
 #
 # Contents: (1) Load Packages
 #           (2) Read Data
-#           (3) Normality test 
-#           (4) Correlation table
+#           (3) Normality Test 
+#           (4) Correlation Table
 
 ####  ------------------------- (1) Load Packages -------------------------  ####
 library(tidyverse)
@@ -25,9 +25,10 @@ load(file = "Data_Gen/data_doomedtofail.Rdata")
 
 data <- data_doomedtofail
 
-#### ------------------------- (3) Normality test  ------------------------- ####
-# Normality test 
-# Mardia test (skewness and kurtosis) for multivariate normality 
+
+#### ------------------------- (3) Normality Test  ------------------------- ####
+# normality test 
+# mardia test (skewness and kurtosis) for multivariate normality 
 data_mardia <- data %>%
   dplyr::select(-par_edu, -dro_out) %>%
   dplyr::select(big_ope, big_con, big_ext, big_agr, big_neu,
@@ -53,7 +54,7 @@ ggplot(data_qq, aes(sample = value)) +
   labs(title = "Q-Q-Plot per variable")
 
 
-#### ------------------------ (4) Correlation table ------------------------ ####
+#### ------------------------ (4) Correlation Table ------------------------ ####
 
 data_cor <- data %>%
   dplyr::mutate(
@@ -80,7 +81,7 @@ cor_tab <- corrtable::correlation_matrix(
 
 cor_tab <- cor_tab[,18:22]
 
-# Descriptive statistics
+# descriptive statistics
 data_des <- data_cor %>%
   dplyr::mutate(
     par_edu = as.factor(par_edu),

@@ -236,12 +236,12 @@ tg51000_df <- cawi_do %>%
 ststa <- merge(ststa, tg51004_df, by = c("ID_t"), all.x = FALSE)
 ststa <- merge(ststa, tg51000_df, by = c("ID_t"), all.x = FALSE)
 
-# Do people even have participated in the last survey (here wave 18)?
+# do people even have participated in the last survey (here wave 18)?
 part_stat <- haven::read_sav("Data_SC5_D_18-0-0/SC5_CohortProfile_D_18-0-0.sav") %>%
              dplyr::select(ID_t, wave, tx80220)  %>%  # participation/drop-out status
              dplyr::filter(wave == 18) 
 
-# Which wave was their last state?
+# which wave was their last state?
 las_wav_df <- ststa_tmp %>%   
               dplyr::arrange(ID_t, tx24001) %>%                                 
               dplyr::group_by(ID_t) %>%                                         
@@ -292,8 +292,8 @@ data <- rquery::natural_join(cohort, cati_w1,
                              by = "ID_t",
                              jointype = "LEFT")
 
-# View(cohort %>% dplyr::filter(ID_t == "7036532"))
-# View(data %>% dplyr::filter(ID_t == "7036532"))
+# view(cohort %>% dplyr::filter(ID_t == "7036532"))
+# view(data %>% dplyr::filter(ID_t == "7036532"))
 
 data <- rquery::natural_join(data, cati_b5,
                              by = "ID_t",
@@ -303,9 +303,9 @@ data <- rquery::natural_join(data, cati_b5_w10,  # supply Big 5
                              by = "ID_t",        # with answers from wave 10
                              jointype = "LEFT") 
 
-# View(cati_b5 %>% dplyr::filter(ID_t == "7031531"))
-# View(cati_b5_w10 %>% dplyr::filter(ID_t == "7031531"))
-# View(data %>% dplyr::filter(ID_t == "7031531")) 
+# view(cati_b5 %>% dplyr::filter(ID_t == "7031531"))
+# view(cati_b5_w10 %>% dplyr::filter(ID_t == "7031531"))
+# view(data %>% dplyr::filter(ID_t == "7031531")) 
 
 data <- rquery::natural_join(data, cawi_w8,
                              by = "ID_t",
