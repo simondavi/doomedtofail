@@ -77,6 +77,10 @@ plot_int <- plot_int +
   scale_color_brewer(palette = "Set2") +
   theme_minimal(base_size = 11, base_family = "Arial") +
     theme(
+      plot.background = element_rect(fill = "white", colour = NA),
+      panel.background = element_rect(fill = "white", colour = NA),
+      legend.background = element_rect(fill = "white", colour = NA),
+      
       legend.position = "top",
       legend.title = element_text(face = "bold", size = 11, family = "Arial"),
       legend.text = element_text(size = 11, family = "Arial"),
@@ -98,4 +102,4 @@ plot_int <- plot_int +
 ####  ----------------------------- (4) Output ----------------------------- ####
 
 ggsave("Analysis/Auxiliary_Models/int_plot_3class.png", plot = plot_int, 
-       width = 8, height = 5, dpi = 600)
+       width = 8, height = 5, dpi = 600, bg = "white")

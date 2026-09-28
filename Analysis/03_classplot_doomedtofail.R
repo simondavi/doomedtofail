@@ -113,6 +113,10 @@ plot_lca <- plot_lca +
   scale_color_brewer(palette = "Set2") +
   theme_minimal(base_size = 11, base_family = "Arial") +
   theme(
+    plot.background = element_rect(fill = "white", colour = NA),
+    panel.background = element_rect(fill = "white", colour = NA),
+    legend.background = element_rect(fill = "white", colour = NA),
+    
     legend.position = "top",
     legend.title = element_text(face = "bold", size = 11, family = "Arial"),
     legend.text = element_text(size = 11, family = "Arial"),
@@ -133,4 +137,4 @@ plot_lca <- plot_lca +
 
 ####  ----------------------------- (4) Output ----------------------------- ####
 
-ggsave("Analysis/LCA/lca_plot_3class.png", plot = plot_lca, width = 10, height = 6, dpi = 600)
+ggsave("Analysis/LCA/lca_plot_3class.png", plot = plot_lca, width = 10, height = 6, dpi = 600, bg = "white")
